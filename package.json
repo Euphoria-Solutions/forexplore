@@ -7,6 +7,11 @@
     "test": "echo \"Error: no test specified 8\" && exit 1",
     "commit": "husky && cz"
   },
+  "husky": {
+    "hooks": {
+      "prepare-commit-msg": "exec < /dev/tty && npx cz --hook || true"
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
