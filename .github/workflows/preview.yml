@@ -27,7 +27,7 @@ jobs:
       - name: Deploy Project and Get Preview URL
         id: deploy
         run: |
-          URL=$(vercel --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_TEAM_ID }} | grep -Po '(?<=https://)[^ >]+(?=.vercel.app)')
+          URL=$(vercel --token ${{ secrets.VERCEL_TOKEN }} | grep -Po '(?<=https://)[^ >]+(?=.vercel.app)')
           echo "::set-output name=preview_url::https://$URL"
         working-directory: projects/front
 
