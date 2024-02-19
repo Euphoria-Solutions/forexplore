@@ -1,0 +1,165 @@
+{
+  "root": true,
+  "ignorePatterns": ["!**/*", ".next/**/*", "*.config.js"],
+  "extends": ["next", "plugin:@next/next/recommended"],
+  "plugins": [
+    "eslint-plugin-unicorn",
+    "no-secrets",
+    "promise",
+    "@typescript-eslint",
+    "spellcheck",
+    "react"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect" // or specify your React version like "16.8"
+    }
+  },
+  "overrides": [
+    {
+      "files": ["*.jsx", "*.tsx"],
+      "rules": {
+        "unicorn/prefer-module": "off",
+        "unicorn/filename-case": [
+          "error",
+          {
+            "case": "kebabCase"
+          }
+        ],
+        "react/function-component-definition": [
+          "error",
+          {
+            "namedComponents": "arrow-function",
+            "unnamedComponents": "arrow-function"
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "*.js",
+        "*.ts",
+        "**/pages/**/*.tsx",
+        "**/pages/**/*.jsx",
+        "**/app/**/page.tsx",
+        "**/app/**/layout.tsx",
+        "**/app/**/template.tsx",
+        "**/app/**/loading.tsx",
+        "**/app/**/error.tsx",
+        "**/app/**/global-error.tsx",
+        "**/app/**/not-found.tsx",
+        "mdx-components.tsx"
+      ],
+      "rules": {
+        "unicorn/prefer-module": "off",
+        "unicorn/filename-case": [
+          "error",
+          {
+            "case": "kebabCase"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["use[A-Z]*.js", "use[A-Z]*.ts"],
+      "rules": {
+        "unicorn/prefer-module": "off",
+        "unicorn/filename-case": [
+          "error",
+          {
+            "case": "camelCase"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.native.tsx"],
+      "rules": {
+        "unicorn/filename-case": [
+          "off",
+          {
+            "case": "pascalCase"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.cy.ts", "*.cy.tsx", "*.spec.ts", "*.spec.tsx"],
+      "rules": {
+        "unicorn/filename-case": [
+          "off",
+          {
+            "case": "kebabCase"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "camelcase": [
+          "error",
+          {
+            "properties": "always"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "next/core-web-vitals"
+      ],
+      "rules": {
+        "no-unused-vars": [
+          "error",
+          {
+            "vars": "all",
+            "args": "after-used",
+            "argsIgnorePattern": "^_",
+            "ignoreRestSiblings": true
+          }
+        ],
+        "no-magic-numbers": [
+          "off",
+          {
+            "ignore": [],
+            "ignoreArrayIndexes": true,
+            "enforceConst": true,
+            "detectObjects": false
+          }
+        ],
+        "no-secrets/no-secrets": "error",
+        "max-lines": ["error", { "max": 160 }],
+        "complexity": ["error", { "max": 5 }],
+        "max-nested-callbacks": ["error", 3],
+        "max-depth": ["error", 4]
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["eslint:recommended"],
+      "rules": {}
+    },
+    {
+      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
+      "env": {
+        "jest": true
+      },
+      "rules": {}
+    },
+    {
+      "files": "*.json",
+      "parser": "jsonc-eslint-parser",
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
+      "extends": ["plugin:prettier/recommended"],
+      "rules": {
+        "prettier/prettier": ["error"]
+      }
+    }
+  ]
+}

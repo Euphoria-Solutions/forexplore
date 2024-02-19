@@ -1,0 +1,5 @@
+.vercel
+src/generated
+node_modules
+.next
+.env
