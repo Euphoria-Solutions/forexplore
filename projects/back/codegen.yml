@@ -1,0 +1,6 @@
+schema: './src/graphql/types.ts' # GraphQL types (input file)
+generates:
+  ./src/generated/generated.ts: # Typescript types (output generated file)
+    plugins: # List of needed plugins (installed as devDeps)
+      - typescript
+      - typescript-resolvers
