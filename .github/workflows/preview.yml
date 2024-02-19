@@ -33,6 +33,6 @@ jobs:
 
       - name: Comment Preview URL on PR
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body "Preview URL: ${{ steps.deploy.outputs.preview_url }}"
+          gh pr comment ${{ github.event.pull_request.number }} --body "Preview URL: ${{ steps.deploy.outputs.preview_url }}.vercel.app"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
