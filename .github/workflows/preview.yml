@@ -17,20 +17,5 @@ jobs:
       - name: Create generated files
         run: cd projects/front && npm run generate
 
-      - name: Link Vercel Project
-        run: cd projects/front && vercel link --yes --token ${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Pull Vercel Project
-        run: cd projects/front && vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Build Project
-        run: cd projects/front && vercel build --token ${{ secrets.VERCEL_TOKEN }}
-
       - name: Deploy Project
-        run: cd projects/front && vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
+        run: cd projects/front && vercel --token ${{ secrets.VERCEL_TOKEN }}
