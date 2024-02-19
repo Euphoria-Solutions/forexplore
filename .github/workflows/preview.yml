@@ -12,19 +12,19 @@ jobs:
         uses: actions/checkout@v2
  
       - name: Install Vercel CLI
-        run: npm install --global vercel
+        run: cd projects/front && npm install --global vercel
 
       - name: Link Vercel Project
-        run: vercel link --confirm --token ${{ secrets.VERCEL_TOKEN }}
+        run: cd projects/front && vercel link --confirm --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Pull Vercel Project
-        run: vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN }}
+        run: cd projects/front && vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project
-        run: vercel build --token ${{ secrets.VERCEL_TOKEN }}
+        run: cd projects/front && vercel build --token ${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy Project
-        run: vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
+        run: cd projects/front && vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
