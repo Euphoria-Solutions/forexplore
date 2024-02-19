@@ -10,12 +10,29 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
- 
+
       - name: Install Vercel CLI
         run: cd projects/front && npm install --global vercel
 
       - name: Create generated files
         run: cd projects/front && npm run generate
 
-      - name: Deploy Project
-        run: cd projects/front && vercel --token ${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Project and Get Preview URL
+        id: deploy
+        run: |
+          DEPLOY_URL=$(vercel --token ${{ secrets.VERCEL_TOKEN }} | grep -Po '(?<=https://)[^ >]+(?=.vercel.app)')
+          echo "::set-output name=preview_url::https://$DEPLOY_URL"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
+
+      - name: Comment Preview URL on PR
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "Preview URL: ${{ steps.deploy.outputs.preview_url }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
