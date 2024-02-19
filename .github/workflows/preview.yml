@@ -8,15 +8,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+ 
+      - name: Install Vercel CLI
+        run: npm install --global vercel
 
-    - name: Install dependencies
-      run: cd projects/front && npm install
+      - name: Link Vercel Project
+        run: vercel link --confirm --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-    - name: Vercel Deployment
-      run: cd projects/front && npx vercel --token ${{ secrets.VERCEL_TOKEN }} --orgId ${{ secrets.VERCEL_ORG_ID }} --projectId ${{ secrets.VERCEL_PROJECT_ID }}
-      env:
-        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Pull Vercel Project
+        run: vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project
+        run: vercel build --token ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project
+        run: vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
