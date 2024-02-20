@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified 8\" && exit 1",
-    "commit": "husky && cz"
+    "commit": "npx husky && cz"
   },
   "keywords": [],
   "author": "",

@@ -3,7 +3,7 @@ import { Box, Text } from '@/components';
 const Page = () => {
   return (
     <Box>
-      <Text>AA</Text>
+      <Text>bb</Text>
     </Box>
   );
 };
