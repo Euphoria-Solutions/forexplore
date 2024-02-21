@@ -1,4 +1,4 @@
-.vercel
+# .vercel
 src/generated
 node_modules
 .next

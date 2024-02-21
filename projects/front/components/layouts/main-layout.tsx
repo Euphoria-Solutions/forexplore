@@ -13,9 +13,14 @@ interface LayoutType {
   children?: ReactNode;
 }
 
+const uri =
+  process.env[
+    `BACKEND_API_${process.env.CURRENT_ENV == 'PROD' ? 'PROD' : 'DEV'}`
+  ];
+
 const httpLink = createHttpLink({
   // uri: "http://localhost:3001/api/graphql",
-  uri: 'https://tooto-support-backend-six.vercel.app/api/graphql',
+  uri: uri,
   fetch,
 });
 

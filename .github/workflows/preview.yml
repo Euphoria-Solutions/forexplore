@@ -23,13 +23,13 @@ jobs:
         run: cd projects/front
 
       - name: Create generated files
-        run: npm run generate
+        run: npm install && npm run generate
         working-directory: projects/front
 
       - name: Deploy Project and Get Preview URL
         id: deploy
         run: |
-          URL=$(vercel --token ${{ secrets.VERCEL_TOKEN }} | grep -Po '(?<=https://)[^ >]+(?=.vercel.app)')
+          URL=$(npx dotenv -v VERCEL_ORG_ID=QYSSG1MAh2kwkGim8YI6eYOQ -v VERCEL_PROJECT_ID=prj_edaLxeuRvvffvvh2NkBL6AiW5AK5 -- bash -c 'vercel --token=${{ secrets.VERCEL_TOKEN }}' | grep -Po '(?<=https://)[^ >]+(?=.vercel.app)')
           echo "::set-output name=preview_url::https://$URL"
         working-directory: projects/front
 
