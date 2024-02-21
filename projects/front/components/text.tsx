@@ -1,6 +1,8 @@
+import { ReactNode } from 'react';
+
 interface TextInput {
   className?: string;
-  children?: string | number;
+  children?: ReactNode;
 }
 
 export const Text = ({ className = 'aa', children }: TextInput) => {

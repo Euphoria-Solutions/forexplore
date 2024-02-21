@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "yarn generate && next dev",
+    "dev": "npm run generate && next dev",
+    "dev:prod": "CURRENT_ENV=PROD npm run dev",
     "generate": "npx tailwindcss -c tailwind.config.ts -o styles/output.css",
     "format": "prettier --write .",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy:dev": "npx dotenv -v VERCEL_ORG_ID=QYSSG1MAh2kwkGim8YI6eYOQ -v VERCEL_PROJECT_ID=prj_edaLxeuRvvffvvh2NkBL6AiW5AK5 -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'",
+    "deploy:prod": "npx dotenv -v VERCEL_ORG_ID=QYSSG1MAh2kwkGim8YI6eYOQ -v VERCEL_PROJECT_ID=prj_oC72kedZSWxlEQpTzLPSFRKF8sxw -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'"
   },
   "dependencies": {
     "@apollo/client": "^3.9.5",
@@ -24,6 +27,7 @@
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "autoprefixer": "^10.0.1",
+    "dotenv-cli": "^7.3.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
     "eslint-config-prettier": "^9.1.0",

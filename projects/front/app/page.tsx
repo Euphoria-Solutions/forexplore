@@ -3,7 +3,10 @@ import { Box, Text } from '@/components';
 const Page = () => {
   return (
     <Box>
-      <Text>AA</Text>
+      <Text>
+        FRONTEND ENVIRONMENT:{' '}
+        {process.env.CURRENT_ENV == 'PROD' ? 'PROD' : 'DEV'}
+      </Text>
     </Box>
   );
 };

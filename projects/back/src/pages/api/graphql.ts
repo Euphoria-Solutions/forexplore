@@ -28,13 +28,18 @@ export const config = {
   },
 };
 
-const uri = process.env.MONGODB_URL ?? '';
+const uri =
+  process.env[
+    `MONGODB_URL_${process.env.CURRENT_ENV == 'PROD' ? 'PROD' : 'DEV'}`
+  ] ?? '';
 
 mongoose.connect(uri);
 const connection = mongoose.connection;
 
 connection.once('open', () => {
-  console.log('MongoDB database connection established successfully');
+  console.log(
+    `MongoDB database connection established successfully with ENVIRONMENT: ${process.env.ENV}`
+  );
 });
 
 const graphqlHandler = server.createHandler();

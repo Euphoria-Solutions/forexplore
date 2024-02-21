@@ -5,12 +5,14 @@
   "main": "next.config.js",
   "scripts": {
     "generate": "graphql-codegen --config ./codegen.yml",
-    "dev": "npx concurrently \"next dev\" \"yarn generate --watch\"",
-    "dev_c": "next dev",
+    "dev": "npx concurrently \"next dev\" \"npm run generate --watch\"",
+    "dev:prod": "CURRENT_ENV=PROD npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "deploy:dev": "npx dotenv -v VERCEL_ORG_ID=QYSSG1MAh2kwkGim8YI6eYOQ -v VERCEL_PROJECT_ID=prj_4pOiTdwU2mwCee5IAvrKvGc4yCjO -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'",
+    "deploy:prod": "npx dotenv -v VERCEL_ORG_ID=QYSSG1MAh2kwkGim8YI6eYOQ -v VERCEL_PROJECT_ID=prj_YHTZ5Sx1BfH5OdYCXekBHziX23p0 -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'"
   },
   "dependencies": {
     "@apollo/client": "^3.8.7",
@@ -40,6 +42,7 @@
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "concurrently": "^8.2.2",
+    "dotenv-cli": "^7.3.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.0.4",
     "eslint-config-prettier": "^9.1.0",
@@ -52,6 +55,7 @@
     "eslint-plugin-unicorn": "^50.0.1",
     "jsonc-eslint-parser": "^2.4.0",
     "prettier": "^3.1.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vercel": "^33.5.1"
   }
 }
