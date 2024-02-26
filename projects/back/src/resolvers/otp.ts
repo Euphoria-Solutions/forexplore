@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const secretKey = 'f0r3xpl0r3';
+const secretKey = process.env.JWT_KEY ?? '';
 export const checkOTP = async (
   _: ResolversParentTypes,
   params: MutationCheckOtpArgs

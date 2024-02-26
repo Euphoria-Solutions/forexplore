@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const secretKey = 'f0r3xpl0r3';
+const secretKey = process.env.JWT_KEY ?? '';
 
 export const signUp = async (
   _: ResolversParentTypes,
@@ -35,6 +35,8 @@ export const signUp = async (
       password: hashedPassword,
       otp: hashedOTP,
       emailVerified: false,
+      plan: '65d85f2ba7de41d310b92ed5', // Free plan ID
+      activeDay: 0,
     });
     await user.save();
 
@@ -69,16 +71,14 @@ export const logIn = async (
       {
         _id: user._id,
         username: user.username,
+        emailVerified: user.emailVerified,
       },
       secretKey,
       { expiresIn: '7d' }
     );
 
     if (token.password == params.password) {
-      if (user.emailVerified) {
-        return sessionToken;
-      }
-      return false;
+      return sessionToken;
     }
     return null;
   } catch (err) {
