@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { Roboto } from 'next/font/google';
 import '../styles/globals.css';
 import '../styles/output.css';
 import { MainLayout } from '@/components';
+import React from 'react';
 
-const poppins = Poppins({
+const roboto = Roboto({
   subsets: ['latin'],
-  weight: '400',
+  weight: ['300', '400', '500'],
 });
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
-      <body className={poppins.className}>
+      <body className={roboto.className}>
         <MainLayout>{children}</MainLayout>
       </body>
     </html>
