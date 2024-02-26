@@ -8,7 +8,7 @@
     "generate": "npx tailwindcss -c tailwind.config.ts -o styles/output.css",
     "format": "prettier --write .",
     "build": "next build",
-    "start": "next start",
+    "start": "next start 2",
     "lint": "next lint",
     "deploy:dev": "npx dotenv -v VERCEL_ORG_ID=QYSSG1MAh2kwkGim8YI6eYOQ -v VERCEL_PROJECT_ID=prj_edaLxeuRvvffvvh2NkBL6AiW5AK5 -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'",
     "deploy:prod": "npx dotenv -v VERCEL_ORG_ID=QYSSG1MAh2kwkGim8YI6eYOQ -v VERCEL_PROJECT_ID=prj_oC72kedZSWxlEQpTzLPSFRKF8sxw -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'"
@@ -17,8 +17,11 @@
     "@apollo/client": "^3.9.5",
     "graphql": "^16.8.1",
     "next": "14.1.0",
+    "postcss-momentum-scrolling": "^3.14.22",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-intersection-observer": "^9.8.1",
+    "tailwind-scrollbar-hide": "^1.1.7"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^14.1.0",
