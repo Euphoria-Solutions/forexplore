@@ -9,15 +9,20 @@ const UserSchema = new Schema({
   },
   firstName: String,
   lastName: String,
+
   phone: String,
   birthday: String,
   type: String,
   gender: String,
+
   email: {
     type: String,
     unique: true,
   },
   password: String,
+
+  plan: { type: Schema.Types.ObjectId, ref: 'Plan' },
+  activeDay: Number,
 
   otp: String,
   emailVerified: Boolean,

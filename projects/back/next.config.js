@@ -4,6 +4,7 @@ const nextConfig = {
     MONGODB_URL_DEV: process.env.MONGODB_URL_DEV || '',
     NODEMAILER_EMAIL: process.env.NODEMAILER_EMAIL || '',
     NODEMAILER_PASS: process.env.NODEMAILER_PASS || '',
+    JWT_KEY: process.env.JWT_KEY || '',
     CURRENT_ENV: process.env.CURRENT_ENV || '',
   },
 };

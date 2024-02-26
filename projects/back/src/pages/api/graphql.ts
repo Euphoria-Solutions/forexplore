@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { typeDefs } from '../../graphql/types';
 import { allResolvers } from '../../resolvers';
 import { buildSubgraphSchema } from '@apollo/subgraph';
@@ -6,12 +7,54 @@ import { ApolloServer } from 'apollo-server-cloud-functions';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import { NextFunction, Request, Response } from 'express';
+import { shield, rule, allow } from 'graphql-shield';
+import { applyMiddleware } from 'graphql-middleware';
 
-const server = new ApolloServer({
-  schema: buildSubgraphSchema({
+const secretKey = process.env.JWT_KEY ?? '';
+
+const isEmailVerified = rule({ cache: 'contextual' })(async (
+  _parent,
+  _args,
+  ctx
+) => {
+  try {
+    const user = jwt.verify(ctx.headers._id, secretKey);
+
+    if (typeof user === 'string') return false;
+    if (!user.emailVerified) return false;
+
+    return true;
+  } catch (err) {
+    return false;
+  }
+});
+
+const permissions = shield(
+  {
+    Query: {
+      '*': isEmailVerified,
+    },
+    Mutation: {
+      '*': isEmailVerified,
+      logIn: allow,
+      signUp: allow,
+    },
+  },
+  {
+    fallbackRule: allow,
+  }
+);
+
+const schema = applyMiddleware(
+  buildSubgraphSchema({
     typeDefs: typeDefs,
     resolvers: allResolvers,
   }),
+  permissions
+);
+
+const server = new ApolloServer({
+  schema,
   csrfPrevention: true,
   cache: new InMemoryLRUCache(),
   context: ({ req, res }: { req: Request; res: Response }) => ({
@@ -38,7 +81,7 @@ const connection = mongoose.connection;
 
 connection.once('open', () => {
   console.log(
-    `MongoDB database connection established successfully with ENVIRONMENT: ${process.env.ENV}`
+    `MongoDB database connection established successfully with ENVIRONMENT: ${process.env.CURRENT_ENV == 'PROD' ? 'PROD' : 'DEV'}`
   );
 });
 
