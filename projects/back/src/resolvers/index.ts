@@ -7,11 +7,15 @@ import {
   sendOTPForForgetPass,
 } from './otp';
 import { createPlan, deletePlan, editPlan, getPlans } from './user-plan';
+import { blockUser, getUsers } from './user-management';
 
 export const resolversObjects = {
   Query: {
     helloQuery: () => 'Hello Query',
+    // User Plan
     getPlans,
+    // User Management
+    getUsers,
   },
   Mutation: {
     // Auth
@@ -27,6 +31,8 @@ export const resolversObjects = {
     createPlan,
     editPlan,
     deletePlan,
+    // User Management
+    blockUser,
     // Default
     helloMutation: () => 'Hello Mutation',
   },

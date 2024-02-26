@@ -16,6 +16,7 @@ export const typeDefs = gql`
     activeDay: Float!
     email: String!
     password: String! # hashed password
+    blocked: Boolean!
   }
 
   type UserPlan {
@@ -32,7 +33,10 @@ export const typeDefs = gql`
 
   type Query {
     helloQuery: String
+    # User Plan
     getPlans(_id: String): [UserPlan]!
+    # User Management
+    getUsers(_id: String): [User]!
   }
 
   type Mutation {
@@ -64,7 +68,8 @@ export const typeDefs = gql`
       features: [String]
     ): Boolean!
     deletePlan(_id: String!): Boolean!
-
+    # User Management
+    blockUser(_id: String!): Boolean!
     # Default
     helloMutation: String
   }

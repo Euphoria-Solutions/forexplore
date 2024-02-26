@@ -5,7 +5,7 @@
   "main": "next.config.js",
   "scripts": {
     "generate": "graphql-codegen --config ./codegen.yml",
-    "dev": "npx concurrently \"next dev\" \"npm run generate --watch\"",
+    "dev": "npx concurrently \"next dev\" \"yarn generate --watch\"",
     "dev:prod": "CURRENT_ENV=PROD npm run dev",
     "build": "next build",
     "start": "next start",

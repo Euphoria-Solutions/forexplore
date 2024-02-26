@@ -26,6 +26,8 @@ const UserSchema = new Schema({
 
   otp: String,
   emailVerified: Boolean,
+
+  blocked: Boolean,
 });
 
 export const UserModel =

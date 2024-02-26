@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 import {
   MutationCheckOtpArgs,
   MutationCheckOtpForForgetPassArgs,
@@ -8,17 +7,7 @@ import {
   ResolversParentTypes,
 } from '../generated/generated';
 import { UserModel } from '../models';
-import { otpGenerator } from '../helper';
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.NODEMAILER_EMAIL,
-    pass: process.env.NODEMAILER_PASS,
-  },
-});
+import { mailer, otpGenerator } from '../helper';
 
 const secretKey = process.env.JWT_KEY ?? '';
 export const checkOTP = async (
@@ -33,7 +22,6 @@ export const checkOTP = async (
     if (typeof token == 'string') return null;
 
     if (token.otp == params.otp) {
-      console.log('a');
       const sessionToken = jwt.sign(
         {
           _id: user._id,
@@ -66,7 +54,7 @@ export const sendOTP = async (
 
     await UserModel.findByIdAndUpdate(params._id, { otp: hashedOTP });
 
-    await transporter.sendMail({
+    await mailer({
       from: 'anadaochir@gmail.com',
       to: user.email,
       subject: user.type,
@@ -93,7 +81,7 @@ export const sendOTPForForgetPass = async (
       { otp: hashedOTP }
     );
 
-    await transporter.sendMail({
+    await mailer({
       from: 'anadaochir@gmail.com',
       to: params.email,
       subject: 'Password Recovery',
