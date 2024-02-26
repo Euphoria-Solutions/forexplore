@@ -1,23 +1,12 @@
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 import {
   MutationForgetPassArgs,
   MutationLogInArgs,
   MutationSignUpArgs,
   ResolversParentTypes,
 } from '../generated/generated';
-import { otpGenerator } from '../helper';
+import { mailer, otpGenerator } from '../helper';
 import { UserModel } from '../models';
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.NODEMAILER_EMAIL,
-    pass: process.env.NODEMAILER_PASS,
-  },
-});
 
 const secretKey = process.env.JWT_KEY ?? '';
 
@@ -37,11 +26,12 @@ export const signUp = async (
       emailVerified: false,
       plan: '65d85f2ba7de41d310b92ed5', // Free plan ID
       activeDay: 0,
+      blocked: false,
     });
     await user.save();
 
     // Email Verification
-    await transporter.sendMail({
+    await mailer({
       from: 'anadaochir@gmail.com',
       to: params.email,
       subject: params.type,
@@ -62,6 +52,7 @@ export const logIn = async (
 ) => {
   try {
     const user = await UserModel.findOne({ email: params.email });
+
     const token = jwt.verify(user.password, secretKey, {
       ignoreExpiration: true,
     });
