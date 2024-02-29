@@ -3,10 +3,26 @@
 
 echo "Checking ESlint errors ..."
 
-echo "Front ..."
+cd projects/front
+if git diff --cached --name-only | grep -E '^projects/front'
+then
+  echo "Changes detected in front. Checking ESlint errors..."
 
-cd projects/front && npm run lint
+  npm run lint
+fi
 
-echo "Back ..."
+cd ../back
+if git diff --cached --name-only | grep -E '^projects/back'
+then
+  echo "Changes detected in back. Checking ESlint errors..."
 
-cd ../back && npm run lint
+  npm run lint
+fi
+
+cd ../gui
+if git diff --cached --name-only | grep -E '^projects/gui'
+then
+  echo "Changes detected in GUI. Checking ESlint errors..."
+
+  npm run lint
+fi
