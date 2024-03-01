@@ -8,6 +8,7 @@ import {
   InMemoryCache,
   createHttpLink,
 } from '@apollo/client';
+import { DataProvider } from '@/providers/data-provider';
 
 interface LayoutType {
   children?: ReactNode;
@@ -32,7 +33,9 @@ const client = new ApolloClient({
 export const MainLayout = ({ children }: LayoutType) => {
   return (
     <ApolloProvider client={client}>
-      <Box className="w-screen h-screen">{children}</Box>
+      <DataProvider>
+        <Box className="w-screen h-screen">{children}</Box>
+      </DataProvider>
     </ApolloProvider>
   );
 };

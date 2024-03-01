@@ -6,6 +6,16 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  plugins: [],
+  theme: {
+    extend: {
+      colors: {
+        customPurple: '#9747FF',
+        customDarkBlue: '#1B223C',
+        ffffff: '#FFFFFF',
+      },
+    },
+  },
+  plugins: [require('tailwind-scrollbar-hide')],
 };
+
 export default config;
