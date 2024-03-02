@@ -2,8 +2,6 @@ module.exports = {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},
-    'postcss-momentum-scrolling': [
-      'scroll', 'auto', 'inherit'
-    ]
+    'postcss-momentum-scrolling': ['scroll', 'auto', 'inherit'],
   },
 };
