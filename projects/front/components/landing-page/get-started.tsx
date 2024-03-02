@@ -6,7 +6,7 @@ import { Text } from '../text';
 const GetStarted = () => {
   return (
     <Box
-      className="flex-row space-x-36 items-center h-96 w-screen justify-center"
+      className="flex-row space-x-36 items-center h-max w-screen justify-center"
       style={{ backgroundColor: 'rgb(4,6,19)' }}
     >
       <Box className="flex-col w-160 space-y-5">
