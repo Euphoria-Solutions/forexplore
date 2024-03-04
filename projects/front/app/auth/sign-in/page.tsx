@@ -61,7 +61,7 @@ const SignIn = () => {
           return;
         }
 
-        router.push('/features');
+        router.push('/dashboard');
       } else {
         await notifUpdater(id, 'Email or Password wrong', 'error');
       }
@@ -78,7 +78,7 @@ const SignIn = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token && token != '') {
-      router.push('/features');
+      router.push('/dashboard');
     }
   }, [router]);
   return (
