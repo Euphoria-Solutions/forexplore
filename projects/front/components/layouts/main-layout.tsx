@@ -8,6 +8,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Navbar } from './navbar';
 import { client, VERIFY_TOKEN_MUTATION } from '@/graphql';
 import { AuthContext } from '@/providers';
+import SideBar from './side-bar';
 
 interface LayoutType {
   children?: ReactNode;
@@ -46,10 +47,12 @@ export const MainLayout = ({ children }: LayoutType) => {
     <ApolloProvider client={client}>
       <DataProvider>
         <Box className="w-screen h-screen">
-          {path.startsWith('/dashboard') ? (
-            <Box className={`flex-row`}>
-              <Box></Box>
-              <Box>{children}</Box>
+          {path.startsWith('/dashboard') || path.startsWith('/settings') ? (
+            <Box className={`relative w-full h-full justify-end`}>
+              <SideBar />
+              <Box className="w-[94.44%] overflow-y-scroll h-max scrollbar-hide bg-[#F3F4FA]">
+                {children}
+              </Box>
             </Box>
           ) : (
             <Box>

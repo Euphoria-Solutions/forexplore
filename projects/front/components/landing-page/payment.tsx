@@ -41,7 +41,7 @@ const Payment = () => {
                   Monthly
                 </Box>
               </Box>
-              <Box className="w-1/2 h-max text-gray-600 text-xl items-center justify-center">
+              <Box className="w-1/2 h-max text-[#797878] text-xl items-center justify-center">
                 Yearly
               </Box>
             </Box>
