@@ -19,6 +19,12 @@ export const typeDefs = gql`
     blocked: Boolean!
   }
 
+  type UserDetails {
+    _id: String!
+    username: String!
+    emailVerified: Boolean!
+  }
+
   type UserPlan {
     _id: String!
     name: String!
@@ -54,6 +60,7 @@ export const typeDefs = gql`
       password: String!
     ): Boolean! # send email verification
     forgetPass(email: String!, password: String!): Boolean!
+    verifyToken(token: String): UserDetails
     # OTP
     checkOTP(_id: String!, otp: Float!): String!
     sendOTP(_id: String!): Boolean!

@@ -1,5 +1,5 @@
 import { mapValues } from 'lodash';
-import { forgetPass, logIn, signUp } from './user';
+import { forgetPass, logIn, signUp, verifyToken } from './user';
 import {
   checkOTP,
   checkOTPForForgetPass,
@@ -22,6 +22,7 @@ export const resolversObjects = {
     signUp,
     logIn,
     forgetPass,
+    verifyToken,
     // OTP
     checkOTP,
     sendOTP,

@@ -15,12 +15,11 @@ interface LayoutType {
 }
 
 const uri =
-  process.env[
-    `BACKEND_API_${process.env.CURRENT_ENV == 'PROD' ? 'PROD' : 'DEV'}`
-  ];
+  process.env.CURRENT_ENV == 'PROD'
+    ? process.env.NEXT_PUBLIC_BACKEND_API_PROD
+    : process.env.NEXT_PUBLIC_BACKEND_API_DEV;
 
 const httpLink = createHttpLink({
-  // uri: "http://localhost:3001/api/graphql",
   uri: uri,
   fetch,
 });
