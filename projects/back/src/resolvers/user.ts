@@ -3,6 +3,7 @@ import {
   MutationForgetPassArgs,
   MutationLogInArgs,
   MutationSignUpArgs,
+  MutationVerifyTokenArgs,
   ResolversParentTypes,
 } from '../generated/generated';
 import { mailer, otpGenerator } from '../helper';
@@ -69,6 +70,9 @@ export const logIn = async (
     );
 
     if (token.password == params.password) {
+      if (user.blocked) {
+        return null;
+      }
       return sessionToken;
     }
     return null;
@@ -89,6 +93,21 @@ export const forgetPass = async (
     );
 
     return true;
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+};
+
+export const verifyToken = async (
+  _: ResolversParentTypes,
+  { token }: MutationVerifyTokenArgs
+) => {
+  try {
+    if (!token) return null;
+
+    const userParams = jwt.verify(token, secretKey);
+
+    return userParams;
   } catch (err) {
     throw new Error((err as Error).message);
   }

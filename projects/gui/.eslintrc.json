@@ -1,7 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["!**/*", ".next/**/*", "*.config.js"],
-  "extends": ["next", "plugin:@next/next/recommended"],
+  "extends": ["next"],
   "plugins": [
     "eslint-plugin-unicorn",
     "no-secrets",
@@ -39,16 +39,7 @@
       "files": [
         "*.js",
         "*.ts",
-        "**/pages/**/*.tsx",
-        "**/pages/**/*.jsx",
-        "**/app/**/page.tsx",
-        "**/app/**/layout.tsx",
-        "**/app/**/template.tsx",
-        "**/app/**/loading.tsx",
-        "**/app/**/error.tsx",
-        "**/app/**/global-error.tsx",
-        "**/app/**/not-found.tsx",
-        "mdx-components.tsx"
+        "**/app/**/page.tsx"
       ],
       "rules": {
         "unicorn/prefer-module": "off",
@@ -159,6 +150,13 @@
       "extends": ["plugin:prettier/recommended"],
       "rules": {
         "prettier/prettier": ["error"]
+      }
+    },
+    {
+      "files": ["*"],
+      "rules": {
+        "no-console": ["error", { "allow": ["warn", "error"] }],
+        "@typescript-eslint/no-explicit-any": "error"
       }
     }
   ]

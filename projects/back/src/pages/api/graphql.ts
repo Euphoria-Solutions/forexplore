@@ -17,7 +17,8 @@ const permissions = shield(
     },
     Mutation: {
       '*': and(isEmailVerified, isUserNotBlocked),
-      logIn: isUserNotBlocked,
+      verifyToken: allow,
+      logIn: allow,
       signUp: allow,
     },
   },
