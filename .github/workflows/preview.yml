@@ -3,8 +3,8 @@ name: Create Preview Link for PR
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    # paths:
-    # - 'projects/front/**'
+    paths:
+    - 'projects/front/**'
 
 jobs:
   deploy:

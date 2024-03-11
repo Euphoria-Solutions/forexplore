@@ -19,6 +19,34 @@ export const typeDefs = gql`
     blocked: Boolean!
   }
 
+  type ForexAccount {
+    _id: String!
+    user: User!
+    name: String!
+    broker: String
+    balance: Float
+    lastUpdate: String!
+  }
+
+  type Trade {
+    _id: String!
+    forexAccount: ForexAccount!
+
+    openTime: String!
+    closeTime: String!
+    positionId: String!
+    symbol: String!
+    type: String!
+    volume: Float!
+    openPrice: Float!
+    closePrice: Float!
+    sl: Float!
+    tp: Float!
+    commission: Float!
+    swap: Float!
+    profit: Float!
+  }
+
   type UserDetails {
     _id: String!
     username: String!
@@ -37,12 +65,34 @@ export const typeDefs = gql`
     name: String!
   }
 
+  input TradeInput {
+    forexAccount: String!
+
+    openTime: String!
+    closeTime: String!
+    positionId: String!
+    symbol: String!
+    type: String!
+    volume: Float!
+    openPrice: Float!
+    closePrice: Float!
+    sl: Float!
+    tp: Float!
+    commission: Float!
+    swap: Float!
+    profit: Float!
+  }
+
   type Query {
     helloQuery: String
     # User Plan
     getPlans(_id: String): [UserPlan]!
     # User Management
     getUsers(_id: String): [User]!
+    # Forex Account
+    getForexAccounts(_id: String): [ForexAccount]!
+    # Trade
+    getTrades(forexAccount: String, _id: String): [Trade]!
   }
 
   type Mutation {
@@ -77,6 +127,17 @@ export const typeDefs = gql`
     deletePlan(_id: String!): Boolean!
     # User Management
     blockUser(_id: String!): Boolean!
+    # Forex Account
+    addForexAccount(userId: String!, name: String!): Boolean!
+    editForexAccount(_id: String!, name: String): Boolean!
+    deleteForexAccount(_id: String!): Boolean!
+    # Trade
+    importTradeHistroy(
+      forexAccountId: String!
+      trades: [TradeInput]!
+      broker: String!
+      balance: Float!
+    ): Boolean!
     # Default
     helloMutation: String
   }
