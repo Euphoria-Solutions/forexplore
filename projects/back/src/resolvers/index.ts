@@ -8,6 +8,13 @@ import {
 } from './otp';
 import { createPlan, deletePlan, editPlan, getPlans } from './user-plan';
 import { blockUser, getUsers } from './user-management';
+import {
+  addForexAccount,
+  deleteForexAccount,
+  editForexAccount,
+  getForexAccounts,
+} from './forex-account';
+import { getTrades, importTradeHistroy } from './trade';
 
 export const resolversObjects = {
   Query: {
@@ -16,6 +23,10 @@ export const resolversObjects = {
     getPlans,
     // User Management
     getUsers,
+    // Forex Account,
+    getForexAccounts,
+    // Trade,
+    getTrades,
   },
   Mutation: {
     // Auth
@@ -34,6 +45,12 @@ export const resolversObjects = {
     deletePlan,
     // User Management
     blockUser,
+    // Forex Account
+    addForexAccount,
+    editForexAccount,
+    deleteForexAccount,
+    // Trade
+    importTradeHistroy,
     // Default
     helloMutation: () => 'Hello Mutation',
   },
