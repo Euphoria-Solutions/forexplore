@@ -7,6 +7,11 @@ const ForexAccountSchema = new Schema({
   name: String,
   broker: String,
   balance: Number,
+  prevBalance: Number,
+  trades: Number,
+  winTrades: Number,
+  winRate: Number,
+  prevWinRate: Number,
   lastUpdate: String,
 });
 

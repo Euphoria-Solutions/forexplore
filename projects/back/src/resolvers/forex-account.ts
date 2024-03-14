@@ -17,6 +17,9 @@ export const addForexAccount = async (
       ...params,
       broker: '',
       balance: -1,
+      winRate: -1,
+      winTrades: 0,
+      trades: 0,
       lastUpdate: date.toISOString(),
     });
 
