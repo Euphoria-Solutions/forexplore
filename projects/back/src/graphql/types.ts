@@ -137,7 +137,7 @@ export const typeDefs = gql`
       trades: [TradeInput]!
       broker: String!
       balance: Float!
-    ): Boolean!
+    ): [Trade]!
     # Default
     helloMutation: String
   }

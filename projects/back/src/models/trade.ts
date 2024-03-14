@@ -7,7 +7,11 @@ const TradeSchema = new Schema({
 
   openTime: String,
   closeTime: String,
-  positionId: String,
+  positionId: {
+    type: String,
+    unique: true,
+    index: true,
+  },
   symbol: String,
   type: String,
   volume: Number,
