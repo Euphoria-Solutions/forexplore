@@ -15,6 +15,17 @@ import {
   getForexAccounts,
 } from './forex-account';
 import { getTrades, importTradeHistroy } from './trade';
+import {
+  getOrderAnalysis,
+  getPairAnalysis,
+  getSessionAnalysis,
+} from './analysis/advanced';
+import {
+  getBalanceAnalysis,
+  getPLAnalysis,
+  getTotalTradesAnalysis,
+  getWinRateAnalysis,
+} from './analysis/basic';
 
 export const resolversObjects = {
   Query: {
@@ -27,6 +38,14 @@ export const resolversObjects = {
     getForexAccounts,
     // Trade,
     getTrades,
+    // Analysis,
+    getBalanceAnalysis,
+    getWinRateAnalysis,
+    getPLAnalysis,
+    getTotalTradesAnalysis,
+    getSessionAnalysis,
+    getOrderAnalysis,
+    getPairAnalysis,
   },
   Mutation: {
     // Auth

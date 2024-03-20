@@ -7,6 +7,25 @@ import {
 } from '../generated/generated';
 import { ForexAccountModel } from '../models';
 
+const defSessions = [
+  {
+    session: 'Sydney',
+    pl: 0,
+  },
+  {
+    session: 'London',
+    pl: 0,
+  },
+  {
+    session: 'New York',
+    pl: 0,
+  },
+  {
+    session: 'Tokyo',
+    pl: 0,
+  },
+];
+
 export const addForexAccount = async (
   _: ResolversParentTypes,
   params: MutationAddForexAccountArgs
@@ -16,10 +35,24 @@ export const addForexAccount = async (
     const forexAccount = new ForexAccountModel({
       ...params,
       broker: '',
-      balance: -1,
-      winRate: -1,
-      winTrades: 0,
-      trades: 0,
+      tradeTypes: {
+        overall: {
+          trades: 0,
+          winTrades: 0,
+        },
+        long: {
+          trades: 0,
+          winTrades: 0,
+          pl: 0,
+        },
+        short: {
+          trades: 0,
+          winTrades: 0,
+          pl: 0,
+        },
+      },
+      pairs: [],
+      sessions: defSessions,
       lastUpdate: date.toISOString(),
     });
 

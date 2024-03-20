@@ -6,7 +6,7 @@ import {
   MutationVerifyTokenArgs,
   ResolversParentTypes,
 } from '../generated/generated';
-import { mailer, otpGenerator } from '../helper';
+import { mailer, otpGenerator } from '../helper/common';
 import { UserModel } from '../models';
 
 const secretKey = process.env.JWT_KEY ?? '';
