@@ -1,4 +1,4 @@
-import { typeDefs } from '../../graphql/types';
+import { typeDefs } from '../../graphql';
 import { allResolvers } from '../../resolvers';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache';

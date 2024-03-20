@@ -12,6 +12,7 @@ const TradeSchema = new Schema({
     unique: true,
     index: true,
   },
+  session: [String],
   symbol: String,
   type: String,
   volume: Number,

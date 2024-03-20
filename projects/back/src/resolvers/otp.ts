@@ -7,7 +7,7 @@ import {
   ResolversParentTypes,
 } from '../generated/generated';
 import { UserModel } from '../models';
-import { mailer, otpGenerator } from '../helper';
+import { mailer, otpGenerator } from '../helper/common';
 
 const secretKey = process.env.JWT_KEY ?? '';
 export const checkOTP = async (
