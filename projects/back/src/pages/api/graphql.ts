@@ -29,7 +29,7 @@ const permissions = shield(
 
 const schema = applyMiddleware(
   buildSubgraphSchema({
-    typeDefs: typeDefs,
+    typeDefs,
     resolvers: allResolvers,
   }),
   permissions

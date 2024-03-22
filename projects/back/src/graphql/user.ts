@@ -40,14 +40,14 @@ export const userTypes = gql`
 
   extend type Mutation {
     # User Plan
-    createPlan(name: String!, price: Float!, features: [String]!): UserPlan!
-    editPlan(
+    createUserPlan(name: String!, price: Float!, features: [String]!): UserPlan!
+    editUserPlan(
       _id: String!
       name: String
       price: Float
       features: [String]
     ): Boolean!
-    deletePlan(_id: String!): Boolean!
+    deleteUserPlan(_id: String!): Boolean!
     # User Management
     blockUser(_id: String!): Boolean!
   }

@@ -9,4 +9,4 @@ const UserPlanSchema = new Schema({
 });
 
 export const UserPlanModel =
-  mongoose.models.Plan || mongoose.model('Plan', UserPlanSchema);
+  mongoose.models.UserPlan || mongoose.model('UserPlan', UserPlanSchema);

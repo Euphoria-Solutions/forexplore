@@ -23,6 +23,7 @@ export const importTradeHistroy = async (
       const inserted = await TradeModel.insertMany(
         uniqueTrades.map(trade => ({
           session: getSession(trade?.openTime ?? ''),
+          plan: null,
           ...trade,
         }))
       );
@@ -45,13 +46,21 @@ export const getTrades = async (
   params: QueryGetTradesArgs
 ) => {
   try {
-    return await TradeModel.find(params).populate({
-      path: 'forexAccount',
-      populate: {
-        path: 'user',
-        model: 'User',
-      },
-    });
+    return await TradeModel.find(params)
+      .populate({
+        path: 'forexAccount',
+        populate: {
+          path: 'user',
+          model: 'User',
+        },
+      })
+      .populate({
+        path: 'plan',
+        populate: {
+          path: 'tradePlan',
+          model: 'TradePlan',
+        },
+      });
   } catch (err) {
     throw new Error((err as Error).message);
   }

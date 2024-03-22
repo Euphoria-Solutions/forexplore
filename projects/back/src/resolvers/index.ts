@@ -6,7 +6,12 @@ import {
   sendOTP,
   sendOTPForForgetPass,
 } from './otp';
-import { createPlan, deletePlan, editPlan, getPlans } from './user-plan';
+import {
+  createUserPlan,
+  deleteUserPlan,
+  editUserPlan,
+  getUserPlans,
+} from './user-plan';
 import { blockUser, getUsers } from './user-management';
 import {
   addForexAccount,
@@ -26,12 +31,22 @@ import {
   getTotalTradesAnalysis,
   getWinRateAnalysis,
 } from './analysis/basic';
+import {
+  addPlan,
+  createTradePlan,
+  deletePlan,
+  deleteTradePlan,
+  editPlan,
+  editTradePlan,
+  getTradePlans,
+  linkPlanToTrade,
+} from './trade-plan';
 
 export const resolversObjects = {
   Query: {
     helloQuery: () => 'Hello Query',
     // User Plan
-    getPlans,
+    getUserPlans,
     // User Management
     getUsers,
     // Forex Account,
@@ -46,6 +61,8 @@ export const resolversObjects = {
     getSessionAnalysis,
     getOrderAnalysis,
     getPairAnalysis,
+    // Trade Plan
+    getTradePlans,
   },
   Mutation: {
     // Auth
@@ -59,9 +76,9 @@ export const resolversObjects = {
     sendOTPForForgetPass,
     checkOTPForForgetPass,
     // User Plan
-    createPlan,
-    editPlan,
-    deletePlan,
+    createUserPlan,
+    editUserPlan,
+    deleteUserPlan,
     // User Management
     blockUser,
     // Forex Account
@@ -70,6 +87,15 @@ export const resolversObjects = {
     deleteForexAccount,
     // Trade
     importTradeHistroy,
+    // Trade Plan
+    createTradePlan,
+    editTradePlan,
+    deleteTradePlan,
+    // Plan
+    addPlan,
+    editPlan,
+    deletePlan,
+    linkPlanToTrade,
     // Default
     helloMutation: () => 'Hello Mutation',
   },

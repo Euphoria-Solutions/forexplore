@@ -21,7 +21,7 @@ const UserSchema = new Schema({
   },
   password: String,
 
-  plan: { type: Schema.Types.ObjectId, ref: 'Plan' },
+  plan: { type: Schema.Types.ObjectId, ref: 'UserPlan' },
   activeDay: Number,
 
   otp: String,
