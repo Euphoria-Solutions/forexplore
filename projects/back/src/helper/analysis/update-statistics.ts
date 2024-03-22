@@ -8,6 +8,12 @@ import { getCurrentWeek, months } from '../common';
 import { getSession } from './get-session';
 import { getTopPairs } from './get-top-pairs';
 
+const defaultStatisticsData = {
+  pairs: [],
+  weeks: [],
+  sessions: [],
+};
+
 export const updateStatistics = async (
   inserted: Trade[],
   params: MutationImportTradeHistroyArgs
@@ -28,12 +34,13 @@ export const updateStatistics = async (
     0
   );
 
-  const document = await StatisticsModel.findOne({
-    forexAccount: params.forexAccountId,
-    year,
-    month,
-  });
-
+  const document =
+    (await StatisticsModel.findOne({
+      forexAccount: params.forexAccountId,
+      year,
+      month,
+    })) || defaultStatisticsData;
+  console.log(document);
   const topPairs = getTopPairs(inserted, document.pairs);
 
   const isExist = (document.weeks ?? []).filter(

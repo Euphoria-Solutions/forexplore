@@ -7,7 +7,7 @@ export const authTypes = gql`
     emailVerified: Boolean!
   }
 
-  extend type Query {
+  extend type Mutation {
     logIn(email: String!, password: String!): String # access token
     signUp(
       username: String!
@@ -22,9 +22,6 @@ export const authTypes = gql`
     ): Boolean! # send email verification
     forgetPass(email: String!, password: String!): Boolean!
     verifyToken(token: String): UserDetails
-  }
-
-  extend type Mutation {
     checkOTP(_id: String!, otp: Float!): String!
     sendOTP(_id: String!): Boolean!
     sendOTPForForgetPass(email: String!): Boolean!

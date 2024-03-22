@@ -1,15 +1,15 @@
 import {
-  MutationCreatePlanArgs,
-  MutationDeletePlanArgs,
-  MutationEditPlanArgs,
+  MutationCreateUserPlanArgs,
+  MutationDeleteUserPlanArgs,
+  MutationEditUserPlanArgs,
   QueryGetPlansArgs,
   ResolversParentTypes,
 } from '../generated/generated';
 import { UserPlanModel } from '../models';
 
-export const createPlan = async (
+export const createUserPlan = async (
   _: ResolversParentTypes,
-  params: MutationCreatePlanArgs
+  params: MutationCreateUserPlanArgs
 ) => {
   try {
     const plan = new UserPlanModel(params);
@@ -22,9 +22,9 @@ export const createPlan = async (
   }
 };
 
-export const editPlan = async (
+export const editUserPlan = async (
   _: ResolversParentTypes,
-  params: MutationEditPlanArgs
+  params: MutationEditUserPlanArgs
 ) => {
   try {
     await UserPlanModel.findByIdAndUpdate(params._id, params);
@@ -35,7 +35,7 @@ export const editPlan = async (
   }
 };
 
-export const getPlans = async (
+export const getUserPlans = async (
   _: ResolversParentTypes,
   params: QueryGetPlansArgs
 ) => {
@@ -48,9 +48,9 @@ export const getPlans = async (
   }
 };
 
-export const deletePlan = async (
+export const deleteUserPlan = async (
   _: ResolversParentTypes,
-  params: MutationDeletePlanArgs
+  params: MutationDeleteUserPlanArgs
 ) => {
   try {
     await UserPlanModel.findByIdAndDelete(params._id);

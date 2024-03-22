@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 
 const TradeSchema = new Schema({
   forexAccount: { type: Schema.Types.ObjectId, ref: 'ForexAccount' },
+  plan: { type: Schema.Types.ObjectId, ref: 'Plan' },
 
   openTime: String,
   closeTime: String,
