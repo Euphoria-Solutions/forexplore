@@ -1,5 +1,11 @@
 import { mapValues } from 'lodash';
-import { forgetPass, logIn, signUp, verifyToken } from './user';
+import {
+  forgetPass,
+  logIn,
+  signUp,
+  updateUserDetails,
+  verifyToken,
+} from './user';
 import {
   checkOTP,
   checkOTPForForgetPass,
@@ -81,6 +87,7 @@ export const resolversObjects = {
     deleteUserPlan,
     // User Management
     blockUser,
+    updateUserDetails,
     // Forex Account
     addForexAccount,
     editForexAccount,
