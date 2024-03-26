@@ -3,6 +3,7 @@ import {
   MutationForgetPassArgs,
   MutationLogInArgs,
   MutationSignUpArgs,
+  MutationUpdateUserDetailsArgs,
   MutationVerifyTokenArgs,
   ResolversParentTypes,
 } from '../generated/generated';
@@ -108,6 +109,19 @@ export const verifyToken = async (
     const userParams = jwt.verify(token, secretKey);
 
     return userParams;
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+};
+
+export const updateUserDetails = async (
+  _: ResolversParentTypes,
+  params: MutationUpdateUserDetailsArgs
+) => {
+  try {
+    await UserModel.findByIdAndUpdate(params._id, params);
+
+    return true;
   } catch (err) {
     throw new Error((err as Error).message);
   }

@@ -50,5 +50,12 @@ export const userTypes = gql`
     deleteUserPlan(_id: String!): Boolean!
     # User Management
     blockUser(_id: String!): Boolean!
+    updateUserDetails(
+      _id: String!
+      firstName: String
+      lastName: String
+      username: String
+      phone: String
+    ): Boolean!
   }
 `;
