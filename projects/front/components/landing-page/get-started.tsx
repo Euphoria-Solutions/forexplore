@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box } from '../box';
+import { Box, Text } from '@/components';
 import Image from 'next/image';
 import path from '@/public/icons/lantern.svg';
-import { Text } from '../text';
 const GetStarted = () => {
   return (
     <Box

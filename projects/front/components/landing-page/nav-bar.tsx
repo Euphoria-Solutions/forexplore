@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useContext } from 'react';
-import { Box } from '@/components/box';
+import { Box } from '@/components';
 import Image from 'next/image';
 import Link from 'next/link';
 import { DataContext } from '@/providers/data-provider';

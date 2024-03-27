@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import '../styles/globals.css';
 import '../styles/output.css';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 import { Box, MainLayout } from '@/components';
 import React from 'react';
+import { AuthProvider } from '@/providers';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -20,8 +23,11 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <html lang="en">
       <body className={roboto.className}>
         <Box className="overflow-x-hidden scrollbar-hide">
-          <MainLayout>{children}</MainLayout>
+          <AuthProvider>
+            <MainLayout>{children}</MainLayout>
+          </AuthProvider>
         </Box>
+        <ToastContainer />
       </body>
     </html>
   );

@@ -1,14 +1,17 @@
 'use client';
 
-import { ReactNode } from 'react';
-import { Box } from '..';
+import { ReactNode, useContext, useEffect } from 'react';
+import { Box } from '@/components';
 import {
   ApolloClient,
   ApolloProvider,
   InMemoryCache,
   createHttpLink,
+  useMutation,
 } from '@apollo/client';
-import { DataProvider } from '@/providers/data-provider';
+import { AuthContext, DataProvider } from '@/providers';
+import { VERIFY_TOKEN_MUTATION } from '@/graphql';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface LayoutType {
   children?: ReactNode;
@@ -30,6 +33,26 @@ const client = new ApolloClient({
 });
 
 export const MainLayout = ({ children }: LayoutType) => {
+  const { setUser } = useContext(AuthContext);
+  const path = usePathname();
+  const router = useRouter();
+  const [VerifyToken] = useMutation(VERIFY_TOKEN_MUTATION, { client });
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      const token = localStorage.getItem('token') ?? '';
+      const { data } = await VerifyToken({ variables: { token } });
+
+      setUser(data.verifyToken);
+
+      if (path != '/' && data.verifyToken._id == '') {
+        router.push('/sign-in');
+      }
+    };
+
+    verifyToken();
+  }, [VerifyToken, setUser]);
+
   return (
     <ApolloProvider client={client}>
       <DataProvider>

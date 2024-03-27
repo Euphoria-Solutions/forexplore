@@ -23,7 +23,14 @@ const permissions = shield(
     },
   },
   {
-    fallbackRule: allow,
+    fallbackError: (thrownError: unknown): Promise<Error> => {
+      return Promise.resolve().then(() => {
+        if (thrownError instanceof Error && thrownError.message) {
+          return new Error(thrownError.message);
+        }
+        return new Error('An unknown error occurred');
+      });
+    },
   }
 );
 

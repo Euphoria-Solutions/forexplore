@@ -1,13 +1,18 @@
-import React from 'react';
-import { Box } from '../box';
+'use client';
+
+import React, { useState } from 'react';
+import { Box, Text, Input } from '@/components';
 import Image from 'next/image';
 import logoPath from '@/public/sign-inup/logo.svg';
-import { Text } from '../text';
 import { Poppins } from 'next/font/google';
-import { Input } from '../input';
 import Link from 'next/link';
 import SignInWithGoogle from './sign-in-with-google';
 import HideButton from './hide-button';
+import { useMutation } from '@apollo/client';
+import { LOGIN_MUTATION } from '@/graphql';
+import { toast } from 'react-toastify';
+import { notifUpdater } from '@/helper';
+import { useRouter } from 'next/navigation';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -15,6 +20,35 @@ const poppins = Poppins({
 });
 
 const SignInLayout = () => {
+  const [user, setUser] = useState({
+    email: '',
+    password: '',
+  });
+  const router = useRouter();
+  const [LogIn] = useMutation(LOGIN_MUTATION);
+
+  const logIn = async () => {
+    if (user.email == '' || user.password == '') {
+      toast.error('Some fields are missing');
+      return;
+    }
+
+    const id = toast.loading('Please Wait ...');
+    try {
+      const { data } = await LogIn({
+        variables: user,
+      });
+
+      localStorage.setItem('token', data?.logIn);
+
+      await notifUpdater(id, 'Logged In Successfully', 'success');
+
+      router.push('/features');
+    } catch (err) {
+      await notifUpdater(id, (err as Error).message, 'error');
+    }
+  };
+
   return (
     <Box className={poppins.className}>
       <Box
@@ -40,16 +74,25 @@ const SignInLayout = () => {
               <Box className="flex-col space-y-7 items-center">
                 <Text className="text-white font-bold text-2xl">Sign in</Text>
                 <Input
+                  value={user.email}
+                  onChange={e => setUser({ ...user, email: e.target.value })}
                   className="w-full h-14 bg-white rounded-lg text-[#383838] px-4 border placeholder:font-medium placeholder:text-sm placeholder:text-[#383838]"
                   placeholder="Enter email or username"
                 />
-                <HideButton placeholder="Password"></HideButton>
+                <HideButton
+                  value={user.password}
+                  onChange={e => setUser({ ...user, password: e.target.value })}
+                  placeholder="Password"
+                ></HideButton>
               </Box>
               <Link href={'/'} className="text-neutral-400 text-base">
                 Recover Password ?
               </Link>
             </Box>
-            <Box className="bg-[#4461F2] w-full h-[57px] justify-center items-center text-white rounded-xl font-bold text-base">
+            <Box
+              onClick={logIn}
+              className="bg-[#4461F2] w-full h-[57px] justify-center items-center text-white rounded-xl font-bold text-base"
+            >
               Sign in
             </Box>
             <Box className="flex-row items-center">

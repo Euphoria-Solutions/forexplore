@@ -1,9 +1,18 @@
 'use client';
 import React, { useState } from 'react';
-import { Box } from '../box';
-import { Input } from '../input';
+import { Box, Input } from '@/components';
 
-const HideButton = ({ placeholder = 'Password' }) => {
+interface HideButtonType {
+  placeholder: string;
+  value?: string;
+  onChange?: (_event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const HideButton = ({
+  placeholder = 'Password',
+  value,
+  onChange,
+}: HideButtonType) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleMouseDown = () => setShowPassword(true);
@@ -12,6 +21,8 @@ const HideButton = ({ placeholder = 'Password' }) => {
   return (
     <Box className="relative inline-block">
       <Input
+        value={value}
+        onChange={onChange}
         type={showPassword ? 'text' : 'password'}
         className="w-96 h-14 bg-white rounded-lg px-4 border border-gray-300 placeholder:font-medium placeholder:text-sm placeholder:text-[#383838]"
         placeholder={placeholder}

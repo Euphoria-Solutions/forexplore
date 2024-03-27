@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
-import { Box } from '../box';
+import { Box, Text } from '@/components';
 import pathLogo from '@/public/logo/logo1.svg';
 import Image from 'next/image';
-import { Text } from '../text';
 import pathFbIcon from '@/public/icons/facebook-icon.svg';
 import Link from 'next/link';
 import pathIgIcon from '@/public/icons/instagram-icon.svg';

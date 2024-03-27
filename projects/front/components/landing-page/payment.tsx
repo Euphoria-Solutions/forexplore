@@ -1,7 +1,6 @@
 'use client';
 import React, { useContext, useEffect, useRef } from 'react';
-import { Box } from '../box';
-import { Text } from '../text';
+import { Box, Text } from '@/components';
 import FreeContent from './free-payment-content';
 import PaidContent from './paid-content';
 import { DataContext } from '@/providers/data-provider';

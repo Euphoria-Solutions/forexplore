@@ -1,11 +1,10 @@
 import React from 'react';
-import { Box } from '../box';
+import { Box, Text } from '@/components';
 import Image from 'next/image';
 import path from '@/public/icons/decorator.svg';
 import path1 from '@/public/icons/student-icon.svg';
 import path2 from '@/public/icons/gov3.png';
 import path3 from '@/public/icons/gr3.svg';
-import { Text } from '../text';
 import { Poppins } from 'next/font/google';
 
 const poppins = Poppins({
