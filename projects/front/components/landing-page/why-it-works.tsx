@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box } from '../box';
-import Image from 'next/image';
-import path from '@/public/icons/decorator.svg';
-import path1 from '@/public/icons/student-icon.svg';
-import path2 from '@/public/icons/gov3.png';
-import path3 from '@/public/icons/gr3.svg';
+// import Image from 'next/image';
+// import path from '@/public/icons/decorator.svg';
+// import path1 from '@/public/icons/student-icon.svg';
+// import path2 from '@/public/icons/gov3.png';
+// import path3 from '@/public/icons/gr3.svg';
 import { Text } from '../text';
 import { Poppins } from 'next/font/google';
 
@@ -19,11 +19,11 @@ const WhyItWorks = () => {
       <Box className={`flex flex-col items-center space-y-5`}>
         <Box className="flex flex-col items-center space-y-5">
           <Box className="text-white font-semibold text-5xl">Why it works</Box>
-          <Image src={path.src} alt="decorator" width={284} height={40} />
+          {/* <Image src={path.src} alt="decorator" width={284} height={40} /> */}
         </Box>
         <Box className="flex flex-row justify-center items-start space-x-12">
           <Box className="flex flex-col items-center space-y-6 w-80">
-            <Image src={path1.src} alt="icon" width={87} height={100} />
+            {/* <Image src={path1.src} alt="icon" width={87} height={100} /> */}
             <Box className="flex flex-col space-y-2.5 items-center">
               <Text className="text-white text-2xl font-semibold">
                 Personalized learning
@@ -35,7 +35,7 @@ const WhyItWorks = () => {
             </Box>
           </Box>
           <Box className="flex flex-col items-center space-y-6 w-80">
-            <Image src={path2.src} alt="icon" width={130} height={100} />
+            {/* <Image src={path2.src} alt="icon" width={130} height={100} /> */}
             <Box className="flex flex-col space-y-2.5 items-center">
               <Text className="text-white text-2xl font-semibold">
                 Trusted content
@@ -48,7 +48,7 @@ const WhyItWorks = () => {
             </Box>
           </Box>
           <Box className="flex flex-col items-center space-y-6 w-80">
-            <Image src={path3.src} alt="icon" width={132} height={100} />
+            {/* <Image src={path3.src} alt="icon" width={132} height={100} /> */}
             <Box className="flex flex-col space-y-2.5 items-center">
               <Text className="text-white text-2xl font-semibold">
                 Track your growth

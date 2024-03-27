@@ -9,6 +9,7 @@ import {
   createHttpLink,
 } from '@apollo/client';
 import { DataProvider } from '@/providers/data-provider';
+import SideBar from './side-bar';
 
 interface LayoutType {
   children?: ReactNode;
@@ -33,7 +34,12 @@ export const MainLayout = ({ children }: LayoutType) => {
   return (
     <ApolloProvider client={client}>
       <DataProvider>
-        <Box className="w-screen h-screen">{children}</Box>
+        <Box className="w-screen h-screen">
+          <Box>
+            <SideBar />
+          </Box>
+          <Box>{children}</Box>
+        </Box>
       </DataProvider>
     </ApolloProvider>
   );
