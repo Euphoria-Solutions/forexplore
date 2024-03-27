@@ -1,7 +1,6 @@
 import React from 'react';
-import { Box } from '../box';
+import { Box, Text } from '@/components';
 import Image from 'next/image';
-import { Text } from '../text';
 import googleLogoPath from '@/public/sign-inup/google-logo.svg';
 import { Roboto } from 'next/font/google';
 const roboto = Roboto({ subsets: ['latin'], weight: ['300', '400', '500'] });

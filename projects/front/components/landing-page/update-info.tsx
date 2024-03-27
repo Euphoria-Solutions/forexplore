@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box } from '../box';
-import { Text } from '../text';
+import { Box, Text } from '@/components';
 import { Source_Code_Pro as SourceCodePro } from 'next/font/google';
 
 const sourceCodePro = SourceCodePro({

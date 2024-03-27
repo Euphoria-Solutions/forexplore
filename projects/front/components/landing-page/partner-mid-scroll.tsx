@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '../box';
+import { Box } from '@/components';
 import Image from 'next/image';
 import partnerIconPath from '@/public/icons/partner-image.svg';
 import HiddenInfo from './hidden-info';

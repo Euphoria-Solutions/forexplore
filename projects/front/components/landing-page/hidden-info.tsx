@@ -1,7 +1,6 @@
 'use client';
 import React, { useContext, useEffect, useRef } from 'react';
-import { Box } from '../box';
-import { Text } from '../text';
+import { Box, Text } from '@/components';
 import Image from 'next/image';
 import path from '@/public/info-picture/pic.svg';
 import { useInView } from 'react-intersection-observer';

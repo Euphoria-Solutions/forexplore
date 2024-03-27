@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box } from '../box';
-import { Text } from '../text';
+import { Box, Text } from '@/components';
 import path from '@/public/icons/yes-white.svg';
 import Image from 'next/image';
 const PaidContent = () => {
