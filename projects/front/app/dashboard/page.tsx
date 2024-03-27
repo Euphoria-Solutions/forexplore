@@ -1,15 +1,22 @@
 import { Box } from '@/components';
-import Pie from '@/components/dashboard/pie-diagram';
+import LineChartComponent from '@/components/dashboard/linear-diagram';
 import React from 'react';
-import path from '@/public/graph/pie-bg.svg';
-import Image from 'next/image';
+
 const Page = () => {
+  const lineChartData = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+      {
+        label: 'My First dataset',
+        data: [65, 59, 80, 81, 56, 55, 40],
+        borderColor: 'rgba(75,192,192,1)',
+        backgroundColor: 'rgba(75,192,192,0.2)',
+      },
+    ],
+  };
   return (
-    <Box block className="relative">
-      <Image src={path.src} alt="some pic" width={100} height={100}></Image>
-      <Box className="absolute">
-        <Pie number={25}></Pie>
-      </Box>
+    <Box>
+      <LineChartComponent data={lineChartData}></LineChartComponent>
     </Box>
   );
 };
