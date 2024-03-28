@@ -1,6 +1,10 @@
 # generated files
 output.css
 
+#lock files
+yarn.lock
+package-lock.json
+
 # dependencies
 /node_modules
 /.pnp

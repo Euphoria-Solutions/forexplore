@@ -45,10 +45,10 @@ const Page = () => {
               </Text>
               <Box className="flex-row space-x-8">
                 <Box className="w-32 h-12 rounded-2xl bg-white justify-center items-center text-black font-bold text-lg">
-                  <Link href={'/sign-up'}>Join</Link>
+                  <Link href={'/auth/sign-up'}>Join</Link>
                 </Box>
                 <Box className="w-32 h-12 rounded-2xl border-2 bg-black bg-opacity-75 border-white justify-center items-center text-white font-bold text-lg">
-                  <Link href={'/sign-in'}>Sign in</Link>
+                  <Link href={'/auth/sign-in'}>Sign in</Link>
                 </Box>
               </Box>
             </Box>
