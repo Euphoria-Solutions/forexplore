@@ -1,5 +1,6 @@
 # .vercel
 src/generated
 node_modules
+package-lock.json
 .next
 .env

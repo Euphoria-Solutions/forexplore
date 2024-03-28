@@ -1,7 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["!**/*", ".next/**/*", "*.config.js"],
-  "extends": ["next", "plugin:@next/next/recommended"],
+  "extends": ["next"],
   "plugins": [
     "eslint-plugin-unicorn",
     "no-secrets",
