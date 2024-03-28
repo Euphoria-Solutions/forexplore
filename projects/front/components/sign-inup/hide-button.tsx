@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Box, Input } from '@/components';
+import { HidePass, ShowPass } from '@/public/pass-recovery';
 
 interface HideButtonType {
   placeholder: string;
@@ -33,7 +34,7 @@ const HideButton = ({
         onMouseLeave={handleMouseUp}
         className="absolute inset-y-0 right-0 flex items-center text-sm font-medium text-[#383838] pr-4 cursor-pointer"
       >
-        {showPassword ? 'Hide' : 'Show'}
+        {showPassword ? <ShowPass /> : <HidePass />}
       </Box>
     </Box>
   );

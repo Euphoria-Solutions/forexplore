@@ -1,17 +1,16 @@
 'use client';
 
-import { ReactNode, useContext, useEffect } from 'react';
-import { Box } from '@/components';
+import { ReactNode } from 'react';
+import { Box } from '..';
 import {
   ApolloClient,
   ApolloProvider,
   InMemoryCache,
   createHttpLink,
-  useMutation,
 } from '@apollo/client';
-import { AuthContext, DataProvider } from '@/providers';
-import { VERIFY_TOKEN_MUTATION } from '@/graphql';
-import { usePathname, useRouter } from 'next/navigation';
+import { DataProvider } from '@/providers/data-provider';
+import { usePathname } from 'next/navigation';
+import { Navbar } from './navbar';
 
 interface LayoutType {
   children?: ReactNode;
@@ -33,30 +32,29 @@ const client = new ApolloClient({
 });
 
 export const MainLayout = ({ children }: LayoutType) => {
-  const { setUser } = useContext(AuthContext);
   const path = usePathname();
-  const router = useRouter();
-  const [VerifyToken] = useMutation(VERIFY_TOKEN_MUTATION, { client });
-
-  useEffect(() => {
-    const verifyToken = async () => {
-      const token = localStorage.getItem('token') ?? '';
-      const { data } = await VerifyToken({ variables: { token } });
-
-      setUser(data.verifyToken);
-
-      if (path != '/' && data.verifyToken._id == '') {
-        router.push('/sign-in');
-      }
-    };
-
-    verifyToken();
-  }, [VerifyToken, setUser]);
-
   return (
     <ApolloProvider client={client}>
       <DataProvider>
-        <Box className="w-screen h-screen">{children}</Box>
+        <Box className="w-screen h-screen">
+          {path.startsWith('/dashboard') ? (
+            <Box className={`flex-row`}>
+              <Box></Box>
+              <Box>{children}</Box>
+            </Box>
+          ) : (
+            <Box>
+              {path.startsWith('/auth') ? (
+                <Box className={`w-screen h-screen flex-col`}>
+                  <Navbar />
+                  <Box className={`h-full`}>{children}</Box>
+                </Box>
+              ) : (
+                <Box>{children}</Box>
+              )}
+            </Box>
+          )}
+        </Box>
       </DataProvider>
     </ApolloProvider>
   );
