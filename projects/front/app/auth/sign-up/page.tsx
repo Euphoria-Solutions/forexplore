@@ -1,9 +1,15 @@
+'use client';
+
 import { Box, Input, Text } from '@/components';
 import Link from 'next/link';
 import { Poppins } from 'next/font/google';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import HideButton from '@/components/sign-inup/hide-button';
 import SignInWithGoogle from '@/components/sign-inup/sign-in-with-google';
+import { useMutation } from '@apollo/client';
+import { SIGN_UP_MUTATION } from '@/graphql';
+import { toast } from 'react-toastify';
+import { checkPasswordStrength, notifUpdater } from '@/helper';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -11,6 +17,77 @@ const poppins = Poppins({
 });
 
 const SignUp = () => {
+  const [user, setUser] = useState({
+    username: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    birthday: '',
+    type: '',
+    gender: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState({
+    strength: '',
+    color: '',
+  });
+  const [SignUp] = useMutation(SIGN_UP_MUTATION);
+
+  const checkFields = () => {
+    if (user.username == '' || user.email == '' || user.password == '') {
+      toast.error('Some fields are missing');
+      return;
+    }
+
+    if (user.password != user.confirmPassword) {
+      toast.error('Confirm password is incorrect');
+      return;
+    }
+
+    if (passwordStrength.strength == 'Weak') {
+      toast.error('Password is too weak');
+    }
+  };
+
+  const signUp = async () => {
+    checkFields();
+
+    setLoading(true);
+    const id = toast.loading('Please Wait ...');
+    try {
+      await SignUp({
+        variables: user,
+      });
+
+      await notifUpdater(id, 'Signed Up Successfully', 'success');
+    } catch (err) {
+      if ((err as Error).message.includes('E11000')) {
+        if ((err as Error).message.includes('username')) {
+          await notifUpdater(id, 'Username already taken', 'error');
+          setLoading(false);
+          return;
+        }
+        if ((err as Error).message.includes('email')) {
+          await notifUpdater(id, 'Email already taken', 'error');
+          setLoading(false);
+          return;
+        }
+      }
+      await notifUpdater(id, (err as Error).message, 'error');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (user.password != '') {
+      setPasswordStrength(checkPasswordStrength(user.password));
+    } else {
+      setPasswordStrength({ strength: '', color: '' });
+    }
+  }, [user.password]);
   return (
     <Box className={poppins.className}>
       <Box
@@ -27,22 +104,52 @@ const SignUp = () => {
               <Box className="flex-col space-y-7 items-center">
                 <Text className="text-white font-bold text-2xl">Sign up</Text>
                 <Input
-                  className="w-full h-14 bg-white rounded-lg text-white px-4 border placeholder:font-medium placeholder:text-sm placeholder:text-[#383838]"
+                  value={user.username}
+                  onChange={e => setUser({ ...user, username: e.target.value })}
+                  className="w-full h-14 bg-white rounded-lg px-4 border placeholder:font-medium placeholder:text-sm placeholder:text-[#383838]"
                   placeholder="Enter username"
                 />
                 <Input
-                  className="w-full h-14 bg-white rounded-lg text-white px-4 border placeholder:font-medium placeholder:text-sm placeholder:text-[#383838]"
+                  value={user.email}
+                  onChange={e => setUser({ ...user, email: e.target.value })}
+                  className="w-full h-14 bg-white rounded-lg px-4 border placeholder:font-medium placeholder:text-sm placeholder:text-[#383838]"
                   placeholder="Enter email"
                 />
-                <HideButton placeholder="Password"></HideButton>
-                <HideButton placeholder="Confirm Password"></HideButton>
+                <Box className="flex-col items-start space-y-2">
+                  <HideButton
+                    value={user.password}
+                    onChange={e =>
+                      setUser({ ...user, password: e.target.value })
+                    }
+                    placeholder="Password"
+                  />
+                  {passwordStrength.strength != '' && (
+                    <Text className={`${passwordStrength.color} text-sm `}>
+                      Status: {passwordStrength.strength}
+                    </Text>
+                  )}
+                </Box>
+                <HideButton
+                  value={user.confirmPassword}
+                  onChange={e =>
+                    setUser({ ...user, confirmPassword: e.target.value })
+                  }
+                  placeholder="Confirm Password"
+                ></HideButton>
               </Box>
-              <Link href={'/'} className="text-neutral-400 text-base">
+              <Link
+                href={'/auth/sign-in'}
+                className="text-neutral-400 text-base"
+              >
                 Already have an account?
               </Link>
             </Box>
             <Box className="flex-col space-y-7">
-              <Box className="bg-[#4461F2] w-full h-[57px] justify-center items-center text-white rounded-xl font-bold text-base">
+              <Box
+                blocked={loading}
+                onClick={signUp}
+                className={`bg-[#4461F2] ${loading && 'opacity-50'} w-full h-[57px] justify-center items-center text-white rounded-xl font-bold text-base`}
+              >
                 Sign up
               </Box>
               <SignInWithGoogle></SignInWithGoogle>

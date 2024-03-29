@@ -7,13 +7,17 @@ import path from '@/public/background/landing-background.svg';
 import WhyItWorks from '@/components/landing-page/why-it-works';
 import GetStarted from '@/components/landing-page/get-started';
 import Footer from '@/components/landing-page/footer';
-import Link from 'next/link';
 import { useContext, useEffect, useRef } from 'react';
 import { DataContext } from '@/providers/data-provider';
+import { useRouter } from 'next/navigation';
 
 const Page = () => {
   const ref = useRef<HTMLDivElement>(null);
   const { data } = useContext(DataContext);
+  const router = useRouter();
+
+  const goSignUp = () => router.push('/auth/sign-up');
+  const goSignIn = () => router.push('/auth/sign-in');
 
   useEffect(() => {
     if (data.section === 'home' && ref.current) {
@@ -44,11 +48,17 @@ const Page = () => {
                 <span className="font-semibold"> Forexplore</span>
               </Text>
               <Box className="flex-row space-x-8">
-                <Box className="w-32 h-12 rounded-2xl bg-white justify-center items-center text-black font-bold text-lg">
-                  <Link href={'/auth/sign-up'}>Join</Link>
+                <Box
+                  onClick={goSignUp}
+                  className="w-32 h-12 rounded-2xl bg-white justify-center items-center text-black font-bold text-lg"
+                >
+                  <Text>Join</Text>
                 </Box>
-                <Box className="w-32 h-12 rounded-2xl border-2 bg-black bg-opacity-75 border-white justify-center items-center text-white font-bold text-lg">
-                  <Link href={'/auth/sign-in'}>Sign in</Link>
+                <Box
+                  onClick={goSignIn}
+                  className="w-32 h-12 rounded-2xl border-2 bg-black bg-opacity-75 border-white justify-center items-center text-white font-bold text-lg"
+                >
+                  <Text>Sign in</Text>
                 </Box>
               </Box>
             </Box>
