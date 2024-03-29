@@ -6,9 +6,14 @@ import { ApolloServer } from 'apollo-server-cloud-functions';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import { NextFunction, Request, Response } from 'express';
+import cors from 'cors'; // Import the cors middleware
 import { shield, allow, and } from 'graphql-shield';
 import { applyMiddleware } from 'graphql-middleware';
-import { isEmailVerified, isUserNotBlocked } from '../../middleware';
+import {
+  isEmailVerified,
+  isUserHasToken,
+  isUserNotBlocked,
+} from '../../middleware';
 
 const permissions = shield(
   {
@@ -20,6 +25,11 @@ const permissions = shield(
       verifyToken: allow,
       logIn: allow,
       signUp: allow,
+      forgetPass: isUserHasToken,
+      checkOTP: allow,
+      sendOTP: allow,
+      sendOTPForForgetPass: allow,
+      checkOTPForForgetPass: allow,
     },
   },
   {
@@ -76,16 +86,13 @@ connection.once('open', () => {
 
 const graphqlHandler = server.createHandler();
 
+// Add CORS middleware to allow requests from any origin
 const handler = async (req: Request, res: Response, next: NextFunction) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-  );
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  bodyParser.json({ limit: '50mb' })(req, res, () => {
-    graphqlHandler(req, res, next);
+  const corsMiddleware = cors();
+  corsMiddleware(req, res, () => {
+    bodyParser.json({ limit: '50mb' })(req, res, () => {
+      graphqlHandler(req, res, next);
+    });
   });
 };
 

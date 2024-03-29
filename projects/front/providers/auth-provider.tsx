@@ -21,6 +21,16 @@ interface AuthContext {
       emailVerified: string;
     }>
   >;
+  setAuthDetails: Dispatch<
+    SetStateAction<{
+      email: string;
+      otpToken: string;
+    }>
+  >;
+  authDetails: {
+    email: string;
+    otpToken: string;
+  };
 }
 
 export const AuthContext = createContext<AuthContext>({
@@ -28,6 +38,10 @@ export const AuthContext = createContext<AuthContext>({
     _id: '',
     username: '',
     emailVerified: '',
+  },
+  authDetails: {
+    email: '',
+    otpToken: '',
   },
 } as AuthContext);
 
@@ -37,9 +51,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     username: '',
     emailVerified: '',
   });
+  const [authDetails, setAuthDetails] = useState({
+    email: '',
+    otpToken: '',
+  });
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider
+      value={{ user, setUser, authDetails, setAuthDetails }}
+    >
       {children}
     </AuthContext.Provider>
   );

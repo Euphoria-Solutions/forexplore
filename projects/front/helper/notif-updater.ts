@@ -4,9 +4,10 @@ import { delay } from '.';
 export const notifUpdater = async (
   id: Id,
   message: string,
-  type: TypeOptions
+  type: TypeOptions,
+  delayTime: number = 1500
 ) => {
   toast.update(id, { render: message, type: type, isLoading: false });
-  await delay(2000);
+  await delay(delayTime);
   toast.dismiss(id);
 };

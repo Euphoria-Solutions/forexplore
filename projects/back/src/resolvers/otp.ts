@@ -108,8 +108,17 @@ export const checkOTPForForgetPass = async (
     if (typeof token == 'string') return null;
 
     if (token.otp == params.otp) {
-      return true;
+      const token = jwt.sign(
+        {
+          email: user.email,
+        },
+        secretKey,
+        { expiresIn: '5m' }
+      );
+      return token;
     }
+
+    return null;
   } catch (err) {
     throw new Error((err as Error).message);
   }

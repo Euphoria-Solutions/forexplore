@@ -25,6 +25,6 @@ export const authTypes = gql`
     checkOTP(_id: String!, otp: Float!): String!
     sendOTP(_id: String!): Boolean!
     sendOTPForForgetPass(email: String!): Boolean!
-    checkOTPForForgetPass(email: String!, otp: Float!): Boolean!
+    checkOTPForForgetPass(email: String!, otp: Float!): String!
   }
 `;
