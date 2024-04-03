@@ -21,12 +21,21 @@ export const MainLayout = ({ children }: LayoutType) => {
 
   useEffect(() => {
     const verifyToken = async () => {
-      const token = localStorage.getItem('token') ?? '';
-      const { data } = await VerifyToken({ variables: { token } });
+      try {
+        const token = localStorage.getItem('token') ?? '';
+        const { data } = await VerifyToken({ variables: { token } });
 
-      setUser(data.verifyToken);
-      if (path != '/' && !path.includes('auth') && !data.verifyToken) {
-        router.push('/auth/sign-in');
+        setUser(data.verifyToken);
+      } catch (err) {
+        setUser({
+          _id: '',
+          emailVerified: '',
+          username: '',
+        });
+
+        if (path != '/' && !path.includes('auth')) {
+          router.push('/auth/sign-in');
+        }
       }
     };
 

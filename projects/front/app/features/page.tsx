@@ -1,13 +1,27 @@
 'use client';
 
 import { Box, Text } from '@/components';
+import { AuthContext } from '@/providers';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useContext } from 'react';
 
 const Page = () => {
   const router = useRouter();
+  const { setUser, setAuthDetails } = useContext(AuthContext);
   const signOut = () => {
     localStorage.removeItem('token');
+
+    setUser({
+      _id: null,
+      emailVerified: null,
+      username: null,
+    });
+
+    setAuthDetails({
+      otpToken: null,
+      email: null,
+    });
+
     router.push('/auth/sign-in');
   };
 

@@ -10,50 +10,57 @@ import {
 
 interface AuthContext {
   user: {
-    _id: string;
-    username: string;
-    emailVerified: string;
+    _id: string | null;
+    username: string | null;
+    emailVerified: string | null;
   };
   setUser: Dispatch<
     SetStateAction<{
-      _id: string;
-      username: string;
-      emailVerified: string;
+      _id: string | null;
+      username: string | null;
+      emailVerified: string | null;
     }>
   >;
   setAuthDetails: Dispatch<
     SetStateAction<{
-      email: string;
-      otpToken: string;
+      email: string | null;
+      otpToken: string | null;
     }>
   >;
   authDetails: {
-    email: string;
-    otpToken: string;
+    email: string | null;
+    otpToken: string | null;
   };
 }
 
 export const AuthContext = createContext<AuthContext>({
   user: {
-    _id: '',
-    username: '',
-    emailVerified: '',
+    _id: null,
+    username: null,
+    emailVerified: null,
   },
   authDetails: {
-    email: '',
-    otpToken: '',
+    email: null,
+    otpToken: null,
   },
 } as AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState({
-    _id: '',
-    username: '',
-    emailVerified: '',
+  const [user, setUser] = useState<{
+    _id: string | null;
+    username: string | null;
+    emailVerified: string | null;
+  }>({
+    _id: null,
+    username: null,
+    emailVerified: null,
   });
-  const [authDetails, setAuthDetails] = useState({
-    email: '',
-    otpToken: '',
+  const [authDetails, setAuthDetails] = useState<{
+    email: string | null;
+    otpToken: string | null;
+  }>({
+    email: null,
+    otpToken: null,
   });
 
   return (

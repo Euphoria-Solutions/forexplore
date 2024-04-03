@@ -19,7 +19,7 @@ export const authTypes = gql`
       gender: String!
       email: String!
       password: String!
-    ): Boolean! # send email verification
+    ): String! # send email verification
     forgetPass(email: String!, password: String!): Boolean!
     verifyToken(token: String): UserDetails
     checkOTP(_id: String!, otp: Float!): String!
