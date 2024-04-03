@@ -24,6 +24,7 @@ const config: Config = {
         'light-green': '#50C099',
         success: '#0B8A00',
         'light-yellow': '#FFC565',
+        pale: '#EBEFF2',
       },
     },
   },
