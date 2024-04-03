@@ -42,7 +42,17 @@ export const signUp = async (
         `,
     });
 
-    return true;
+    const sessionToken = jwt.sign(
+      {
+        _id: user._id,
+        username: user.username,
+        emailVerified: user.emailVerified,
+      },
+      secretKey,
+      { expiresIn: '7d' }
+    );
+
+    return sessionToken;
   } catch (err) {
     throw new Error((err as Error).message);
   }

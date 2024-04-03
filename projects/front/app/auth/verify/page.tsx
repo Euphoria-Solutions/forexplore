@@ -1,19 +1,21 @@
 'use client';
 
 import { Box, Input, Text } from '@/components';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { Suspense, useContext, useEffect, useState } from 'react';
 import { Poppins } from 'next/font/google';
 import { GoBack } from '@/public/pass-recovery/go-back';
 import Link from 'next/link';
 import { useMutation } from '@apollo/client';
 import {
+  CHECK_OTP,
   CHECK_OTP_FOR_FORGET_PASSWORD,
+  SEND_OTP,
   SEND_OTP_FOR_FORGET_PASSWORD,
 } from '@/graphql';
 import { toast } from 'react-toastify';
 import { AuthContext } from '@/providers';
 import { notifUpdater } from '@/helper';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -23,12 +25,17 @@ const poppins = Poppins({
 const Verify = () => {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [resendLoading, setResendLoading] = useState(false);
-  const [CheckOTP] = useMutation(CHECK_OTP_FOR_FORGET_PASSWORD);
-  const [SendOTP] = useMutation(SEND_OTP_FOR_FORGET_PASSWORD);
+  const [CheckOTPForForgetPass] = useMutation(CHECK_OTP_FOR_FORGET_PASSWORD);
+  const [CheckOTP] = useMutation(CHECK_OTP);
+  const [SendOTPForForgetPass] = useMutation(SEND_OTP_FOR_FORGET_PASSWORD);
+  const [SendOTP] = useMutation(SEND_OTP);
   const router = useRouter();
-
-  const { authDetails, setAuthDetails } = useContext(AuthContext);
+  const path = useSearchParams();
+  const param = path.get('type');
+  const { authDetails, setAuthDetails, user, setUser } =
+    useContext(AuthContext);
 
   const checkOTP = async () => {
     if (otp == '' || !Number(otp)) {
@@ -39,34 +46,55 @@ const Verify = () => {
 
     const id = toast.loading('Please Wait ...');
     try {
-      const { data } = await CheckOTP({
-        variables: { otp: Number(otp), email: authDetails.email },
-      });
-
-      if (data?.checkOTPForForgetPass) {
-        await notifUpdater(id, 'Success', 'success');
-        setAuthDetails({
-          ...authDetails,
-          otpToken: data?.checkOTPForForgetPass,
+      if (param == 'email-verification') {
+        const { data } = await CheckOTP({
+          variables: { id: user._id, otp: Number(otp) },
         });
-        router.push('/auth/update-pass');
+        if (data?.checkOTP) {
+          await notifUpdater(id, 'Success', 'success');
+          setUser({
+            ...user,
+            emailVerified: 'true',
+          });
+          router.push('/features');
+        } else {
+          await notifUpdater(id, 'Wrong Verification Code', 'error');
+        }
       } else {
-        await notifUpdater(id, 'Wrong Verification Code', 'error');
+        const { data } = await CheckOTPForForgetPass({
+          variables: { otp: Number(otp), email: authDetails.email },
+        });
+
+        if (data?.checkOTPForForgetPass) {
+          await notifUpdater(id, 'Success', 'success');
+          setAuthDetails({
+            ...authDetails,
+            otpToken: data?.checkOTPForForgetPass,
+          });
+          router.push('/auth/update-pass');
+        } else {
+          await notifUpdater(id, 'Wrong Verification Code', 'error');
+        }
       }
     } catch (err) {
       await notifUpdater(id, 'Wrong Verification Code', 'error');
     }
     setLoading(false);
   };
-
   const sendOTPAgain = async () => {
     setResendLoading(true);
 
     const id = toast.loading('Please Wait ...');
     try {
-      await SendOTP({
-        variables: { email: authDetails.email },
-      });
+      if (param == 'email-verification') {
+        await SendOTP({
+          variables: { id: user._id },
+        });
+      } else {
+        await SendOTPForForgetPass({
+          variables: { email: authDetails.email },
+        });
+      }
 
       await notifUpdater(id, 'Verification Code Sent Successfully', 'success');
     } catch (err) {
@@ -74,12 +102,31 @@ const Verify = () => {
     }
     setResendLoading(false);
   };
-
   useEffect(() => {
-    if (authDetails.email == '') {
-      router.push('/auth/forgot-pass');
+    if (user._id && user._id !== '') {
+      setPageLoading(false);
+    } else {
+      if (param == 'email-verification') {
+        if (user._id == '') {
+          router.push('/auth/sign-in');
+          return;
+        }
+      } else {
+        if (!authDetails.email) {
+          router.push('/auth/sign-in');
+          return;
+        }
+      }
     }
-  }, [authDetails]);
+  }, [authDetails, user, pageLoading]);
+
+  if (pageLoading) {
+    return (
+      <Box>
+        <Text>Loading ...</Text>
+      </Box>
+    );
+  }
 
   return (
     <Box className={poppins.className}>
@@ -143,4 +190,11 @@ const Verify = () => {
   );
 };
 
-export default Verify;
+const Page = () => {
+  return (
+    <Suspense>
+      <Verify />
+    </Suspense>
+  );
+};
+export default Page;

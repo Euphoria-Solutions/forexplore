@@ -10,6 +10,7 @@ import { useMutation } from '@apollo/client';
 import { SIGN_UP_MUTATION } from '@/graphql';
 import { toast } from 'react-toastify';
 import { checkPasswordStrength, notifUpdater } from '@/helper';
+import { useRouter } from 'next/navigation';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -30,6 +31,7 @@ const SignUp = () => {
     confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const [passwordStrength, setPasswordStrength] = useState({
     strength: '',
     color: '',
@@ -58,11 +60,16 @@ const SignUp = () => {
     setLoading(true);
     const id = toast.loading('Please Wait ...');
     try {
-      await SignUp({
+      const { data } = await SignUp({
         variables: user,
       });
 
-      await notifUpdater(id, 'Signed Up Successfully', 'success');
+      if (data.signUp) {
+        localStorage.setItem('token', data.signUp);
+
+        await notifUpdater(id, 'Signed Up Successfully', 'success');
+        router.push('/auth/verify?type=email-verification');
+      }
     } catch (err) {
       if ((err as Error).message.includes('E11000')) {
         if ((err as Error).message.includes('username')) {

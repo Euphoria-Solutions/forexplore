@@ -9,7 +9,7 @@ import SignInWithGoogle from '@/components/sign-inup/sign-in-with-google';
 import { notifUpdater } from '@/helper';
 import { toast } from 'react-toastify';
 import { useMutation } from '@apollo/client';
-import { LOGIN_MUTATION } from '@/graphql';
+import { LOGIN_MUTATION, SEND_OTP, VERIFY_TOKEN_MUTATION } from '@/graphql';
 import { useRouter } from 'next/navigation';
 
 const poppins = Poppins({
@@ -25,6 +25,8 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [LogIn] = useMutation(LOGIN_MUTATION);
+  const [VerifyToken] = useMutation(VERIFY_TOKEN_MUTATION);
+  const [SendOTP] = useMutation(SEND_OTP);
 
   const logIn = async () => {
     setLoading(true);
@@ -44,6 +46,20 @@ const SignIn = () => {
         localStorage.setItem('token', data?.logIn);
 
         await notifUpdater(id, 'Logged In Successfully', 'success');
+
+        const {
+          data: { verifyToken },
+        } = await VerifyToken({ variables: { token: data?.logIn } });
+        setUser(verifyToken);
+
+        if (!verifyToken.emailVerified) {
+          await SendOTP({
+            variables: { id: verifyToken._id },
+          });
+
+          router.push('/auth/verify?type=email-verification');
+          return;
+        }
 
         router.push('/features');
       } else {
