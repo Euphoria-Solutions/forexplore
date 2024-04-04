@@ -1,5 +1,5 @@
 import {
-  MutationImportTradeHistroyArgs,
+  MutationImportTradeHistoryArgs,
   Trade,
 } from '../../generated/generated';
 import { ForexAccountModel } from '../../models';
@@ -8,19 +8,19 @@ import { getTopPairs } from './get-top-pairs';
 
 export const updateForexAccount = async (
   inserted: Trade[],
-  params: MutationImportTradeHistroyArgs
+  params: MutationImportTradeHistoryArgs
 ) => {
   const date = new Date();
   const winTrades = inserted.filter(
     trade => trade && trade?.profit >= 0
   ).length;
   const orderTypeData = {
-    long: {
+    buy: {
       trades: 0,
       winTrades: 0,
       pl: 0,
     },
-    short: {
+    sell: {
       trades: 0,
       winTrades: 0,
       pl: 0,
@@ -83,20 +83,20 @@ export const updateForexAccount = async (
             long: {
               winRate:
                 ((document.tradeTypes.long.winTrades +
-                  orderTypeData.long.winTrades) /
-                  (orderTypeData.long.trades == 0
+                  orderTypeData.buy.winTrades) /
+                  (orderTypeData.buy.trades == 0
                     ? 1
-                    : orderTypeData.long.trades +
+                    : orderTypeData.buy.trades +
                       document.tradeTypes.long.trades)) *
                 100,
               prevWinRate: {
                 $ifNull: [
                   '$winRateTypes.long.winRate',
                   ((document.tradeTypes.long.winTrades +
-                    orderTypeData.long.winTrades) /
-                    (orderTypeData.long.trades == 0
+                    orderTypeData.buy.winTrades) /
+                    (orderTypeData.buy.trades == 0
                       ? 1
-                      : orderTypeData.long.trades +
+                      : orderTypeData.buy.trades +
                         document.tradeTypes.long.trades)) *
                     100,
                 ],
@@ -105,20 +105,20 @@ export const updateForexAccount = async (
             short: {
               winRate:
                 ((document.tradeTypes.short.winTrades +
-                  orderTypeData.short.winTrades) /
-                  (orderTypeData.short.trades == 0
+                  orderTypeData.sell.winTrades) /
+                  (orderTypeData.sell.trades == 0
                     ? 1
-                    : orderTypeData.short.trades +
+                    : orderTypeData.sell.trades +
                       document.tradeTypes.short.trades)) *
                 100,
               prevWinRate: {
                 $ifNull: [
                   '$winRateTypes.short.winRate',
                   ((document.tradeTypes.short.winTrades +
-                    orderTypeData.short.winTrades) /
-                    (orderTypeData.short.trades == 0
+                    orderTypeData.sell.winTrades) /
+                    (orderTypeData.sell.trades == 0
                       ? 1
-                      : orderTypeData.short.trades +
+                      : orderTypeData.sell.trades +
                         document.tradeTypes.short.trades)) *
                     100,
                 ],
@@ -132,30 +132,30 @@ export const updateForexAccount = async (
             },
             long: {
               trades: {
-                $add: ['$tradeTypes.long.trades', orderTypeData.long.trades],
+                $add: ['$tradeTypes.long.trades', orderTypeData.buy.trades],
               },
               winTrades: {
                 $add: [
                   '$tradeTypes.long.winTrades',
-                  orderTypeData.long.winTrades,
+                  orderTypeData.buy.winTrades,
                 ],
               },
               pl: {
-                $add: ['$tradeTypes.long.pl', orderTypeData.long.pl],
+                $add: ['$tradeTypes.long.pl', orderTypeData.buy.pl],
               },
             },
             short: {
               trades: {
-                $add: ['$tradeTypes.short.trades', orderTypeData.short.trades],
+                $add: ['$tradeTypes.short.trades', orderTypeData.sell.trades],
               },
               winTrades: {
                 $add: [
                   '$tradeTypes.short.winTrades',
-                  orderTypeData.short.winTrades,
+                  orderTypeData.sell.winTrades,
                 ],
               },
               pl: {
-                $add: ['$tradeTypes.short.pl', orderTypeData.short.pl],
+                $add: ['$tradeTypes.short.pl', orderTypeData.sell.pl],
               },
             },
           },

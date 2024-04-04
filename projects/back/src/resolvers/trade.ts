@@ -1,22 +1,23 @@
 import {
-  MutationImportTradeHistroyArgs,
+  MutationImportTradeHistoryArgs,
   QueryGetTradesArgs,
   ResolversParentTypes,
 } from '../generated/generated';
 import { getSession, updateForexAccount, updateStatistics } from '../helper';
 import { TradeModel } from '../models';
 
-export const importTradeHistroy = async (
+export const importTradeHistory = async (
   _: ResolversParentTypes,
-  params: MutationImportTradeHistroyArgs
+  params: MutationImportTradeHistoryArgs
 ) => {
   try {
-    const uniqueFieldValues = new Set(
-      await TradeModel.find().distinct('positionId')
-    );
+    const trades = await TradeModel.find({
+      forexAccount: params.forexAccountId,
+    });
 
     const uniqueTrades = params.trades.filter(
-      trade => !uniqueFieldValues.has(trade?.positionId)
+      trade =>
+        !trades.some(oldTrade => oldTrade.positionId === trade?.positionId)
     );
 
     if (uniqueTrades.length > 0) {

@@ -1,4 +1,9 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloLink,
+  InMemoryCache,
+  createHttpLink,
+} from '@apollo/client';
 
 const uri =
   process.env.CURRENT_ENV == 'PROD'
@@ -10,8 +15,20 @@ const httpLink = createHttpLink({
   fetch,
 });
 
+const authLink = new ApolloLink((operation, forward) => {
+  const token = localStorage.getItem('token');
+
+  operation.setContext({
+    headers: {
+      token: token || '',
+    },
+  });
+
+  return forward(operation);
+});
+
 export const client = new ApolloClient({
   ssrMode: typeof window === 'undefined',
-  link: httpLink,
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });

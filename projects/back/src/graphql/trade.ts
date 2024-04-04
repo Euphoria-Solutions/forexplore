@@ -102,7 +102,7 @@ export const tradeTypes = gql`
     editForexAccount(_id: String!, name: String): Boolean!
     deleteForexAccount(_id: String!): Boolean!
     # Trade
-    importTradeHistroy(
+    importTradeHistory(
       forexAccountId: String!
       trades: [TradeInput]!
       broker: String!
