@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { DragItem, RecentDataType } from '.';
 import { useDrop } from 'react-dnd';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 type RecentComponentType = {
   data: RecentDataType;
@@ -21,7 +21,9 @@ export const RecentTrades: React.FC<RecentComponentType> = ({
   onDrop,
   id,
 }) => {
+  const accordionWidth = Math.round(400 / 7);
   const ref = useRef<HTMLDivElement>(null);
+  const [showAccordion, setShowAccordion] = useState(false);
   const [{ isOver }, drop] = useDrop<DragItem, DropResult, { isOver: boolean }>(
     {
       accept: 'item',
@@ -29,8 +31,15 @@ export const RecentTrades: React.FC<RecentComponentType> = ({
         return onDrop(item, id);
       },
       collect: monitor => ({
-        isOver: !!monitor.isOver(),
+        isOver: !data.plans ? monitor.isOver() : false,
       }),
+      canDrop: () => {
+        if (data.plans) {
+          return false;
+        } else {
+          return true;
+        }
+      },
     }
   );
 
@@ -41,21 +50,55 @@ export const RecentTrades: React.FC<RecentComponentType> = ({
     if (risk >= 5) return 'bg-light-yellow';
     return 'bg-success';
   };
+  const handleAccordion = () => {
+    setShowAccordion(prev => !prev);
+  };
+
+  const showPlans = () => {
+    if (showAccordion && data.plans) {
+      return (
+        <>
+          <Box className="grid grid-cols-7 w-full text-sm p-4 gap-2 relative text-gray">
+            <Box className="z-10">Lots</Box>
+            <Box className="z-10">Planned entry</Box>
+            <Box className="z-10">Stop loss</Box>
+            <Box className="z-10">Target profit</Box>
+            <Box className={`absolute w-[${accordionWidth}%] h-full bg-bg`} />
+          </Box>
+          {data.plans && (
+            <>
+              <Box className="grid grid-cols-7 w-full text-sm p-4 gap-2">
+                <Text>{data.plans.lots}</Text>
+                <DatePicker
+                  className="outline-none w-full bg-transparent"
+                  selected={data.plans.date}
+                  onChange={() => {}}
+                  disabled
+                />
+                <Text className="text-light-red">{data.plans.stopLoss}</Text>
+                <Text className="text-light-green">
+                  {data.plans.targetProfit}
+                </Text>
+              </Box>
+            </>
+          )}
+        </>
+      );
+    }
+  };
 
   return (
     <>
       <Box
         block
         ref={ref}
-        className={`grid grid-cols-7 gap-2 w-full bg-white text-black text-sm py-3 px-5 ${isOver && 'brightness-90'} transition-all`}
+        className={`grid grid-cols-7 gap-2 w-full bg-white text-black text-sm p-4 ${isOver && 'brightness-90'} transition-all`}
       >
         <Box className="flex items-center">
           <DatePicker
             className="outline-none w-full bg-transparent"
             selected={data.date}
             onChange={() => {}}
-            popperPlacement="bottom-end"
-            maxDate={new Date()}
             disabled
           />
         </Box>
@@ -81,16 +124,22 @@ export const RecentTrades: React.FC<RecentComponentType> = ({
           >
             {Math.abs(data.profit)}
           </Text>
-          <button>
-            <Image
-              src="/icons/down-arrow.svg"
-              height={24}
-              width={24}
-              alt="down arrow icon"
-            />
-          </button>
+          {data.plans && (
+            <button
+              className={`${showAccordion && 'rotate-180'} transition-all`}
+              onClick={handleAccordion}
+            >
+              <Image
+                src="/icons/down-arrow.svg"
+                height={24}
+                width={24}
+                alt="down arrow icon"
+              />
+            </button>
+          )}
         </Box>
       </Box>
+      {showPlans()}
       <Box className="h-px w-full bg-bg" />
     </>
   );
