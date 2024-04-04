@@ -9,7 +9,7 @@ export type DataType = {
 };
 
 export type RecentDataType = {
-  plans?: DataType[];
+  plans?: DataType;
   symbol: string;
   date: Date;
   purchase: 'buy' | 'sell';

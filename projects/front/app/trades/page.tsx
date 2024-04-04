@@ -1,6 +1,7 @@
 'use client';
 import { Box, Text } from '@/components';
 import {
+  DeleteModal,
   DragItem,
   RecentTrades,
   SearchInput,
@@ -9,13 +10,37 @@ import {
   tempData,
 } from '@/components/trades-page';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const Page = () => {
+  const ref = useRef<HTMLDivElement>(null);
   const [data, setData] = useState(tempData);
   const [recentData, setRecentData] = useState(recentTradeData);
+  const [editable, setEditable] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState(-1);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current) {
+        if (!ref.current.contains(event.target as Node)) {
+          console.log('what');
+          setEditable(false);
+        } else {
+          console.log('true');
+          setEditable(true);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [setEditable]);
 
   const addData = () => {
     const temp = [...data];
@@ -34,11 +59,7 @@ const Page = () => {
     setRecentData(
       recentData.map((e, i) => {
         if (i == index) {
-          if (e.plans) {
-            e.plans = [...e.plans, item.data];
-          } else {
-            e.plans = [item.data];
-          }
+          e.plans = item.data;
         }
         return e;
       })
@@ -46,10 +67,24 @@ const Page = () => {
     setData(prev => prev.filter((_e, i) => item.id != i));
     return undefined;
   };
+  const handleSave = () => {
+    setEditable(false);
+  };
+  const onDelete = () => {
+    if (deleteIndex != -1) {
+      setData(data.filter((e, i) => i != deleteIndex));
+    }
+    setVisible(false);
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
       <Box className="w-screen py-7 bg-bg flex flex-col gap-6">
+        <DeleteModal
+          onDelete={onDelete}
+          setVisible={setVisible}
+          visible={visible}
+        />
         <SearchInput />
         <Box className="bg-white flex flex-col gap-10 rounded-lg w-full p-6">
           <Box className="flex justify-between items-center">
@@ -66,7 +101,7 @@ const Page = () => {
           <Box className="w-full flex flex-col">
             <Box
               block
-              className="grid grid-cols-8 gap-2 w-full text-sm bg-bg py-3 px-5"
+              className="grid grid-cols-7 gap-2 w-full text-sm bg-bg p-4"
             >
               <Text>Time</Text>
               <Text>Symbol</Text>
@@ -76,11 +111,36 @@ const Page = () => {
               <Text>Stop loss</Text>
               <Text>Target Profit</Text>
             </Box>
-            {data?.map((e, i) => (
-              <TradingPlan setData={setData} id={i} key={i} data={e} />
-            ))}
-            <Box className="py-3 flex justify-center">
-              <button onClick={addData} className="bg-dark rounded-md p-1">
+            <Box className="flex-col w-full" ref={ref}>
+              {data?.map((e, i) => (
+                <TradingPlan
+                  setDeleteIndex={setDeleteIndex}
+                  openDelete={setVisible}
+                  setEditable={setEditable}
+                  editable={editable}
+                  setData={setData}
+                  id={i}
+                  key={i}
+                  data={e}
+                />
+              ))}
+            </Box>
+            <Box className="py-3 justify-center gap-6">
+              <button
+                onClick={handleSave}
+                className="bg-dark rounded-md p-2 active:brightness-150 transition-all"
+              >
+                <Image
+                  src="/icons/save.svg"
+                  height={12.5}
+                  width={12.5}
+                  alt="save icon"
+                />
+              </button>
+              <button
+                onClick={addData}
+                className="bg-dark rounded-md p-1  active:brightness-150 transition-all"
+              >
                 <Image
                   src="/icons/add.svg"
                   height={20}
@@ -99,7 +159,7 @@ const Page = () => {
           <Box className="w-full flex flex-col">
             <Box
               block
-              className="grid grid-cols-7 gap-2 w-full text-sm  text-gray bg-bg py-3 px-5"
+              className="grid grid-cols-7 gap-2 w-full text-sm  text-gray bg-bg p-4"
             >
               <Text>Date/Time</Text>
               <Text>Symbol</Text>

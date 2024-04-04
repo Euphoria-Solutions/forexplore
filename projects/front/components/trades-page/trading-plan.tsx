@@ -1,16 +1,20 @@
 'use client';
-import Image from 'next/image';
 import { Box } from '..';
 import { DataType, DragItem } from '.';
 import { Dispatch, SetStateAction, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useDrag } from 'react-dnd';
+import { TrashIcon } from '@/public/icons/trash-icon';
 
 type TradingPlanType = {
   data: DataType;
   setData: Dispatch<SetStateAction<DataType[]>>;
   id: number;
+  editable: boolean;
+  setEditable: Dispatch<SetStateAction<boolean>>;
+  openDelete: Dispatch<SetStateAction<boolean>>;
+  setDeleteIndex: Dispatch<SetStateAction<number>>;
 };
 
 type DataIndexType =
@@ -26,14 +30,21 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
   data,
   id,
   setData,
+  editable,
+  setEditable,
+  openDelete,
+  setDeleteIndex,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [, drag] = useDrag<DragItem, void>({
+  const [, drag] = useDrag<DragItem, void, { isDragging: boolean }>({
     type: 'item',
     item: { id: id, data: data },
     collect: monitor => ({
       isDragging: !!monitor.isDragging(),
     }),
+    canDrag: () => {
+      return !editable;
+    },
   });
 
   drag(ref);
@@ -51,17 +62,23 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
       })
     );
   };
+  const handleDelete = () => {
+    openDelete(true);
+    setDeleteIndex(id);
+  };
 
   return (
     <>
       <Box
         ref={ref}
+        onClick={() => setEditable(true)}
         block
-        className={`grid grid-cols-8 gap-2 w-full text-gray text-sm py-3 px-5`}
+        className={`grid grid-cols-7 gap-2 w-full text-gray text-sm px-4 ${!editable && '*:pointer-events-none'}`}
       >
         <Box className="flex items-center">
           <DatePicker
-            className="outline-none w-full"
+            disabled={!editable}
+            className="outline-none w-full bg-transparent py-4"
             selected={data.date}
             onChange={el => changeData(el, 'date')}
             popperPlacement="bottom-end"
@@ -69,52 +86,59 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
           />
         </Box>
         <input
-          className="outline-none"
+          onBlur={() => setEditable(false)}
+          className="outline-none bg-transparent py-4"
+          disabled={!editable}
           onChange={e => changeData(e.target.value, 'symbol')}
           value={data.symbol}
         />
         <button
+          disabled={!editable}
           onClick={() => changeData(data.purchase, 'purchase')}
-          className="outline-none capitalize text-left"
+          className="outline-none capitalize text-left cursor-text"
         >
           {data.purchase}
         </button>
         <input
-          className="outline-none"
+          disabled={!editable}
+          className="outline-none bg-transparent py-4"
           type="number"
           min={0}
           onChange={e => changeData(e.target.value, 'lots')}
           value={data.lots}
         />
         <input
-          className="outline-none"
+          disabled={!editable}
+          className="outline-none bg-transparent py-4"
           type="number"
           min={0}
           onChange={e => changeData(e.target.value, 'entryPrice')}
           value={data.entryPrice}
         />
         <input
-          className="outline-none text-light-red"
+          disabled={!editable}
+          className="outline-none text-light-red bg-transparent py-4"
           type="number"
           min={0}
           onChange={e => changeData(e.target.value, 'stopLoss')}
           value={data.stopLoss}
         />
-        <input
-          className="outline-none text-light-green"
-          type="number"
-          min={0}
-          onChange={e => changeData(e.target.value, 'targetProfit')}
-          value={data.targetProfit}
-        />
-        <button>
-          <Image
-            src="/icons/down-arrow.svg"
-            height={24}
-            width={24}
-            alt="down arrow icon"
+        <Box>
+          <input
+            disabled={!editable}
+            className="outline-none text-light-green bg-transparent py-4 w-full"
+            type="number"
+            min={0}
+            onChange={e => changeData(e.target.value, 'targetProfit')}
+            value={data.targetProfit}
           />
-        </button>
+          <button
+            onClick={handleDelete}
+            className="flex-1 !pointer-events-auto"
+          >
+            <TrashIcon className="text-[#DCDCDD] hover:brightness-75 active:brightness-50 transition-all h-4 w-4" />
+          </button>
+        </Box>
       </Box>
       <Box className="h-px w-full bg-bg" />
     </>
