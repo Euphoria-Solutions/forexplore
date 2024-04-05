@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { notifUpdater } from '@/helper';
 import { useMutation } from '@apollo/client';
 import { IMPORT_TRADE_HISTORY_MUTATION } from '@/graphql';
+import { PDFIcon, TrashIcon } from '@/public/icons';
 
 interface Trade {
   closePrice: number;
@@ -37,6 +38,7 @@ const Page = () => {
     balance: -1,
     forexAccountId: '660e3a7ce29aea9a1f48ef03',
   });
+  const [uploadTime, setUploadTime] = useState(0);
 
   useEffect(() => {
     if (file) {
@@ -54,13 +56,23 @@ const Page = () => {
       };
       reader.readAsBinaryString(file);
     }
-  }, [file]);
+  }, [file, json]);
+  useEffect(() => {
+    if (file) {
+      const interval = setInterval(() => {
+        setUploadTime(prev => prev + 1);
+      }, 59999);
 
+      return () => clearInterval(interval);
+    }
+  }, [file]);
   const handleTabChange = (number: number) => {
     setTab(number);
   };
   const handleUpload = (el: ChangeEvent<HTMLInputElement>) => {
-    if (el.target.files) setFile(el.target.files[0]);
+    if (el.target.files) {
+      setFile(el.target.files[0]);
+    }
   };
   const getColor = (number: number) => {
     if (number == tab) {
@@ -68,6 +80,10 @@ const Page = () => {
     } else {
       return 'gray';
     }
+  };
+  const deleteFile = () => {
+    setFile(undefined);
+    setUploadTime(0);
   };
 
   const checkJson = async () => {
@@ -172,26 +188,51 @@ const Page = () => {
       </Box>
       {tab == 2 && (
         <>
-          <Box className="rounded-3xl bg-white shadow-md w-full h-full flex-col">
+          <Box
+            className={`rounded-3xl bg-white shadow-md w-full h-${file ? 'fit' : 'full'} flex-col`}
+          >
             <Text className="py-6 px-9 w-full">New import</Text>
             <Box className="h-px w-full bg-[#EBEFF2]" />
-            <label
-              htmlFor="fileInput"
-              className="flex relative rounded-3xl cursor-pointer flex-col justify-center items-center h-full border-2 border-dashed border-[#E2E6EA] m-8"
-            >
-              <UploadAnimation />
-              <Text className="text-[3242634] whitespace-pre text-center select-none">
-                {'Click to browse or \n drag and drop your files\n'}
-                {file && file.name}
-              </Text>
-              <input
-                accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                className="absolute w-full h-full z-50 opacity-0 cursor-pointer"
-                onChange={handleUpload}
-                id="fileInput"
-                type="file"
-              />
-            </label>
+            {!file ? (
+              <label
+                htmlFor="fileInput"
+                className="flex relative rounded-3xl cursor-pointer flex-col justify-center items-center h-full border-2 border-dashed border-[#E2E6EA] m-8"
+              >
+                <UploadAnimation />
+                <Text className="text-[3242634] whitespace-pre text-center select-none">
+                  {'Click to browse or \n drag and drop your files\n'}
+                </Text>
+                <input
+                  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                  className="absolute w-full h-full z-50 opacity-0 cursor-pointer"
+                  onChange={handleUpload}
+                  id="fileInput"
+                  type="file"
+                />
+              </label>
+            ) : (
+              <Box className="rounded-3xl items-center justify-between border-dashed border-2 border-[#E2E6EA] p-8 m-8">
+                <Box className="gap-4">
+                  <PDFIcon className="text-[#4353FF]" />
+                  <Box className="flex-col">
+                    <Text className="font-medium text-sm">{file.name}</Text>
+                    <Text className="text-xs text-[#242634]">
+                      {uploadTime}m ago
+                    </Text>
+                  </Box>
+                </Box>
+                <Box className="gap-3 items-center">
+                  <Box className="border rounded-sm py-1 px-2 text-sm font-semibold h-fit border-[#CDD3D8]">
+                    {Math.round(file.size / 1024)}KB
+                  </Box>
+                  <button onClick={deleteFile}>
+                    <TrashIcon className="text-[#D92D20] h-6 w-6" />
+                  </button>
+                  {/* TODO:DROPDOWN HERE */}
+                  <Box>Dropdown placeholder</Box>
+                </Box>
+              </Box>
+            )}
           </Box>
           {tradeUploaded ? (
             <Box
