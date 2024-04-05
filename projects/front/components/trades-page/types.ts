@@ -1,4 +1,4 @@
-export interface Plan {
+export interface PlanType {
   time: Date;
   symbol: string;
   type: string;
@@ -11,7 +11,7 @@ export interface Plan {
 export interface TradePlan {
   _id: string;
   title: string;
-  plans: Plan[];
+  plans: PlanType[];
 }
 
 export interface Trade {
@@ -30,11 +30,11 @@ export interface Trade {
   commission: number;
   swap: number;
   profit: number;
-  plan: Plan | null;
+  plan: PlanType | null;
 }
 
 export type DragItem = {
   id: number;
-  data: Plan;
+  data: PlanType;
 };
 //Changes incoming

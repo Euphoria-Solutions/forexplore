@@ -1,25 +1,23 @@
 'use client';
-import { Box } from '..';
-import { DragItem, Plan, TradePlan } from '.';
-import { Dispatch, SetStateAction, useRef } from 'react';
-import DatePicker from 'react-datepicker';
+import { Box, Text } from '..';
+import { Plan, TradePlan } from '.';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useDrag } from 'react-dnd';
-import { TrashIcon } from '@/public/icons/trash-icon';
+import { PlanType } from './types';
+import Image from 'next/image';
 
 type TradingPlanType = {
-  data: Plan;
+  data: PlanType[];
+  tradePlan: TradePlan;
   setData: Dispatch<SetStateAction<TradePlan[]>>;
   id: number;
-  editable: boolean;
-  setEditable: Dispatch<SetStateAction<boolean>>;
-  openDelete: Dispatch<SetStateAction<boolean>>;
   setDeleteIndex: Dispatch<SetStateAction<number>>;
-  tradePlanId: string;
+  setVisible: Dispatch<SetStateAction<boolean>>;
+  searchValue: string;
 };
 
 type DataIndexType =
-  | 'date'
+  | 'time'
   | 'symbol'
   | 'type'
   | 'lot'
@@ -28,34 +26,23 @@ type DataIndexType =
   | 'takeProfit';
 
 export const TradingPlan: React.FC<TradingPlanType> = ({
-  data,
-  id,
-  setData,
-  editable,
-  setEditable,
-  openDelete,
+  data: curData,
+  setData: setCurData,
   setDeleteIndex,
-  tradePlanId,
+  setVisible,
+  id,
+  searchValue,
+  tradePlan: allTradePlan,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [, drag] = useDrag<DragItem, void, { isDragging: boolean }>({
-    type: 'item',
-    item: { id: id, data: data },
-    collect: monitor => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-    canDrag: () => {
-      return !editable;
-    },
-  });
-
-  drag(ref);
+  const [editable, setEditable] = useState(false);
+  const [data, setData] = useState(curData);
 
   const changeData = (e: string | Date | null, key: DataIndexType) => {
-    setData(prev =>
+    setCurData(prev =>
       prev.map(tradePlan => {
-        if (tradePlan._id === tradePlanId) {
-          const newPlans = tradePlan.plans.map((el, i) => {
+        if (allTradePlan._id === tradePlan._id) {
+          const newPlans = allTradePlan.plans.map((el, i) => {
             if (i == id) {
               return {
                 ...el,
@@ -73,85 +60,132 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
       })
     );
   };
-  const handleDelete = () => {
-    openDelete(true);
-    setDeleteIndex(id);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current) {
+        if (!ref.current.contains(event.target as Node)) {
+          setEditable(false);
+        } else {
+          setEditable(true);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [setEditable]);
+  useEffect(() => {
+    if (curData) {
+      if (searchValue) {
+        const curSearch = searchValue.toLowerCase();
+        setData(
+          curData.filter(e => {
+            if (e.time.toLocaleDateString().toLowerCase().includes(curSearch))
+              return true;
+            if (e.type.toLowerCase().includes(curSearch)) return true;
+            if (e.symbol.toLowerCase().includes(curSearch)) return true;
+            return false;
+          })
+        );
+      } else {
+        setData(curData);
+      }
+    }
+  }, [curData, searchValue]);
+
+  const addData = (id: string) => {
+    setCurData(prev =>
+      prev.map(tradePlan => {
+        if (tradePlan._id === id) {
+          return {
+            ...tradePlan,
+            plans: [
+              {
+                time: new Date(),
+                symbol: '',
+                type: 'sell',
+                lot: 0,
+                entryPrice: 0,
+                stopLoss: 0,
+                takeProfit: 0,
+              },
+              ...tradePlan.plans,
+            ],
+          };
+        }
+        return tradePlan;
+      })
+    );
+  };
+  const handleSave = () => {
+    setEditable(false);
   };
 
+  if (data.length == 0 && (curData.length != 0 || searchValue)) {
+    return null;
+  }
+
   return (
-    <>
-      <Box
-        ref={ref}
-        onClick={() => setEditable(true)}
-        block
-        className={`grid grid-cols-7 gap-2 w-full text-gray text-sm px-4 ${!editable && '*:pointer-events-none'}`}
-      >
-        <Box className="flex items-center">
-          <DatePicker
-            disabled={!editable}
-            className="outline-none w-full bg-transparent py-4"
-            selected={data.time}
-            onChange={el => changeData(el, 'date')}
-            popperPlacement="bottom-end"
-            maxDate={new Date()}
+    <Box className="bg-white flex flex-col gap-10 rounded-lg w-full p-6">
+      <Box className="flex justify-between items-center">
+        <Text className="font-medium text-xl">Trading plan 1</Text>
+        <button className="bg-dark p-3 rounded-lg">
+          <Image
+            src="/icons/category.svg"
+            alt="category icon"
+            height={20}
+            width={20}
           />
-        </Box>
-        <input
-          onBlur={() => setEditable(false)}
-          className="outline-none bg-transparent py-4"
-          disabled={!editable}
-          onChange={e => changeData(e.target.value, 'symbol')}
-          value={data.symbol}
-        />
-        <button
-          disabled={!editable}
-          onClick={() => changeData(data.type, 'type')}
-          className="outline-none capitalize text-left cursor-text"
-        >
-          {data.type}
         </button>
-        <input
-          disabled={!editable}
-          className="outline-none bg-transparent py-4"
-          type="number"
-          min={0}
-          onChange={e => changeData(e.target.value, 'lot')}
-          value={data.lot}
-        />
-        <input
-          disabled={!editable}
-          className="outline-none bg-transparent py-4"
-          type="number"
-          min={0}
-          onChange={e => changeData(e.target.value, 'entryPrice')}
-          value={data.entryPrice}
-        />
-        <input
-          disabled={!editable}
-          className="outline-none text-light-red bg-transparent py-4"
-          type="number"
-          min={0}
-          onChange={e => changeData(e.target.value, 'stopLoss')}
-          value={data.stopLoss}
-        />
-        <Box>
-          <input
-            disabled={!editable}
-            className="outline-none text-light-green bg-transparent py-4 w-full"
-            type="number"
-            min={0}
-            onChange={e => changeData(e.target.value, 'takeProfit')}
-            value={data.takeProfit}
-          />
+      </Box>
+      <Box className="w-full flex flex-col">
+        <Box block className="grid grid-cols-7 gap-2 w-full text-sm bg-bg p-4">
+          <Text>Time</Text>
+          <Text>Symbol</Text>
+          <Text>Buy/Sell</Text>
+          <Text>Lots</Text>
+          <Text>Entry Price</Text>
+          <Text>Stop loss</Text>
+          <Text>Target Profit</Text>
+        </Box>
+        <Box className="flex-col w-full" ref={ref}>
+          {data?.map((e, i) => (
+            <Plan
+              setDeleteIndex={setDeleteIndex}
+              openDelete={setVisible}
+              setEditable={setEditable}
+              editable={editable}
+              changeData={changeData}
+              id={i}
+              key={i}
+              data={e}
+            />
+          ))}
+        </Box>
+        <Box className="py-3 justify-center gap-6">
           <button
-            onClick={handleDelete}
-            className="flex-1 !pointer-events-auto"
+            onClick={handleSave}
+            className="bg-dark rounded-md p-2 active:brightness-150 transition-all"
           >
-            <TrashIcon className="text-[#DCDCDD] hover:brightness-75 active:brightness-50 transition-all h-4 w-4" />
+            <Image
+              src="/icons/save.svg"
+              height={12.5}
+              width={12.5}
+              alt="save icon"
+            />
+          </button>
+          <button
+            onClick={() => addData(allTradePlan._id)}
+            className="bg-dark rounded-md p-1  active:brightness-150 transition-all"
+          >
+            <Image src="/icons/add.svg" height={20} width={20} alt="add icon" />
           </button>
         </Box>
+        <Box className="h-px w-full bg-bg" />
       </Box>
-      <Box className="h-px w-full bg-bg" />
-    </>
+    </Box>
   );
 };

@@ -1,125 +1,94 @@
-'use client';
-import Image from 'next/image';
 import { Box, Text } from '..';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { DragItem, Trade } from '.';
-import { useDrop } from 'react-dnd';
-import { useRef, useState } from 'react';
+import { DragItem, Trade, RecentTrade, TradePlan } from '.';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
-type RecentComponentType = {
-  data: Trade;
-  id: number;
-  onDrop: (_item: DragItem, _index: number) => undefined;
-};
-type DropResult = {
-  item: DragItem;
+type RecentTradesType = {
+  data: Trade[];
+  setData: Dispatch<SetStateAction<Trade[]>>;
+  setTradePlansData: Dispatch<SetStateAction<TradePlan[]>>;
+  searchValue?: string;
 };
 
-export const RecentTrades: React.FC<RecentComponentType> = ({
-  data,
-  onDrop,
-  id,
+export const RecentTrades: React.FC<RecentTradesType> = ({
+  data: curData,
+  setData: setCurData,
+  setTradePlansData,
+  searchValue,
 }) => {
-  const accordionWidth = Math.round(400 / 7);
-  const ref = useRef<HTMLDivElement>(null);
-  const [showAccordion, setShowAccordion] = useState(false);
-  const [{ isOver }, drop] = useDrop<DragItem, DropResult, { isOver: boolean }>(
-    {
-      accept: 'item',
-      drop: (item: DragItem) => {
-        return onDrop(item, id);
-      },
-      collect: monitor => ({
-        isOver: !data.plan ? monitor.isOver() : false,
-      }),
-      canDrop: () => {
-        if (data.plan) {
-          return false;
-        } else {
-          return true;
+  const [data, setData] = useState(curData);
+
+  useEffect(() => {
+    if (curData) {
+      if (searchValue) {
+        const curSearch = searchValue.toLowerCase();
+        setData(
+          curData.filter(e => {
+            if (
+              new Date(e.closeTime)
+                .toLocaleDateString()
+                .toLowerCase()
+                .includes(curSearch)
+            )
+              return true;
+            if (e.type.toLowerCase().includes(curSearch)) return true;
+            if (e.symbol.toLowerCase().includes(curSearch)) return true;
+            return false;
+          })
+        );
+      } else {
+        setData(curData);
+      }
+    }
+  }, [curData, searchValue]);
+
+  const handleDrop = (item: DragItem, index: number) => {
+    setCurData(
+      curData.map((e, i) => {
+        if (i == index) {
+          console.log(item.data);
+          return {
+            ...e,
+            plan: item.data,
+          };
         }
-      },
-    }
-  );
-
-  drop(ref);
-
-  const handleAccordion = () => {
-    setShowAccordion(prev => !prev);
+        return e;
+      })
+    );
+    setTradePlansData(prev =>
+      prev.map(tradePlan => ({
+        ...tradePlan,
+        plans: tradePlan.plans.filter((_plan, i) => item.id != i),
+      }))
+    );
+    setData(prev => prev.filter((_e, i) => item.id != i));
+    return undefined;
   };
 
-  const showPlans = () => {
-    if (showAccordion && data.plan) {
-      return (
-        <>
-          <Box className="grid grid-cols-6 w-full text-sm p-4 gap-2 relative text-gray">
-            <Box className="z-10">Lots</Box>
-            <Box className="z-10">Planned entry</Box>
-            <Box className="z-10">Stop loss</Box>
-            <Box className="z-10">Target profit</Box>
-            <Box className={`absolute w-[${accordionWidth}%] h-full bg-bg`} />
-          </Box>
-          {data.plan && (
-            <Box className="grid grid-cols-6 w-full text-sm p-4 gap-2">
-              <Text>{data.plan.lot}</Text>
-              <DatePicker
-                className="outline-none w-full bg-transparent"
-                selected={data.plan.time}
-                onChange={() => {}}
-                disabled
-              />
-              <Text className="text-light-red">{data.plan.stopLoss}</Text>
-              <Text className="text-light-green">{data.plan.takeProfit}</Text>
-            </Box>
-          )}
-        </>
-      );
-    }
-  };
+  if (data.length == 0 && (curData.length != 0 || searchValue)) {
+    return null;
+  }
 
   return (
-    <>
-      <Box
-        block
-        ref={ref}
-        className={`grid grid-cols-6 gap-2 w-full bg-white text-black text-sm p-4 ${isOver && 'brightness-90'} transition-all`}
-      >
-        <Box className="flex items-center">
-          <DatePicker
-            className="outline-none w-full bg-transparent"
-            selected={new Date(data.closePrice)}
-            onChange={() => {}}
-            disabled
-          />
-        </Box>
-        <Text>{data.symbol}</Text>
-        <Text className="capitalize">{data.type}</Text>
-        <Text>{data.volume}</Text>
-        <Text>{data.plan ? 'Yes' : 'No'}</Text>
-        <Box className="flex justify-between">
-          <Text
-            className={data.profit < 0 ? 'text-light-red' : 'text-light-green'}
-          >
-            {data.profit}
-          </Text>
-          {data.plan && (
-            <button
-              className={`${showAccordion && 'rotate-180'} transition-all`}
-              onClick={handleAccordion}
-            >
-              <Image
-                src="/icons/down-arrow.svg"
-                height={24}
-                width={24}
-                alt="down arrow icon"
-              />
-            </button>
-          )}
-        </Box>
+    <Box className="bg-white flex flex-col gap-10 rounded-lg w-full p-6">
+      <Box className="flex items-center">
+        <Text className="font-medium text-xl">Recent Trades</Text>
       </Box>
-      {showPlans()}
-      <Box className="h-px w-full bg-bg" />
-    </>
+      <Box className="w-full flex flex-col">
+        <Box
+          block
+          className="grid grid-cols-6 gap-2 w-full text-sm  text-gray bg-bg p-4"
+        >
+          <Text>Date/Time</Text>
+          <Text>Symbol</Text>
+          <Text>Market Execution</Text>
+          <Text>Lots</Text>
+          <Text>Planned</Text>
+          <Text>Profit</Text>
+        </Box>
+        {data.map((e, i) => (
+          <RecentTrade id={i} onDrop={handleDrop} key={i} data={e} />
+        ))}
+      </Box>
+    </Box>
   );
 };
