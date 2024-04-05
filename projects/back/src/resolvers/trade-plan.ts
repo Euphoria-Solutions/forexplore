@@ -6,6 +6,7 @@ import {
   MutationEditPlanArgs,
   MutationEditTradePlanArgs,
   MutationLinkPlanToTradeArgs,
+  MutationUploadTradePlansArgs,
   QueryGetTradePlansArgs,
   ResolversParentTypes,
 } from '../generated/generated';
@@ -129,6 +130,30 @@ export const linkPlanToTrade = async (
     await TradeModel.findByIdAndUpdate(params.tradeId, { plan: params.planId });
 
     return true;
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+};
+
+export const uploadTradePlans = async (
+  _: ResolversParentTypes,
+  params: MutationUploadTradePlansArgs
+) => {
+  try {
+    const plans = await PlanModel.find({
+      tradePlan: params.tradePlan,
+    });
+    const uniquePlans = params.plans.filter(
+      plan => !plans.some(oldPlan => oldPlan._id === plan?._id)
+    );
+
+    if (uniquePlans.length > 0) {
+      const inserted = await PlanModel.insertMany(uniquePlans);
+
+      return inserted;
+    } else {
+      return [];
+    }
   } catch (err) {
     throw new Error((err as Error).message);
   }

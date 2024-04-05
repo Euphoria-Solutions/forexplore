@@ -110,6 +110,7 @@ export const tradeTypes = gql`
     ): [Trade]!
     # Trade Plan
     createTradePlan(forexAccount: String!, title: String!): Boolean!
+    uploadTradePlans(tradePlan: String!, plans: [PlanInput]!): Boolean!
     editTradePlan(_id: String!, title: String!): Boolean!
     deleteTradePlan(_id: String!): Boolean!
     # Plan

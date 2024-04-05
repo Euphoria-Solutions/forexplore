@@ -46,6 +46,7 @@ import {
   editTradePlan,
   getTradePlans,
   linkPlanToTrade,
+  uploadTradePlans,
 } from './trade-plan';
 
 export const resolversObjects = {
@@ -96,6 +97,7 @@ export const resolversObjects = {
     importTradeHistory,
     // Trade Plan
     createTradePlan,
+    uploadTradePlans,
     editTradePlan,
     deleteTradePlan,
     // Plan

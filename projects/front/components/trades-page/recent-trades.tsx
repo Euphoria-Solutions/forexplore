@@ -3,12 +3,12 @@ import Image from 'next/image';
 import { Box, Text } from '..';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { DragItem, RecentDataType } from '.';
+import { DragItem, Trade } from '.';
 import { useDrop } from 'react-dnd';
 import { useRef, useState } from 'react';
 
 type RecentComponentType = {
-  data: RecentDataType;
+  data: Trade;
   id: number;
   onDrop: (_item: DragItem, _index: number) => undefined;
 };
@@ -31,10 +31,10 @@ export const RecentTrades: React.FC<RecentComponentType> = ({
         return onDrop(item, id);
       },
       collect: monitor => ({
-        isOver: !data.plans ? monitor.isOver() : false,
+        isOver: !data.plan ? monitor.isOver() : false,
       }),
       canDrop: () => {
-        if (data.plans) {
+        if (data.plan) {
           return false;
         } else {
           return true;
@@ -45,42 +45,33 @@ export const RecentTrades: React.FC<RecentComponentType> = ({
 
   drop(ref);
 
-  const returnRiskColor: (_r: number) => string = (risk: number) => {
-    if (risk >= 10) return 'bg-light-red';
-    if (risk >= 5) return 'bg-light-yellow';
-    return 'bg-success';
-  };
   const handleAccordion = () => {
     setShowAccordion(prev => !prev);
   };
 
   const showPlans = () => {
-    if (showAccordion && data.plans) {
+    if (showAccordion && data.plan) {
       return (
         <>
-          <Box className="grid grid-cols-7 w-full text-sm p-4 gap-2 relative text-gray">
+          <Box className="grid grid-cols-6 w-full text-sm p-4 gap-2 relative text-gray">
             <Box className="z-10">Lots</Box>
             <Box className="z-10">Planned entry</Box>
             <Box className="z-10">Stop loss</Box>
             <Box className="z-10">Target profit</Box>
             <Box className={`absolute w-[${accordionWidth}%] h-full bg-bg`} />
           </Box>
-          {data.plans && (
-            <>
-              <Box className="grid grid-cols-7 w-full text-sm p-4 gap-2">
-                <Text>{data.plans.lots}</Text>
-                <DatePicker
-                  className="outline-none w-full bg-transparent"
-                  selected={data.plans.date}
-                  onChange={() => {}}
-                  disabled
-                />
-                <Text className="text-light-red">{data.plans.stopLoss}</Text>
-                <Text className="text-light-green">
-                  {data.plans.targetProfit}
-                </Text>
-              </Box>
-            </>
+          {data.plan && (
+            <Box className="grid grid-cols-6 w-full text-sm p-4 gap-2">
+              <Text>{data.plan.lot}</Text>
+              <DatePicker
+                className="outline-none w-full bg-transparent"
+                selected={data.plan.time}
+                onChange={() => {}}
+                disabled
+              />
+              <Text className="text-light-red">{data.plan.stopLoss}</Text>
+              <Text className="text-light-green">{data.plan.takeProfit}</Text>
+            </Box>
           )}
         </>
       );
@@ -92,39 +83,27 @@ export const RecentTrades: React.FC<RecentComponentType> = ({
       <Box
         block
         ref={ref}
-        className={`grid grid-cols-7 gap-2 w-full bg-white text-black text-sm p-4 ${isOver && 'brightness-90'} transition-all`}
+        className={`grid grid-cols-6 gap-2 w-full bg-white text-black text-sm p-4 ${isOver && 'brightness-90'} transition-all`}
       >
         <Box className="flex items-center">
           <DatePicker
             className="outline-none w-full bg-transparent"
-            selected={data.date}
+            selected={new Date(data.closePrice)}
             onChange={() => {}}
             disabled
           />
         </Box>
         <Text>{data.symbol}</Text>
-        <Text className="capitalize">{data.purchase}</Text>
-        <Text>{data.lots}</Text>
-        <Text>
-          {typeof data.planned == 'boolean'
-            ? data.planned
-              ? 'Yes'
-              : 'No'
-            : 'Null'}
-        </Text>
-        <Box className="flex items-center gap-1">
-          <Box
-            className={`${returnRiskColor(data.risk)} h-2 w-2 rounded-full`}
-          />
-          <Text>{data.risk}%</Text>
-        </Box>
+        <Text className="capitalize">{data.type}</Text>
+        <Text>{data.volume}</Text>
+        <Text>{data.plan ? 'Yes' : 'No'}</Text>
         <Box className="flex justify-between">
           <Text
             className={data.profit < 0 ? 'text-light-red' : 'text-light-green'}
           >
-            {Math.abs(data.profit)}
+            {data.profit}
           </Text>
-          {data.plans && (
+          {data.plan && (
             <button
               className={`${showAccordion && 'rotate-180'} transition-all`}
               onClick={handleAccordion}

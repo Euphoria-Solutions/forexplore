@@ -55,7 +55,7 @@ export const analysisTypes = gql`
 
   type SessionAnalysis {
     currentSessions: [String]!
-    sessionType: String! # Worst, Best Neutral
+    sessionType: String! # Worst, Best, Neutral
     statistics: [SessionStatistic]!
   }
 

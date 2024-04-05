@@ -1,6 +1,6 @@
 'use client';
 import { Box } from '..';
-import { DataType, DragItem } from '.';
+import { DragItem, Plan, TradePlan } from '.';
 import { Dispatch, SetStateAction, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -8,23 +8,24 @@ import { useDrag } from 'react-dnd';
 import { TrashIcon } from '@/public/icons/trash-icon';
 
 type TradingPlanType = {
-  data: DataType;
-  setData: Dispatch<SetStateAction<DataType[]>>;
+  data: Plan;
+  setData: Dispatch<SetStateAction<TradePlan[]>>;
   id: number;
   editable: boolean;
   setEditable: Dispatch<SetStateAction<boolean>>;
   openDelete: Dispatch<SetStateAction<boolean>>;
   setDeleteIndex: Dispatch<SetStateAction<number>>;
+  tradePlanId: string;
 };
 
 type DataIndexType =
   | 'date'
   | 'symbol'
-  | 'purchase'
-  | 'lots'
+  | 'type'
+  | 'lot'
   | 'entryPrice'
   | 'stopLoss'
-  | 'targetProfit';
+  | 'takeProfit';
 
 export const TradingPlan: React.FC<TradingPlanType> = ({
   data,
@@ -34,6 +35,7 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
   setEditable,
   openDelete,
   setDeleteIndex,
+  tradePlanId,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [, drag] = useDrag<DragItem, void, { isDragging: boolean }>({
@@ -51,14 +53,23 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
 
   const changeData = (e: string | Date | null, key: DataIndexType) => {
     setData(prev =>
-      prev.map((el, i) => {
-        if (i == id) {
+      prev.map(tradePlan => {
+        if (tradePlan._id === tradePlanId) {
+          const newPlans = tradePlan.plans.map((el, i) => {
+            if (i == id) {
+              return {
+                ...el,
+                [key]: key == 'type' ? (e == 'buy' ? 'sell' : 'buy') : e,
+              };
+            }
+            return el;
+          });
           return {
-            ...el,
-            [key]: key == 'purchase' ? (e == 'buy' ? 'sell' : 'buy') : e,
+            ...tradePlan,
+            plans: newPlans,
           };
         }
-        return el;
+        return tradePlan;
       })
     );
   };
@@ -79,7 +90,7 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
           <DatePicker
             disabled={!editable}
             className="outline-none w-full bg-transparent py-4"
-            selected={data.date}
+            selected={data.time}
             onChange={el => changeData(el, 'date')}
             popperPlacement="bottom-end"
             maxDate={new Date()}
@@ -94,18 +105,18 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
         />
         <button
           disabled={!editable}
-          onClick={() => changeData(data.purchase, 'purchase')}
+          onClick={() => changeData(data.type, 'type')}
           className="outline-none capitalize text-left cursor-text"
         >
-          {data.purchase}
+          {data.type}
         </button>
         <input
           disabled={!editable}
           className="outline-none bg-transparent py-4"
           type="number"
           min={0}
-          onChange={e => changeData(e.target.value, 'lots')}
-          value={data.lots}
+          onChange={e => changeData(e.target.value, 'lot')}
+          value={data.lot}
         />
         <input
           disabled={!editable}
@@ -129,8 +140,8 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
             className="outline-none text-light-green bg-transparent py-4 w-full"
             type="number"
             min={0}
-            onChange={e => changeData(e.target.value, 'targetProfit')}
-            value={data.targetProfit}
+            onChange={e => changeData(e.target.value, 'takeProfit')}
+            value={data.takeProfit}
           />
           <button
             onClick={handleDelete}

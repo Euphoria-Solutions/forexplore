@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 import {
-  MutationImportTradeHistroyArgs,
+  MutationImportTradeHistoryArgs,
   Trade,
 } from '../../generated/generated';
 import { StatisticsModel } from '../../models/statistics';
@@ -16,7 +16,7 @@ const defaultStatisticsData = {
 
 export const updateStatistics = async (
   inserted: Trade[],
-  params: MutationImportTradeHistroyArgs
+  params: MutationImportTradeHistoryArgs
 ) => {
   const date = new Date();
   const month = months[date.getMonth()];
