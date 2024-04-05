@@ -69,7 +69,7 @@ export const getForexAccounts = async (
   params: QueryGetForexAccountsArgs
 ) => {
   try {
-    return ForexAccountModel.find(params).populate('user');
+    return await ForexAccountModel.find(params).populate('user');
   } catch (err) {
     throw new Error((err as Error).message);
   }

@@ -3,11 +3,40 @@ import { Box, Text } from '@/components';
 import { UploadAnimation } from '@/components/settings-page';
 import * as XLSX from 'xlsx';
 import React, { ChangeEvent, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { notifUpdater } from '@/helper';
+import { useMutation } from '@apollo/client';
+import { IMPORT_TRADE_HISTORY_MUTATION } from '@/graphql';
+
+interface Trade {
+  closePrice: number;
+  closeTime: string;
+  commission: number;
+  forexAccount: string;
+  openPrice: number;
+  openTime: string;
+  positionId: string;
+  profit: number;
+  sl: number;
+  swap: number;
+  symbol: string;
+  volume: number;
+  type: string;
+  tp: number;
+}
 
 const Page = () => {
   const [tab, setTab] = useState(0);
   const [file, setFile] = useState<File>();
-  const [json, setJson] = useState('');
+  const [json, setJson] = useState<Record<string, unknown>[] | null>(null);
+  const [tradeHistory, setTradeHistory] = useState<Trade[]>([]);
+  const [tradeUploaded, setTradeUploaded] = useState(false);
+  const [ImportTradeHistory] = useMutation(IMPORT_TRADE_HISTORY_MUTATION);
+  const [additionalInfo, setAdditionalInfo] = useState({
+    broker: '',
+    balance: -1,
+    forexAccountId: '660e3a7ce29aea9a1f48ef03',
+  });
 
   useEffect(() => {
     if (file) {
@@ -18,13 +47,15 @@ const Page = () => {
           const workbook = XLSX.read(data, { type: 'binary' });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet);
-          setJson(JSON.stringify(json, null, 2));
+          const json: Record<string, unknown>[] =
+            XLSX.utils.sheet_to_json(worksheet);
+          setJson(json);
         }
       };
       reader.readAsBinaryString(file);
     }
-  }, [file, json]);
+  }, [file]);
+
   const handleTabChange = (number: number) => {
     setTab(number);
   };
@@ -36,6 +67,84 @@ const Page = () => {
       return 'black';
     } else {
       return 'gray';
+    }
+  };
+
+  const checkJson = async () => {
+    const id = toast.loading('Loading ...');
+    try {
+      if (!json) {
+        await notifUpdater(id, 'No File Uploaded', 'error');
+        setTradeUploaded(false);
+        return;
+      }
+      if (json[4][`Trade History Report`] != 'Positions') {
+        await notifUpdater(id, 'Invalid File', 'error');
+        setTradeUploaded(false);
+        return;
+      }
+      let balance = -1;
+      const broker = json[2][`__EMPTY_2`] as string;
+
+      json.map(data => {
+        if (data[`Trade History Report`] == 'Balance:') {
+          balance = Number(data[`__EMPTY_2`]);
+        }
+      });
+
+      let ordersIndx = -1;
+      const tradeHistoryData = json
+        .filter((data, indx) => {
+          if (data[`Trade History Report`] == 'Orders') {
+            ordersIndx = indx;
+          }
+          if (indx >= 6 && (ordersIndx > indx || ordersIndx == -1)) {
+            return true;
+          }
+          return false;
+        })
+        .map(
+          data =>
+            ({
+              closePrice: data[`__EMPTY_5`],
+              closeTime: data[`__EMPTY_7`],
+              commission: data[`__EMPTY_9`],
+              forexAccount: '660e3a7ce29aea9a1f48ef03',
+              openPrice: data[`__EMPTY_4`],
+              openTime: data[`Trade History Report`],
+              positionId: (data[`__EMPTY`] as number).toString(),
+              profit: data[`__EMPTY_11`],
+              sl: data[`__EMPTY_8`],
+              swap: data[`__EMPTY_10`],
+              symbol: data[`__EMPTY_1`],
+              volume: Number(data[`__EMPTY_3`]),
+              type: data[`__EMPTY_2`],
+              tp: data[`__EMPTY_6`],
+            }) as Trade
+        );
+
+      setTradeHistory(tradeHistoryData);
+      setAdditionalInfo({ ...additionalInfo, broker, balance });
+      setTradeUploaded(true);
+      await notifUpdater(id, 'Correct File', 'success');
+    } catch (err) {
+      setTradeUploaded(false);
+      await notifUpdater(id, 'Unexpected Error, Try Again', 'error');
+    }
+  };
+
+  const importHistory = async () => {
+    const id = toast.loading('Loading ...');
+    try {
+      await ImportTradeHistory({
+        variables: {
+          ...additionalInfo,
+          trades: tradeHistory,
+        },
+      });
+      await notifUpdater(id, 'Trade History Imported Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(id, (err as Error).message, 'error');
     }
   };
 
@@ -84,9 +193,21 @@ const Page = () => {
               />
             </label>
           </Box>
-          <button className="bg-dark text-white py-4 px-20 w-fit rounded-lg font-bold">
-            Confirm
-          </button>
+          {tradeUploaded ? (
+            <Box
+              onClick={importHistory}
+              className="bg-green text-white py-4 px-20 w-fit rounded-lg font-bold"
+            >
+              Import
+            </Box>
+          ) : (
+            <Box
+              onClick={checkJson}
+              className="bg-dark text-white py-4 px-20 w-fit rounded-lg font-bold"
+            >
+              Confirm
+            </Box>
+          )}
         </>
       )}
     </Box>

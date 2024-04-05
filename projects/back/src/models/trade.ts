@@ -8,11 +8,7 @@ const TradeSchema = new Schema({
 
   openTime: String,
   closeTime: String,
-  positionId: {
-    type: String,
-    unique: true,
-    index: true,
-  },
+  positionId: String,
   session: [String],
   symbol: String,
   type: String,
