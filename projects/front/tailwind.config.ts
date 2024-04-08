@@ -26,6 +26,9 @@ const config: Config = {
         'light-yellow': '#FFC565',
         pale: '#EBEFF2',
       },
+      boxShadow: {
+        dropdown: '0px 4px 14px 0px rgba(0,0,0,0.1)',
+      },
     },
   },
   safelist: ['text-green', 'text-yellow', 'text-red'],
