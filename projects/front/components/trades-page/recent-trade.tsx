@@ -6,11 +6,13 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { DragItem, Trade } from '.';
 import { useDrop } from 'react-dnd';
 import { useRef, useState } from 'react';
+import { TrashIcon } from '@/public/icons';
 
 type RecentComponentType = {
   data: Trade;
   id: number;
   onDrop: (_item: DragItem, _index: number) => undefined;
+  removePlan: (_id: string | undefined) => void;
 };
 type DropResult = {
   item: DragItem;
@@ -20,6 +22,7 @@ export const RecentTrade: React.FC<RecentComponentType> = ({
   data,
   onDrop,
   id,
+  removePlan,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [showAccordion, setShowAccordion] = useState(false);
@@ -52,16 +55,16 @@ export const RecentTrade: React.FC<RecentComponentType> = ({
     if (showAccordion && data.plan) {
       return (
         <>
-          <Box className="grid grid-cols-7 w-full text-sm p-4 gap-2 relative text-gray">
+          <Box className="grid grid-cols-6 w-full text-sm p-4 gap-2 relative text-gray">
             <Box className="z-10">Lots</Box>
             <Box className="z-10">Planned entry</Box>
             <Box className="z-10">Stop loss</Box>
             <Box className="z-10">Target profit</Box>
-            <Box className={`absolute w-[57%] h-full bg-bg`} />
+            <Box className={`absolute w-[66%] h-full bg-bg`} />
           </Box>
           {data.plan && (
             <>
-              <Box className="grid grid-cols-7 w-full text-sm p-4 gap-2">
+              <Box className="grid grid-cols-6 w-full text-sm p-4 gap-2">
                 <Text>{data.plan.lot}</Text>
                 <DatePicker
                   className="outline-none w-full bg-transparent"
@@ -70,7 +73,14 @@ export const RecentTrade: React.FC<RecentComponentType> = ({
                   disabled
                 />
                 <Text className="text-light-red">{data.plan.stopLoss}</Text>
-                <Text className="text-light-green">{data.plan.takeProfit}</Text>
+                <Box className="justify-between">
+                  <Text className="text-light-green">
+                    {data.plan.takeProfit}
+                  </Text>
+                  <button onClick={() => removePlan(data.plan?.moveId)}>
+                    <TrashIcon className="w-4 h-4 mr-4 text-[#DCDCDD]" />
+                  </button>
+                </Box>
               </Box>
             </>
           )}
@@ -84,6 +94,7 @@ export const RecentTrade: React.FC<RecentComponentType> = ({
       <Box
         block
         ref={ref}
+        onClick={handleAccordion}
         className={`grid grid-cols-6 gap-2 w-full bg-white text-black text-sm p-4 ${isOver && 'brightness-90'} transition-all`}
       >
         <Box className="flex items-center">
@@ -107,7 +118,6 @@ export const RecentTrade: React.FC<RecentComponentType> = ({
           {data.plan && (
             <button
               className={`${showAccordion && 'rotate-180'} transition-all`}
-              onClick={handleAccordion}
             >
               <Image
                 src="/icons/down-arrow.svg"

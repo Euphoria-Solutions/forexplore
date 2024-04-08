@@ -14,7 +14,11 @@ type PlansType = {
   setEditable: Dispatch<SetStateAction<boolean>>;
   openDelete: Dispatch<SetStateAction<boolean>>;
   setDeleteIndex: Dispatch<SetStateAction<number>>;
-  changeData: (_e: string | Date | null, _key: DataIndexType) => void;
+  changeData: (
+    _e: string | Date | null,
+    _key: DataIndexType,
+    _index: number
+  ) => void;
 };
 
 type DataIndexType =
@@ -67,7 +71,7 @@ export const Plan: React.FC<PlansType> = ({
             disabled={!editable}
             className="outline-none w-full bg-transparent py-4"
             selected={data.time}
-            onChange={el => changeData(el, 'time')}
+            onChange={el => changeData(el, 'time', id)}
             popperPlacement="bottom-end"
             maxDate={new Date()}
           />
@@ -76,12 +80,12 @@ export const Plan: React.FC<PlansType> = ({
           onBlur={() => setEditable(false)}
           className="outline-none bg-transparent py-4"
           disabled={!editable}
-          onChange={e => changeData(e.target.value, 'symbol')}
+          onChange={e => changeData(e.target.value, 'symbol', id)}
           value={data.symbol}
         />
         <button
           disabled={!editable}
-          onClick={() => changeData(data.type, 'type')}
+          onClick={() => changeData(data.type, 'type', id)}
           className="outline-none capitalize text-left cursor-text"
         >
           {data.type}
@@ -91,7 +95,7 @@ export const Plan: React.FC<PlansType> = ({
           className="outline-none bg-transparent py-4"
           type="number"
           min={0}
-          onChange={e => changeData(e.target.value, 'lot')}
+          onChange={e => changeData(e.target.value, 'lot', id)}
           value={data.lot}
         />
         <input
@@ -99,7 +103,7 @@ export const Plan: React.FC<PlansType> = ({
           className="outline-none bg-transparent py-4"
           type="number"
           min={0}
-          onChange={e => changeData(e.target.value, 'entryPrice')}
+          onChange={e => changeData(e.target.value, 'entryPrice', id)}
           value={data.entryPrice}
         />
         <input
@@ -107,7 +111,7 @@ export const Plan: React.FC<PlansType> = ({
           className="outline-none text-light-red bg-transparent py-4"
           type="number"
           min={0}
-          onChange={e => changeData(e.target.value, 'stopLoss')}
+          onChange={e => changeData(e.target.value, 'stopLoss', id)}
           value={data.stopLoss}
         />
         <Box>
@@ -116,7 +120,7 @@ export const Plan: React.FC<PlansType> = ({
             className="outline-none text-light-green bg-transparent py-4 w-full"
             type="number"
             min={0}
-            onChange={e => changeData(e.target.value, 'takeProfit')}
+            onChange={e => changeData(e.target.value, 'takeProfit', id)}
             value={data.takeProfit}
           />
           <button

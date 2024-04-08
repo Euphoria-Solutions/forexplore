@@ -1,19 +1,24 @@
 'use client';
 import { Box, Text } from '..';
-import { Plan, TradePlan } from '.';
+import { EditPlanModal, Plan, TradePlan } from '.';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { PlanType } from './types';
 import Image from 'next/image';
+import { MoreIcon } from '@/public/icons';
+import { useDrag, useDrop } from 'react-dnd';
+import { Identifier, XYCoord } from 'dnd-core';
 
 type TradingPlanType = {
   data: PlanType[];
   tradePlan: TradePlan;
   setData: Dispatch<SetStateAction<TradePlan[]>>;
-  id: number;
   setDeleteIndex: Dispatch<SetStateAction<number>>;
   setVisible: Dispatch<SetStateAction<boolean>>;
+  setTradingPlansData: Dispatch<SetStateAction<TradePlan[]>>;
   searchValue: string;
+  moveTradingPlan: (_i: number, _hi: number) => void;
+  index: number;
 };
 
 type DataIndexType =
@@ -24,26 +29,88 @@ type DataIndexType =
   | 'entryPrice'
   | 'stopLoss'
   | 'takeProfit';
+type DragItem = {
+  index: number;
+};
 
 export const TradingPlan: React.FC<TradingPlanType> = ({
-  data: curData,
-  setData: setCurData,
+  data,
+  setData,
   setDeleteIndex,
   setVisible,
-  id,
   searchValue,
   tradePlan: allTradePlan,
+  setTradingPlansData,
+  moveTradingPlan,
+  index,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [editable, setEditable] = useState(false);
-  const [data, setData] = useState(curData);
+  const dragRef = useRef<HTMLDivElement>(null);
 
-  const changeData = (e: string | Date | null, key: DataIndexType) => {
-    setCurData(prev =>
+  const [{ handlerId }, drop] = useDrop<
+    TradePlan,
+    void,
+    { handlerId: Identifier | null }
+  >({
+    accept: 'tradingPlanDraggable',
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
+    },
+    hover(item: DragItem, monitor) {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+      const hoverBoundingRect = ref.current?.getBoundingClientRect();
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const clientOffset = monitor.getClientOffset();
+      const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top;
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return;
+      }
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
+      moveTradingPlan(dragIndex, hoverIndex);
+      item.index = hoverIndex;
+    },
+  });
+
+  const [, drag] = useDrag({
+    type: 'tradingPlanDraggable',
+    item: () => {
+      return {
+        index: index,
+      };
+    },
+    collect: monitor => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  drag(drop(dragRef));
+
+  const [editable, setEditable] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const changeData = (
+    e: string | Date | null,
+    key: DataIndexType,
+    index: number
+  ) => {
+    setData(prev =>
       prev.map(tradePlan => {
         if (allTradePlan._id === tradePlan._id) {
           const newPlans = allTradePlan.plans.map((el, i) => {
-            if (i == id) {
+            if (i == index) {
               return {
                 ...el,
                 [key]: key == 'type' ? (e == 'buy' ? 'sell' : 'buy') : e,
@@ -77,27 +144,9 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
       document.removeEventListener('click', handleClickOutside);
     };
   }, [setEditable]);
-  useEffect(() => {
-    if (curData) {
-      if (searchValue) {
-        const curSearch = searchValue.toLowerCase();
-        setData(
-          curData.filter(e => {
-            if (e.time.toLocaleDateString().toLowerCase().includes(curSearch))
-              return true;
-            if (e.type.toLowerCase().includes(curSearch)) return true;
-            if (e.symbol.toLowerCase().includes(curSearch)) return true;
-            return false;
-          })
-        );
-      } else {
-        setData(curData);
-      }
-    }
-  }, [curData, searchValue]);
 
   const addData = (id: string) => {
-    setCurData(prev =>
+    setData(prev =>
       prev.map(tradePlan => {
         if (tradePlan._id === id) {
           return {
@@ -111,6 +160,7 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
                 entryPrice: 0,
                 stopLoss: 0,
                 takeProfit: 0,
+                moveId: allTradePlan._id,
               },
               ...tradePlan.plans,
             ],
@@ -123,23 +173,51 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
   const handleSave = () => {
     setEditable(false);
   };
+  const onEdit = (name: string) => {
+    setTradingPlansData(prev =>
+      prev.map(e => {
+        if (e._id == allTradePlan._id) {
+          return {
+            ...e,
+            title: name,
+          };
+        } else {
+          return e;
+        }
+      })
+    );
+  };
+  const onDelete = () => {
+    setTradingPlansData(prev => prev.filter(e => e._id != allTradePlan._id));
+  };
 
-  if (data.length == 0 && (curData.length != 0 || searchValue)) {
+  if (data.length == 0 && (data.length != 0 || searchValue)) {
     return null;
   }
 
   return (
-    <Box className="bg-white flex flex-col gap-10 rounded-lg w-full p-6">
+    <div
+      ref={dragRef}
+      data-handler-id={handlerId}
+      className={`bg-white flex flex-col gap-10 rounded-lg w-full p-6`}
+    >
+      <EditPlanModal
+        defaultValue={allTradePlan.title}
+        onDelete={onDelete}
+        onEdit={onEdit}
+        visible={modalVisible}
+        setVisible={setModalVisible}
+      />
       <Box className="flex justify-between items-center">
-        <Text className="font-medium text-xl">Trading plan 1</Text>
-        <button className="bg-dark p-3 rounded-lg">
-          <Image
-            src="/icons/category.svg"
-            alt="category icon"
-            height={20}
-            width={20}
-          />
-        </button>
+        <Text className="font-medium text-xl">{allTradePlan.title}</Text>
+        <Box className="gap-4">
+          <button className="p-3" onClick={() => setModalVisible(true)}>
+            <MoreIcon />
+          </button>
+          {/* <Box ref={dragRef} className="cursor-pointer p-3 rounded-lg bg-dark">
+            <CategoryIcon className="text-white" />
+          </Box> */}
+        </Box>
       </Box>
       <Box className="w-full flex flex-col">
         <Box block className="grid grid-cols-7 gap-2 w-full text-sm bg-bg p-4">
@@ -186,6 +264,6 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
         </Box>
         <Box className="h-px w-full bg-bg" />
       </Box>
-    </Box>
+    </div>
   );
 };

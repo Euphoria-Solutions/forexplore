@@ -6,12 +6,14 @@ export interface PlanType {
   entryPrice: number;
   stopLoss: number;
   takeProfit: number;
+  moveId: string;
 }
 
 export interface TradePlan {
   _id: string;
   title: string;
   plans: PlanType[];
+  index: number;
 }
 
 export interface Trade {

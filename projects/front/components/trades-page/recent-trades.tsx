@@ -1,5 +1,5 @@
 import { Box, Text } from '..';
-import { DragItem, Trade, RecentTrade, TradePlan } from '.';
+import { DragItem, Trade, RecentTrade, TradePlan, PlanType } from '.';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 type RecentTradesType = {
@@ -39,13 +39,13 @@ export const RecentTrades: React.FC<RecentTradesType> = ({
         setData(curData);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curData, searchValue]);
 
   const handleDrop = (item: DragItem, index: number) => {
     setCurData(
       curData.map((e, i) => {
         if (i == index) {
-          console.log(item.data);
           return {
             ...e,
             plan: item.data,
@@ -63,9 +63,45 @@ export const RecentTrades: React.FC<RecentTradesType> = ({
     setData(prev => prev.filter((_e, i) => item.id != i));
     return undefined;
   };
+  const removePlan = (
+    id: string | undefined,
+    index: number,
+    data: PlanType | null
+  ) => {
+    if (data) {
+      setCurData(
+        curData.map((e, i) => {
+          if (i == index) {
+            return {
+              ...e,
+              plan: null,
+            };
+          }
+          return e;
+        })
+      );
+      if (id) {
+        setTradePlansData(prev =>
+          prev.map(tradePlan => {
+            if (tradePlan._id == id) {
+              return {
+                ...tradePlan,
+                plans: [...tradePlan.plans, data],
+              };
+            }
+            return tradePlan;
+          })
+        );
+      }
+    }
+  };
 
   if (data.length == 0 && (curData.length != 0 || searchValue)) {
-    return null;
+    return (
+      <Text className="bg-white p-6 w-full text-center rounded-lg font-bold">
+        No Trades Data
+      </Text>
+    );
   }
 
   return (
@@ -86,7 +122,13 @@ export const RecentTrades: React.FC<RecentTradesType> = ({
           <Text>Profit</Text>
         </Box>
         {data.map((e, i) => (
-          <RecentTrade id={i} onDrop={handleDrop} key={i} data={e} />
+          <RecentTrade
+            removePlan={id => removePlan(id, i, e.plan)}
+            id={i}
+            onDrop={handleDrop}
+            key={i}
+            data={e}
+          />
         ))}
       </Box>
     </Box>

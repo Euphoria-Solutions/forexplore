@@ -1,6 +1,8 @@
 'use client';
 import { Box, Text } from '@/components';
+import update from 'immutability-helper';
 import {
+  AddPlanModal,
   DeleteModal,
   RecentTrades,
   SearchInput,
@@ -11,7 +13,7 @@ import {
 import { GET_TRADE_PLANS_QUERY, GET_TRADES_QUERY } from '@/graphql';
 import { useQuery } from '@apollo/client';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -32,6 +34,9 @@ const Page = () => {
   const [visible, setVisible] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(-1);
   const [searchValue, setSearchValue] = useState('');
+  const [filteredData, setFilteredData] = useState<TradePlan[]>([]);
+  const [visibleNumber, setVisibleNumber] = useState(0);
+  const [addModalVisible, setAddModalVisible] = useState(false);
 
   useEffect(() => {
     if (!loading && tradePlansDataRaw?.getTradePlans) {
@@ -45,27 +50,42 @@ const Page = () => {
     }
   }, [tradeData]);
 
-  // const handleDrop = (item: DragItem, index: number) => {
-  //   setRecentData(
-  //     recentData.map((e, i) => {
-  //       if (i == index) {
-  //         console.log(item.data);
-  //         return {
-  //           ...e,
-  //           plan: item.data,
-  //         };
-  //       }
-  //       return e;
-  //     })
-  //   );
-  //   setTradePlansData(prev =>
-  //     prev.map(tradePlan => ({
-  //       ...tradePlan,
-  //       plans: tradePlan.plans.filter((_plan, i) => item.id != i),
-  //     }))
-  //   );
-  //   return undefined;
-  // };
+  useEffect(() => {
+    setVisibleNumber(0);
+    if (tradePlansData) {
+      if (searchValue) {
+        const handleAddfilteredData = () => {
+          setVisibleNumber(prev => prev + 1);
+          return true;
+        };
+        const curSearch = searchValue.toLowerCase();
+        setFilteredData(
+          tradePlansData.map(data => {
+            return {
+              ...data,
+              plans: data.plans.filter(e => {
+                if (
+                  new Date(e.time)
+                    ?.toLocaleDateString()
+                    ?.toLowerCase()
+                    .includes(curSearch)
+                )
+                  return handleAddfilteredData();
+                if (e.type.toLowerCase().includes(curSearch))
+                  return handleAddfilteredData();
+                if (e.symbol.toLowerCase().includes(curSearch))
+                  return handleAddfilteredData();
+                return false;
+              }),
+            };
+          })
+        );
+      } else {
+        setVisibleNumber(1);
+        setFilteredData(tradePlansData);
+      }
+    }
+  }, [tradePlansData, searchValue]);
 
   const onDelete = () => {
     if (deleteIndex != -1) {
@@ -78,6 +98,47 @@ const Page = () => {
     }
     setVisible(false);
   };
+  const addTradingPlan = (name: string) => {
+    setTradePlansData([
+      ...tradePlansData,
+      {
+        _id: tradePlansData.length.toString(),
+        title: name ? name : 'New Trading Plan',
+        plans: [],
+        index: tradePlansData.length,
+      },
+    ]);
+  };
+  const moveTradingPlan = useCallback((index: number, hoverIndex: number) => {
+    setFilteredData((prev: TradePlan[]) =>
+      update(prev, {
+        $splice: [
+          [index, 1],
+          [hoverIndex, 0, prev[index] as TradePlan],
+        ],
+      })
+    );
+    return;
+  }, []);
+  const renderTradingPlan = useCallback(
+    (index: number, tradePlan: TradePlan) => {
+      return (
+        <TradingPlan
+          index={index}
+          key={index}
+          data={tradePlan.plans}
+          tradePlan={tradePlan}
+          setData={setTradePlansData}
+          setDeleteIndex={setDeleteIndex}
+          setVisible={setVisible}
+          searchValue={searchValue}
+          setTradingPlansData={setTradePlansData}
+          moveTradingPlan={moveTradingPlan}
+        />
+      );
+    },
+    [moveTradingPlan, searchValue]
+  );
 
   if (loading) {
     return (
@@ -87,22 +148,28 @@ const Page = () => {
     );
   }
 
-  console.log(recentData);
-
   return (
     <DndProvider backend={HTML5Backend}>
-      <Box className="w-screen py-7 bg-bg flex flex-col gap-6">
+      <Box className="w-screen py-7 min-h-screen h-fit bg-bg flex flex-col gap-6">
         <DeleteModal
           onDelete={onDelete}
           setVisible={setVisible}
           visible={visible}
+        />
+        <AddPlanModal
+          onCreate={addTradingPlan}
+          visible={addModalVisible}
+          setVisible={setAddModalVisible}
         />
         <SearchInput
           placeholder="Search"
           value={searchValue}
           setValue={setSearchValue}
           rightElement={
-            <button className="bg-dark text-white flex-shrink-0 font-medium rounded-full p-2 px-6 flex gap-1">
+            <button
+              onClick={() => setAddModalVisible(true)}
+              className="bg-dark text-white flex-shrink-0 font-medium rounded-full p-2 px-6 flex gap-1"
+            >
               <Image
                 src="/icons/add.svg"
                 height={22}
@@ -113,18 +180,15 @@ const Page = () => {
             </button>
           }
         />
-        {tradePlansData.map((tradePlan: TradePlan, indx: number) => (
-          <TradingPlan
-            key={indx}
-            data={tradePlan.plans}
-            tradePlan={tradePlan}
-            setData={setTradePlansData}
-            setDeleteIndex={setDeleteIndex}
-            setVisible={setVisible}
-            searchValue={searchValue}
-            id={indx}
-          />
-        ))}
+        {visibleNumber ? (
+          filteredData.map((tradePlan: TradePlan, indx: number) =>
+            renderTradingPlan(indx, tradePlan)
+          )
+        ) : (
+          <Text className="bg-white p-6 w-full text-center rounded-lg font-bold">
+            No Plan Data
+          </Text>
+        )}
         <RecentTrades
           setTradePlansData={setTradePlansData}
           searchValue={searchValue}
