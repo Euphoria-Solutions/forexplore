@@ -10,40 +10,33 @@ import { TrashIcon } from '@/public/icons';
 
 type RecentComponentType = {
   data: Trade;
-  id: number;
-  onDrop: (_item: DragItem, _index: number) => undefined;
-  removePlan: (_id: string | undefined) => void;
-};
-type DropResult = {
-  item: DragItem;
+  onDrop: (_item: DragItem, _index: string) => void;
+  removePlan: (_data: Trade) => void;
 };
 
 export const RecentTrade: React.FC<RecentComponentType> = ({
   data,
   onDrop,
-  id,
   removePlan,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [showAccordion, setShowAccordion] = useState(false);
-  const [{ isOver }, drop] = useDrop<DragItem, DropResult, { isOver: boolean }>(
-    {
-      accept: 'item',
-      drop: (item: DragItem) => {
-        return onDrop(item, id);
-      },
-      collect: monitor => ({
-        isOver: !data.plan ? monitor.isOver() : false,
-      }),
-      canDrop: () => {
-        if (data.plan) {
-          return false;
-        } else {
-          return true;
-        }
-      },
-    }
-  );
+  const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
+    accept: 'item',
+    drop: (item: DragItem) => {
+      return onDrop(item, data._id);
+    },
+    collect: monitor => ({
+      isOver: !data.plan ? monitor.isOver() : false,
+    }),
+    canDrop: () => {
+      if (data.plan) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+  });
 
   drop(ref);
 
@@ -63,26 +56,22 @@ export const RecentTrade: React.FC<RecentComponentType> = ({
             <Box className={`absolute w-[66%] h-full bg-bg`} />
           </Box>
           {data.plan && (
-            <>
-              <Box className="grid grid-cols-6 w-full text-sm p-4 gap-2">
-                <Text>{data.plan.lot}</Text>
-                <DatePicker
-                  className="outline-none w-full bg-transparent"
-                  selected={data.plan.time}
-                  onChange={() => {}}
-                  disabled
-                />
-                <Text className="text-light-red">{data.plan.stopLoss}</Text>
-                <Box className="justify-between">
-                  <Text className="text-light-green">
-                    {data.plan.takeProfit}
-                  </Text>
-                  <button onClick={() => removePlan(data.plan?.moveId)}>
-                    <TrashIcon className="w-4 h-4 mr-4 text-[#DCDCDD]" />
-                  </button>
-                </Box>
+            <Box className="grid grid-cols-6 w-full text-sm p-4 gap-2">
+              <Text>{data.plan.lot}</Text>
+              <DatePicker
+                className="outline-none w-full bg-transparent"
+                selected={data.plan.time}
+                onChange={() => {}}
+                disabled
+              />
+              <Text className="text-light-red">{data.plan.stopLoss}</Text>
+              <Box className="justify-between">
+                <Text className="text-light-green">{data.plan.takeProfit}</Text>
+                <button onClick={() => removePlan(data)}>
+                  <TrashIcon className="w-4 h-4 mr-4 text-[#DCDCDD]" />
+                </button>
               </Box>
-            </>
+            </Box>
           )}
         </>
       );

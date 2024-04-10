@@ -1,24 +1,28 @@
 'use client';
 import { Box } from '..';
-import { DragItem, PlanType } from '.';
-import { Dispatch, SetStateAction, useRef } from 'react';
+import { DeleteModal, DragItem, PlanType, TradePlan } from '.';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useDrag } from 'react-dnd';
 import { TrashIcon } from '@/public/icons/trash-icon';
+import { useMutation } from '@apollo/client';
+import { REMOVE_PLAN_MUTATION } from '@/graphql';
+import { toast } from 'react-toastify';
+import { notifUpdater } from '@/helper';
 
 type PlansType = {
   data: PlanType;
   id: number;
   editable: boolean;
   setEditable: Dispatch<SetStateAction<boolean>>;
-  openDelete: Dispatch<SetStateAction<boolean>>;
-  setDeleteIndex: Dispatch<SetStateAction<number>>;
   changeData: (
     _e: string | Date | null,
     _key: DataIndexType,
     _index: number
   ) => void;
+  setTradePlansData: Dispatch<SetStateAction<TradePlan[]>>;
+  refetchData: () => void;
 };
 
 type DataIndexType =
@@ -36,10 +40,12 @@ export const Plan: React.FC<PlansType> = ({
   changeData,
   editable,
   setEditable,
-  openDelete,
-  setDeleteIndex,
+  setTradePlansData,
+  refetchData,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [RemovePlan] = useMutation(REMOVE_PLAN_MUTATION);
   const [, drag] = useDrag<DragItem, void, { isDragging: boolean }>({
     type: 'item',
     item: { id: id, data: data },
@@ -53,9 +59,26 @@ export const Plan: React.FC<PlansType> = ({
 
   drag(ref);
 
-  const handleDelete = () => {
-    openDelete(true);
-    setDeleteIndex(id);
+  const onDelete = async () => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      setTradePlansData(prev =>
+        prev.map(tradePlan => ({
+          ...tradePlan,
+          plans: tradePlan.plans.filter((_e, i) => i != id),
+        }))
+      );
+      setVisible(false);
+      await RemovePlan({
+        variables: {
+          id: data._id,
+        },
+      });
+      refetchData();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
   };
 
   return (
@@ -71,7 +94,7 @@ export const Plan: React.FC<PlansType> = ({
             disabled={!editable}
             className="outline-none w-full bg-transparent py-4"
             selected={data.time}
-            onChange={el => changeData(el, 'time', id)}
+            onChange={el => changeData(el && el.toISOString(), 'time', id)}
             popperPlacement="bottom-end"
             maxDate={new Date()}
           />
@@ -124,13 +147,18 @@ export const Plan: React.FC<PlansType> = ({
             value={data.takeProfit}
           />
           <button
-            onClick={handleDelete}
+            onClick={() => setVisible(true)}
             className="flex-1 !pointer-events-auto"
           >
             <TrashIcon className="text-[#DCDCDD] hover:brightness-75 active:brightness-50 transition-all h-4 w-4" />
           </button>
         </Box>
       </Box>
+      <DeleteModal
+        onDelete={onDelete}
+        setVisible={setVisible}
+        visible={visible}
+      />
       <Box className="h-px w-full bg-bg" />
     </>
   );

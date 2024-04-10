@@ -48,6 +48,7 @@ export const tradeTypes = gql`
     entryPrice: Float!
     stopLoss: Float!
     takeProfit: Float!
+    linkedToTrade: Boolean!
   }
 
   type TradePlanDetails {
@@ -76,15 +77,15 @@ export const tradeTypes = gql`
 
   input PlanInput {
     _id: String!
-    tradePlan: String!
 
-    time: String!
-    symbol: String!
-    type: String!
-    lot: Float!
-    entryPrice: Float!
-    stopLoss: Float!
-    takeProfit: Float!
+    time: String
+    symbol: String
+    type: String
+    lot: Float
+    entryPrice: Float
+    stopLoss: Float
+    takeProfit: Float
+    linkedToTrade: Boolean
   }
 
   extend type Query {
@@ -110,7 +111,6 @@ export const tradeTypes = gql`
     ): [Trade]!
     # Trade Plan
     createTradePlan(forexAccount: String!, title: String!): Boolean!
-    uploadTradePlans(tradePlan: String!, plans: [PlanInput]!): Boolean!
     editTradePlan(_id: String!, title: String!): Boolean!
     deleteTradePlan(_id: String!): Boolean!
     # Plan
@@ -124,8 +124,9 @@ export const tradeTypes = gql`
       stopLoss: Float!
       takeProfit: Float!
     ): Boolean!
-    editPlan(plans: [PlanInput!]): Boolean!
+    editPlan(plans: [PlanInput]!): Boolean!
     deletePlan(_id: String!): Boolean!
     linkPlanToTrade(planId: String!, tradeId: String!): Boolean!
+    unLinkPlanFromTrade(planId: String!, tradeId: String!): Boolean!
   }
 `;

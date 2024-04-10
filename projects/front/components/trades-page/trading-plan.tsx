@@ -1,48 +1,32 @@
 'use client';
 import { Box, Text } from '..';
 import { EditPlanModal, Plan, TradePlan } from '.';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
-import { PlanType } from './types';
+import { DataIndexType, TradingPlanType } from './types';
 import Image from 'next/image';
 import { MoreIcon } from '@/public/icons';
 import { useDrag, useDrop } from 'react-dnd';
 import { Identifier, XYCoord } from 'dnd-core';
-
-type TradingPlanType = {
-  data: PlanType[];
-  tradePlan: TradePlan;
-  setData: Dispatch<SetStateAction<TradePlan[]>>;
-  setDeleteIndex: Dispatch<SetStateAction<number>>;
-  setVisible: Dispatch<SetStateAction<boolean>>;
-  setTradingPlansData: Dispatch<SetStateAction<TradePlan[]>>;
-  searchValue: string;
-  moveTradingPlan: (_i: number, _hi: number) => void;
-  index: number;
-};
-
-type DataIndexType =
-  | 'time'
-  | 'symbol'
-  | 'type'
-  | 'lot'
-  | 'entryPrice'
-  | 'stopLoss'
-  | 'takeProfit';
-type DragItem = {
-  index: number;
-};
+import { toast } from 'react-toastify';
+import { notifUpdater } from '@/helper';
+import { useMutation } from '@apollo/client';
+import {
+  ADD_PLAN_MUTATION,
+  EDIT_PLAN_MUTATION,
+  EDIT_TRADING_PLAN_MUTATION,
+  REMOVE_TRADING_PLAN_MUTATION,
+} from '@/graphql';
 
 export const TradingPlan: React.FC<TradingPlanType> = ({
   data,
   setData,
-  setDeleteIndex,
-  setVisible,
   searchValue,
   tradePlan: allTradePlan,
-  setTradingPlansData,
   moveTradingPlan,
   index,
+  tradePlan,
+  refetchData,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const dragRef = useRef<HTMLDivElement>(null);
@@ -58,7 +42,7 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
         handlerId: monitor.getHandlerId(),
       };
     },
-    hover(item: DragItem, monitor) {
+    hover(item: { index: number }, monitor) {
       if (!ref.current) {
         return;
       }
@@ -100,33 +84,65 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
 
   const [editable, setEditable] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
 
-  const changeData = (
+  const [AddPlan] = useMutation(ADD_PLAN_MUTATION);
+  const [EditPlan] = useMutation(EDIT_PLAN_MUTATION);
+
+  const [EditTradingPlan] = useMutation(EDIT_TRADING_PLAN_MUTATION);
+  const [RemoveTradingPlan] = useMutation(REMOVE_TRADING_PLAN_MUTATION);
+
+  const changeData = async (
     e: string | Date | null,
     key: DataIndexType,
     index: number
   ) => {
     setData(prev =>
-      prev.map(tradePlan => {
-        if (allTradePlan._id === tradePlan._id) {
-          const newPlans = allTradePlan.plans.map((el, i) => {
+      prev.map(oldTradePlan => {
+        if (oldTradePlan._id === tradePlan._id) {
+          const newPlans = oldTradePlan.plans.map((el, i) => {
             if (i == index) {
               return {
                 ...el,
-                [key]: key == 'type' ? (e == 'buy' ? 'sell' : 'buy') : e,
+                [key]:
+                  key == 'type'
+                    ? e == 'buy'
+                      ? 'sell'
+                      : 'buy'
+                    : Number(e)
+                      ? Number(e)
+                      : e,
               };
             }
             return el;
           });
           return {
-            ...tradePlan,
+            ...oldTradePlan,
             plans: newPlans,
           };
         }
-        return tradePlan;
+        return oldTradePlan;
       })
     );
+    setIsChanged(true);
   };
+
+  const handleSave = async () => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await EditPlan({
+        variables: {
+          plans: data,
+        },
+      });
+      refetchData();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+      setIsChanged(false);
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (ref.current) {
@@ -145,50 +161,55 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
     };
   }, [setEditable]);
 
-  const addData = (id: string) => {
-    setData(prev =>
-      prev.map(tradePlan => {
-        if (tradePlan._id === id) {
-          return {
-            ...tradePlan,
-            plans: [
-              {
-                time: new Date(),
-                symbol: '',
-                type: 'sell',
-                lot: 0,
-                entryPrice: 0,
-                stopLoss: 0,
-                takeProfit: 0,
-                moveId: allTradePlan._id,
-              },
-              ...tradePlan.plans,
-            ],
-          };
-        }
-        return tradePlan;
-      })
-    );
+  const addData = async () => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await AddPlan({
+        variables: {
+          tradePlan: tradePlan._id,
+          time: new Date().toISOString(),
+          symbol: '',
+          type: 'sell',
+          lot: 0,
+          entryPrice: 0,
+          stopLoss: 0,
+          takeProfit: 0,
+        },
+      });
+      refetchData();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
   };
-  const handleSave = () => {
-    setEditable(false);
+  const onEdit = async (name: string) => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await EditTradingPlan({
+        variables: {
+          id: tradePlan._id,
+          title: name,
+        },
+      });
+      refetchData();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
   };
-  const onEdit = (name: string) => {
-    setTradingPlansData(prev =>
-      prev.map(e => {
-        if (e._id == allTradePlan._id) {
-          return {
-            ...e,
-            title: name,
-          };
-        } else {
-          return e;
-        }
-      })
-    );
-  };
-  const onDelete = () => {
-    setTradingPlansData(prev => prev.filter(e => e._id != allTradePlan._id));
+  const onDelete = async () => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await RemoveTradingPlan({
+        variables: {
+          id: tradePlan._id,
+        },
+      });
+      refetchData();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
   };
 
   if (data.length == 0 && (data.length != 0 || searchValue)) {
@@ -214,9 +235,6 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
           <button className="p-3" onClick={() => setModalVisible(true)}>
             <MoreIcon />
           </button>
-          {/* <Box ref={dragRef} className="cursor-pointer p-3 rounded-lg bg-dark">
-            <CategoryIcon className="text-white" />
-          </Box> */}
         </Box>
       </Box>
       <Box className="w-full flex flex-col">
@@ -232,31 +250,33 @@ export const TradingPlan: React.FC<TradingPlanType> = ({
         <Box className="flex-col w-full" ref={ref}>
           {data?.map((e, i) => (
             <Plan
-              setDeleteIndex={setDeleteIndex}
-              openDelete={setVisible}
               setEditable={setEditable}
               editable={editable}
               changeData={changeData}
+              setTradePlansData={setData}
               id={i}
               key={i}
               data={e}
+              refetchData={refetchData}
             />
           ))}
         </Box>
         <Box className="py-3 justify-center gap-6">
+          {isChanged && (
+            <button
+              onClick={handleSave}
+              className="bg-dark rounded-md p-2 active:brightness-150 transition-all"
+            >
+              <Image
+                src="/icons/save.svg"
+                height={12.5}
+                width={12.5}
+                alt="save icon"
+              />
+            </button>
+          )}
           <button
-            onClick={handleSave}
-            className="bg-dark rounded-md p-2 active:brightness-150 transition-all"
-          >
-            <Image
-              src="/icons/save.svg"
-              height={12.5}
-              width={12.5}
-              alt="save icon"
-            />
-          </button>
-          <button
-            onClick={() => addData(allTradePlan._id)}
+            onClick={addData}
             className="bg-dark rounded-md p-1  active:brightness-150 transition-all"
           >
             <Image src="/icons/add.svg" height={20} width={20} alt="add icon" />

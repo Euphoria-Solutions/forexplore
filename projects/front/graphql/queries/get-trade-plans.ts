@@ -14,6 +14,7 @@ export const GET_TRADE_PLANS_QUERY = gql`
         entryPrice
         stopLoss
         takeProfit
+        linkedToTrade
       }
     }
   }

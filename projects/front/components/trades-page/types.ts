@@ -1,4 +1,7 @@
+import { Dispatch, SetStateAction } from 'react';
+
 export interface PlanType {
+  _id: string;
   time: Date;
   symbol: string;
   type: string;
@@ -7,6 +10,7 @@ export interface PlanType {
   stopLoss: number;
   takeProfit: number;
   moveId: string;
+  linkedToTrade: boolean;
 }
 
 export interface TradePlan {
@@ -40,3 +44,24 @@ export type DragItem = {
   data: PlanType;
 };
 //Changes incoming
+
+export type TradingPlanType = {
+  data: PlanType[];
+  tradePlan: TradePlan;
+  setData: Dispatch<SetStateAction<TradePlan[]>>;
+  setDeleteIndex: Dispatch<SetStateAction<number>>;
+  setVisible: Dispatch<SetStateAction<boolean>>;
+  searchValue: string;
+  moveTradingPlan: (_i: number, _hi: number) => void;
+  index: number;
+  refetchData: () => void;
+};
+
+export type DataIndexType =
+  | 'time'
+  | 'symbol'
+  | 'type'
+  | 'lot'
+  | 'entryPrice'
+  | 'stopLoss'
+  | 'takeProfit';

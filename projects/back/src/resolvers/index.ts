@@ -46,7 +46,7 @@ import {
   editTradePlan,
   getTradePlans,
   linkPlanToTrade,
-  uploadTradePlans,
+  unLinkPlanFromTrade,
 } from './trade-plan';
 
 export const resolversObjects = {
@@ -97,7 +97,6 @@ export const resolversObjects = {
     importTradeHistory,
     // Trade Plan
     createTradePlan,
-    uploadTradePlans,
     editTradePlan,
     deleteTradePlan,
     // Plan
@@ -105,6 +104,7 @@ export const resolversObjects = {
     editPlan,
     deletePlan,
     linkPlanToTrade,
+    unLinkPlanFromTrade,
     // Default
     helloMutation: () => 'Hello Mutation',
   },

@@ -1,21 +1,25 @@
 import { Box, Text } from '..';
-import { DragItem, Trade, RecentTrade, TradePlan, PlanType } from '.';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { DragItem, Trade, RecentTrade } from '.';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { notifUpdater } from '@/helper';
+import { useMutation } from '@apollo/client';
+import { LINK_TRADE_TO_PLAN, UNLINK_PLAN_FROM_TRADE } from '@/graphql';
 
 type RecentTradesType = {
   data: Trade[];
-  setData: Dispatch<SetStateAction<Trade[]>>;
-  setTradePlansData: Dispatch<SetStateAction<TradePlan[]>>;
   searchValue?: string;
+  refetch: () => void;
 };
 
 export const RecentTrades: React.FC<RecentTradesType> = ({
   data: curData,
-  setData: setCurData,
-  setTradePlansData,
   searchValue,
+  refetch,
 }) => {
   const [data, setData] = useState(curData);
+  const [LinkPlanToTrade] = useMutation(LINK_TRADE_TO_PLAN);
+  const [UnLinkPlanToTrade] = useMutation(UNLINK_PLAN_FROM_TRADE);
 
   useEffect(() => {
     if (curData) {
@@ -42,57 +46,34 @@ export const RecentTrades: React.FC<RecentTradesType> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curData, searchValue]);
 
-  const handleDrop = (item: DragItem, index: number) => {
-    setCurData(
-      curData.map((e, i) => {
-        if (i == index) {
-          return {
-            ...e,
-            plan: item.data,
-          };
-        }
-        return e;
-      })
-    );
-    setTradePlansData(prev =>
-      prev.map(tradePlan => ({
-        ...tradePlan,
-        plans: tradePlan.plans.filter((_plan, i) => item.id != i),
-      }))
-    );
-    setData(prev => prev.filter((_e, i) => item.id != i));
-    return undefined;
+  const handleDrop = async (item: DragItem, index: string) => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await LinkPlanToTrade({
+        variables: {
+          tradeId: index,
+          planId: item.data._id,
+        },
+      });
+      refetch();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
   };
-  const removePlan = (
-    id: string | undefined,
-    index: number,
-    data: PlanType | null
-  ) => {
-    if (data) {
-      setCurData(
-        curData.map((e, i) => {
-          if (i == index) {
-            return {
-              ...e,
-              plan: null,
-            };
-          }
-          return e;
-        })
-      );
-      if (id) {
-        setTradePlansData(prev =>
-          prev.map(tradePlan => {
-            if (tradePlan._id == id) {
-              return {
-                ...tradePlan,
-                plans: [...tradePlan.plans, data],
-              };
-            }
-            return tradePlan;
-          })
-        );
-      }
+  const removePlan = async (data: Trade) => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await UnLinkPlanToTrade({
+        variables: {
+          tradeId: data._id,
+          planId: data.plan && data.plan._id,
+        },
+      });
+      refetch();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
     }
   };
 
@@ -123,8 +104,7 @@ export const RecentTrades: React.FC<RecentTradesType> = ({
         </Box>
         {data.map((e, i) => (
           <RecentTrade
-            removePlan={id => removePlan(id, i, e.plan)}
-            id={i}
+            removePlan={removePlan}
             onDrop={handleDrop}
             key={i}
             data={e}

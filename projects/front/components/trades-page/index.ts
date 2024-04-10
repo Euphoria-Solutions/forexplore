@@ -7,3 +7,4 @@ export * from './recent-trades';
 export * from './delete-modal';
 export * from './add-plan-modal';
 export * from './edit-plan-modal';
+export * from './use-scroll';
