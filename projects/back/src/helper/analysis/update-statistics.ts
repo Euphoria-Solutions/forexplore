@@ -40,7 +40,6 @@ export const updateStatistics = async (
       year,
       month,
     })) || defaultStatisticsData;
-  console.log(document);
   const topPairs = getTopPairs(inserted, document.pairs);
 
   const isExist = (document.weeks ?? []).filter(
@@ -109,8 +108,8 @@ export const updateStatistics = async (
     const arr = document.weeks.map(
       (curWeek: { week: number; trades: number }) =>
         curWeek.week == week
-          ? { week, trades: curWeek.trades + inserted.length }
-          : week
+          ? { week: week, trades: curWeek.trades + inserted.length }
+          : curWeek
     );
     await StatisticsModel.findByIdAndUpdate(document._id, {
       $set: {

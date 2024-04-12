@@ -15,3 +15,4 @@ export * from './unlink-plan-from-trade';
 export * from './create-trading-plan';
 export * from './edit-trading-plan';
 export * from './delete-trading-plan';
+export * from './change-trading-plans-order';

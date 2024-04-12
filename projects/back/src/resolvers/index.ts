@@ -39,6 +39,7 @@ import {
 } from './analysis/basic';
 import {
   addPlan,
+  changeTradePlansOrder,
   createTradePlan,
   deletePlan,
   deleteTradePlan,
@@ -99,6 +100,7 @@ export const resolversObjects = {
     createTradePlan,
     editTradePlan,
     deleteTradePlan,
+    changeTradePlansOrder,
     // Plan
     addPlan,
     editPlan,

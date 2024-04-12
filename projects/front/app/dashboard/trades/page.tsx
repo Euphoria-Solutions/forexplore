@@ -12,6 +12,7 @@ import {
   TradingPlan,
 } from '@/components/trades-page';
 import {
+  CHANGE_TRADING_PLAN_ORDERS_MUTATION,
   CREATE_TRADING_PLAN_MUTATION,
   GET_TRADE_PLANS_QUERY,
   GET_TRADES_QUERY,
@@ -45,6 +46,9 @@ const Page = () => {
   );
 
   const [CreateTradingPlan] = useMutation(CREATE_TRADING_PLAN_MUTATION);
+  const [ChangeTradingPlansOrder] = useMutation(
+    CHANGE_TRADING_PLAN_ORDERS_MUTATION
+  );
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [recentData, setRecentData] = useState<Trade[]>([]);
@@ -112,6 +116,10 @@ const Page = () => {
     }
   }, [tradePlansData, searchValue]);
 
+  useEffect(() => {
+    changeTradingPlansOrder();
+  }, [filteredData]);
+
   const refetchData = () => {
     refetchTradePlansData();
     refetchTradesData();
@@ -131,19 +139,11 @@ const Page = () => {
   const addTradingPlan = async (name: string) => {
     const notifId = toast.loading('Loading ...');
     try {
-      setTradePlansData([
-        ...tradePlansData,
-        {
-          _id: tradePlansData.length.toString(),
-          title: name ? name : 'New Trading Plan',
-          plans: [],
-          index: tradePlansData.length,
-        },
-      ]);
       await CreateTradingPlan({
         variables: {
           forexAccount: '660e3a7ce29aea9a1f48ef03',
           title: name,
+          order: tradePlansData.length + 1,
         },
       });
       refetchData();
@@ -153,17 +153,19 @@ const Page = () => {
       await notifUpdater(notifId, (err as Error).message, 'error');
     }
   };
-  const moveTradingPlan = useCallback((index: number, hoverIndex: number) => {
-    setFilteredData((prev: TradePlan[]) =>
-      update(prev, {
-        $splice: [
-          [index, 1],
-          [hoverIndex, 0, prev[index] as TradePlan],
-        ],
-      })
-    );
-    return;
-  }, []);
+  const moveTradingPlan = useCallback(
+    (index: number, hoverIndex: number) => {
+      setFilteredData((prev: TradePlan[]) =>
+        update(prev, {
+          $splice: [
+            [index, 1],
+            [hoverIndex, 0, prev[index] as TradePlan],
+          ],
+        })
+      );
+    },
+    [tradePlansData]
+  );
   const renderTradingPlan = useCallback(
     (index: number, tradePlan: TradePlan) => {
       return (
@@ -186,6 +188,14 @@ const Page = () => {
     },
     [moveTradingPlan, searchValue]
   );
+  const changeTradingPlansOrder = async () => {
+    await ChangeTradingPlansOrder({
+      variables: {
+        orders: filteredData.map((order: { _id: string }) => order._id),
+      },
+    });
+    refetchData();
+  };
 
   useScrollOnDrag(containerRef, { sensitivity: 50, speed: 5 });
 

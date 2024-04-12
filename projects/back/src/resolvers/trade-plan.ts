@@ -1,5 +1,6 @@
 import {
   MutationAddPlanArgs,
+  MutationChangeTradePlansOrderArgs,
   MutationCreateTradePlanArgs,
   MutationDeleteTradePlanArgs,
   MutationDeleteUserPlanArgs,
@@ -69,9 +70,12 @@ export const getTradePlans = async (
           _id: tradePlan._id,
           title: tradePlan.title,
           plans: plans,
+          order: tradePlan.order,
         };
       })
     );
+
+    totalTradePlans.sort((a, b) => a.order - b.order);
 
     return totalTradePlans;
   } catch (err) {
@@ -152,5 +156,24 @@ export const unLinkPlanFromTrade = async (
     return true;
   } catch (err) {
     throw new Error((err as Error).message);
+  }
+};
+
+export const changeTradePlansOrder = async (
+  _: ResolversParentTypes,
+  params: MutationChangeTradePlansOrderArgs
+) => {
+  const operations = (params.orders ?? []).map((id, indx) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: { $set: { order: indx + 1 } },
+    },
+  }));
+
+  try {
+    await TradePlanModel.bulkWrite(operations);
+    return true;
+  } catch (error) {
+    return false;
   }
 };
