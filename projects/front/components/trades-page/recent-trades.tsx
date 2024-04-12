@@ -1,146 +1,116 @@
-'use client';
-import Image from 'next/image';
 import { Box, Text } from '..';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { DragItem, RecentDataType } from '.';
-import { useDrop } from 'react-dnd';
-import { useRef, useState } from 'react';
+import { DragItem, Trade, RecentTrade } from '.';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { notifUpdater } from '@/helper';
+import { useMutation } from '@apollo/client';
+import { LINK_TRADE_TO_PLAN, UNLINK_PLAN_FROM_TRADE } from '@/graphql';
 
-type RecentComponentType = {
-  data: RecentDataType;
-  id: number;
-  onDrop: (_item: DragItem, _index: number) => undefined;
-};
-type DropResult = {
-  item: DragItem;
+type RecentTradesType = {
+  data: Trade[];
+  searchValue?: string;
+  refetch: () => void;
 };
 
-export const RecentTrades: React.FC<RecentComponentType> = ({
-  data,
-  onDrop,
-  id,
+export const RecentTrades: React.FC<RecentTradesType> = ({
+  data: curData,
+  searchValue,
+  refetch,
 }) => {
-  const accordionWidth = Math.round(400 / 7);
-  const ref = useRef<HTMLDivElement>(null);
-  const [showAccordion, setShowAccordion] = useState(false);
-  const [{ isOver }, drop] = useDrop<DragItem, DropResult, { isOver: boolean }>(
-    {
-      accept: 'item',
-      drop: (item: DragItem) => {
-        return onDrop(item, id);
-      },
-      collect: monitor => ({
-        isOver: !data.plans ? monitor.isOver() : false,
-      }),
-      canDrop: () => {
-        if (data.plans) {
-          return false;
-        } else {
-          return true;
-        }
-      },
+  const [data, setData] = useState(curData);
+  const [LinkPlanToTrade] = useMutation(LINK_TRADE_TO_PLAN);
+  const [UnLinkPlanToTrade] = useMutation(UNLINK_PLAN_FROM_TRADE);
+
+  useEffect(() => {
+    if (curData) {
+      if (searchValue) {
+        const curSearch = searchValue.toLowerCase();
+        setData(
+          curData.filter(e => {
+            if (
+              new Date(e.closeTime)
+                .toLocaleDateString()
+                .toLowerCase()
+                .includes(curSearch)
+            )
+              return true;
+            if (e.type.toLowerCase().includes(curSearch)) return true;
+            if (e.symbol.toLowerCase().includes(curSearch)) return true;
+            return false;
+          })
+        );
+      } else {
+        setData(curData);
+      }
     }
-  );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [curData, searchValue]);
 
-  drop(ref);
-
-  const returnRiskColor: (_r: number) => string = (risk: number) => {
-    if (risk >= 10) return 'bg-light-red';
-    if (risk >= 5) return 'bg-light-yellow';
-    return 'bg-success';
-  };
-  const handleAccordion = () => {
-    setShowAccordion(prev => !prev);
-  };
-
-  const showPlans = () => {
-    if (showAccordion && data.plans) {
-      return (
-        <>
-          <Box className="grid grid-cols-7 w-full text-sm p-4 gap-2 relative text-gray">
-            <Box className="z-10">Lots</Box>
-            <Box className="z-10">Planned entry</Box>
-            <Box className="z-10">Stop loss</Box>
-            <Box className="z-10">Target profit</Box>
-            <Box className={`absolute w-[${accordionWidth}%] h-full bg-bg`} />
-          </Box>
-          {data.plans && (
-            <>
-              <Box className="grid grid-cols-7 w-full text-sm p-4 gap-2">
-                <Text>{data.plans.lots}</Text>
-                <DatePicker
-                  className="outline-none w-full bg-transparent"
-                  selected={data.plans.date}
-                  onChange={() => {}}
-                  disabled
-                />
-                <Text className="text-light-red">{data.plans.stopLoss}</Text>
-                <Text className="text-light-green">
-                  {data.plans.targetProfit}
-                </Text>
-              </Box>
-            </>
-          )}
-        </>
-      );
+  const handleDrop = async (item: DragItem, index: string) => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await LinkPlanToTrade({
+        variables: {
+          tradeId: index,
+          planId: item.data._id,
+        },
+      });
+      refetch();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
     }
   };
+  const removePlan = async (data: Trade) => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await UnLinkPlanToTrade({
+        variables: {
+          tradeId: data._id,
+          planId: data.plan && data.plan._id,
+        },
+      });
+      refetch();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
+  };
+
+  if (data.length == 0 && (curData.length != 0 || searchValue)) {
+    return (
+      <Text className="bg-white p-6 w-full text-center rounded-lg font-bold">
+        No Trades Data
+      </Text>
+    );
+  }
 
   return (
-    <>
-      <Box
-        block
-        ref={ref}
-        className={`grid grid-cols-7 gap-2 w-full bg-white text-black text-sm p-4 ${isOver && 'brightness-90'} transition-all`}
-      >
-        <Box className="flex items-center">
-          <DatePicker
-            className="outline-none w-full bg-transparent"
-            selected={data.date}
-            onChange={() => {}}
-            disabled
-          />
-        </Box>
-        <Text>{data.symbol}</Text>
-        <Text className="capitalize">{data.purchase}</Text>
-        <Text>{data.lots}</Text>
-        <Text>
-          {typeof data.planned == 'boolean'
-            ? data.planned
-              ? 'Yes'
-              : 'No'
-            : 'Null'}
-        </Text>
-        <Box className="flex items-center gap-1">
-          <Box
-            className={`${returnRiskColor(data.risk)} h-2 w-2 rounded-full`}
-          />
-          <Text>{data.risk}%</Text>
-        </Box>
-        <Box className="flex justify-between">
-          <Text
-            className={data.profit < 0 ? 'text-light-red' : 'text-light-green'}
-          >
-            {Math.abs(data.profit)}
-          </Text>
-          {data.plans && (
-            <button
-              className={`${showAccordion && 'rotate-180'} transition-all`}
-              onClick={handleAccordion}
-            >
-              <Image
-                src="/icons/down-arrow.svg"
-                height={24}
-                width={24}
-                alt="down arrow icon"
-              />
-            </button>
-          )}
-        </Box>
+    <Box className="bg-white flex flex-col gap-10 rounded-lg w-full p-6">
+      <Box className="flex items-center">
+        <Text className="font-medium text-xl">Recent Trades</Text>
       </Box>
-      {showPlans()}
-      <Box className="h-px w-full bg-bg" />
-    </>
+      <Box className="w-full flex flex-col">
+        <Box
+          block
+          className="grid grid-cols-6 gap-2 w-full text-sm  text-gray bg-bg p-4"
+        >
+          <Text>Date/Time</Text>
+          <Text>Symbol</Text>
+          <Text>Market Execution</Text>
+          <Text>Lots</Text>
+          <Text>Planned</Text>
+          <Text>Profit</Text>
+        </Box>
+        {data.map((e, i) => (
+          <RecentTrade
+            removePlan={removePlan}
+            onDrop={handleDrop}
+            key={i}
+            data={e}
+          />
+        ))}
+      </Box>
+    </Box>
   );
 };

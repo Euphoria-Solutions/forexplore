@@ -18,7 +18,9 @@ export const MainLayout = ({ children }: LayoutType) => {
   const path = usePathname();
   const router = useRouter();
   const { setUser } = useContext(AuthContext);
-  const [VerifyToken] = useMutation(VERIFY_TOKEN_MUTATION, { client });
+  const [VerifyToken, { loading }] = useMutation(VERIFY_TOKEN_MUTATION, {
+    client,
+  });
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -28,14 +30,17 @@ export const MainLayout = ({ children }: LayoutType) => {
 
         setUser(data.verifyToken);
       } catch (err) {
-        setUser({
-          _id: '',
-          emailVerified: '',
-          username: '',
-        });
+        if (!loading) {
+          setUser({
+            _id: '',
+            emailVerified: '',
+            username: '',
+          });
 
-        if (path != '/' && !path.includes('auth')) {
-          router.push('/auth/sign-in');
+          if (path != '/' && !path.includes('auth')) {
+            localStorage.clear();
+            router.push('/auth/sign-in');
+          }
         }
       }
     };

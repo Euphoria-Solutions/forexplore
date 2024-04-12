@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 const TradePlanSchema = new Schema({
   forexAccount: { type: Schema.Types.ObjectId, ref: 'ForexAccount' },
   title: String,
+  order: Number,
 });
 
 export const TradePlanModel =

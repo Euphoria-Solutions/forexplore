@@ -12,6 +12,7 @@ const PlanSchema = new Schema({
   entryPrice: Number,
   stopLoss: Number,
   takeProfit: Number,
+  linkedToTrade: Boolean,
 });
 
 export const PlanModel =

@@ -39,6 +39,7 @@ import {
 } from './analysis/basic';
 import {
   addPlan,
+  changeTradePlansOrder,
   createTradePlan,
   deletePlan,
   deleteTradePlan,
@@ -46,6 +47,7 @@ import {
   editTradePlan,
   getTradePlans,
   linkPlanToTrade,
+  unLinkPlanFromTrade,
 } from './trade-plan';
 
 export const resolversObjects = {
@@ -98,11 +100,13 @@ export const resolversObjects = {
     createTradePlan,
     editTradePlan,
     deleteTradePlan,
+    changeTradePlansOrder,
     // Plan
     addPlan,
     editPlan,
     deletePlan,
     linkPlanToTrade,
+    unLinkPlanFromTrade,
     // Default
     helloMutation: () => 'Hello Mutation',
   },

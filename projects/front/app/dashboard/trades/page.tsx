@@ -1,182 +1,265 @@
 'use client';
 import { Box, Text } from '@/components';
+import update from 'immutability-helper';
 import {
+  AddPlanModal,
   DeleteModal,
-  DragItem,
+  PlanType,
   RecentTrades,
   SearchInput,
+  Trade,
+  TradePlan,
   TradingPlan,
-  recentTradeData,
-  tempData,
 } from '@/components/trades-page';
+import {
+  CHANGE_TRADING_PLAN_ORDERS_MUTATION,
+  CREATE_TRADING_PLAN_MUTATION,
+  GET_TRADE_PLANS_QUERY,
+  GET_TRADES_QUERY,
+} from '@/graphql';
+import { useMutation, useQuery } from '@apollo/client';
 import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { toast } from 'react-toastify';
+import { notifUpdater } from '@/helper';
+import useScrollOnDrag from '@/components/trades-page/use-scroll';
 
 const Page = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [data, setData] = useState(tempData);
-  const [recentData, setRecentData] = useState(recentTradeData);
-  const [editable, setEditable] = useState(false);
+  const {
+    data: tradePlansDataRaw,
+    loading,
+    refetch: refetchTradePlansData,
+  } = useQuery(GET_TRADE_PLANS_QUERY, {
+    variables: {
+      forexAccount: '660e3a7ce29aea9a1f48ef03',
+    },
+  });
+  const { data: tradeData, refetch: refetchTradesData } = useQuery(
+    GET_TRADES_QUERY,
+    {
+      variables: {
+        forexAccount: '660e3a7ce29aea9a1f48ef03',
+      },
+    }
+  );
+
+  const [CreateTradingPlan] = useMutation(CREATE_TRADING_PLAN_MUTATION);
+  const [ChangeTradingPlansOrder] = useMutation(
+    CHANGE_TRADING_PLAN_ORDERS_MUTATION
+  );
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [recentData, setRecentData] = useState<Trade[]>([]);
+  const [tradePlansData, setTradePlansData] = useState<TradePlan[]>([]);
+  const [searchValue, setSearchValue] = useState('');
+  const [filteredData, setFilteredData] = useState<TradePlan[]>([]);
+  const [visibleNumber, setVisibleNumber] = useState(0);
+  const [addModalVisible, setAddModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(-1);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current) {
-        if (!ref.current.contains(event.target as Node)) {
-          console.log('what');
-          setEditable(false);
-        } else {
-          console.log('true');
-          setEditable(true);
-        }
+    if (!loading && tradePlansDataRaw?.getTradePlans) {
+      setTradePlansData(
+        tradePlansDataRaw?.getTradePlans.map((tradePlan: TradePlan) => ({
+          ...tradePlan,
+          plans: tradePlan.plans.filter(
+            (plan: PlanType) => !plan.linkedToTrade
+          ),
+        }))
+      );
+    }
+  }, [loading, tradePlansDataRaw]);
+
+  useEffect(() => {
+    if (tradeData?.getTrades) {
+      setRecentData(tradeData?.getTrades);
+    }
+  }, [tradeData]);
+
+  useEffect(() => {
+    setVisibleNumber(0);
+    if (tradePlansData) {
+      if (searchValue) {
+        const handleAddfilteredData = () => {
+          setVisibleNumber(prev => prev + 1);
+          return true;
+        };
+        const curSearch = searchValue.toLowerCase();
+        setFilteredData(
+          tradePlansData.map(data => {
+            return {
+              ...data,
+              plans: data.plans.filter(e => {
+                if (
+                  new Date(e.time)
+                    ?.toLocaleDateString()
+                    ?.toLowerCase()
+                    .includes(curSearch)
+                )
+                  return handleAddfilteredData();
+                if (e.type.toLowerCase().includes(curSearch))
+                  return handleAddfilteredData();
+                if (e.symbol.toLowerCase().includes(curSearch))
+                  return handleAddfilteredData();
+                return false;
+              }),
+            };
+          })
+        );
+      } else {
+        setVisibleNumber(1);
+        setFilteredData(tradePlansData);
       }
-    };
+    }
+  }, [tradePlansData, searchValue]);
 
-    document.addEventListener('click', handleClickOutside);
+  useEffect(() => {
+    changeTradingPlansOrder();
+  }, [filteredData]);
 
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [setEditable]);
+  const refetchData = () => {
+    refetchTradePlansData();
+    refetchTradesData();
+  };
 
-  const addData = () => {
-    const temp = [...data];
-    temp.push({
-      date: new Date(),
-      symbol: '',
-      purchase: 'sell',
-      lots: 0,
-      entryPrice: 0,
-      stopLoss: 0,
-      targetProfit: 0,
-    });
-    return setData(temp);
-  };
-  const handleDrop = (item: DragItem, index: number) => {
-    setRecentData(
-      recentData.map((e, i) => {
-        if (i == index) {
-          e.plans = item.data;
-        }
-        return e;
-      })
-    );
-    setData(prev => prev.filter((_e, i) => item.id != i));
-    return undefined;
-  };
-  const handleSave = () => {
-    setEditable(false);
-  };
   const onDelete = () => {
     if (deleteIndex != -1) {
-      setData(data.filter((e, i) => i != deleteIndex));
+      setTradePlansData(
+        tradePlansData.map(tradePlan => ({
+          ...tradePlan,
+          plans: tradePlan.plans.filter((_e, i) => i != deleteIndex),
+        }))
+      );
     }
     setVisible(false);
   };
+  const addTradingPlan = async (name: string) => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await CreateTradingPlan({
+        variables: {
+          forexAccount: '660e3a7ce29aea9a1f48ef03',
+          title: name,
+          order: tradePlansData.length + 1,
+        },
+      });
+      refetchData();
+
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
+  };
+  const moveTradingPlan = useCallback(
+    (index: number, hoverIndex: number) => {
+      setFilteredData((prev: TradePlan[]) =>
+        update(prev, {
+          $splice: [
+            [index, 1],
+            [hoverIndex, 0, prev[index] as TradePlan],
+          ],
+        })
+      );
+    },
+    [tradePlansData]
+  );
+  const renderTradingPlan = useCallback(
+    (index: number, tradePlan: TradePlan) => {
+      return (
+        <TradingPlan
+          index={index}
+          key={index}
+          data={tradePlan.plans}
+          tradePlan={tradePlan}
+          setData={setTradePlansData}
+          setDeleteIndex={setDeleteIndex}
+          setVisible={setVisible}
+          searchValue={searchValue}
+          moveTradingPlan={moveTradingPlan}
+          refetchData={() => {
+            refetchTradePlansData();
+            refetchTradesData();
+          }}
+        />
+      );
+    },
+    [moveTradingPlan, searchValue]
+  );
+  const changeTradingPlansOrder = async () => {
+    await ChangeTradingPlansOrder({
+      variables: {
+        orders: filteredData.map((order: { _id: string }) => order._id),
+      },
+    });
+    refetchData();
+  };
+
+  useScrollOnDrag(containerRef, { sensitivity: 50, speed: 5 });
+
+  if (loading) {
+    return (
+      <Box>
+        <Text>Loading ...</Text>
+      </Box>
+    );
+  }
 
   return (
+    <Box
+      ref={containerRef}
+      className="w-screen py-7 h-screen overflow-scroll bg-bg flex flex-col gap-6"
+    >
+      <DeleteModal
+        onDelete={onDelete}
+        setVisible={setVisible}
+        visible={visible}
+      />
+      <AddPlanModal
+        onCreate={addTradingPlan}
+        visible={addModalVisible}
+        setVisible={setAddModalVisible}
+      />
+      <SearchInput
+        placeholder="Search"
+        value={searchValue}
+        setValue={setSearchValue}
+        rightElement={
+          <button
+            onClick={() => setAddModalVisible(true)}
+            className="bg-dark text-white flex-shrink-0 font-medium rounded-full p-2 px-6 flex gap-1"
+          >
+            <Image src="/icons/add.svg" height={22} width={22} alt="add icon" />
+            New Plan
+          </button>
+        }
+      />
+      {visibleNumber ? (
+        filteredData.map((tradePlan: TradePlan, indx: number) =>
+          renderTradingPlan(indx, tradePlan)
+        )
+      ) : (
+        <Text className="bg-white p-6 w-full text-center rounded-lg font-bold">
+          No Plan Data
+        </Text>
+      )}
+      <RecentTrades
+        searchValue={searchValue}
+        data={recentData}
+        refetch={refetchData}
+      />
+    </Box>
+  );
+};
+
+const Render = () => {
+  return (
     <DndProvider backend={HTML5Backend}>
-      <Box className="w-screen py-7 bg-bg flex flex-col gap-6">
-        <DeleteModal
-          onDelete={onDelete}
-          setVisible={setVisible}
-          visible={visible}
-        />
-        <SearchInput />
-        <Box className="bg-white flex flex-col gap-10 rounded-lg w-full p-6">
-          <Box className="flex justify-between items-center">
-            <Text className="font-medium text-xl">Trading plan 1</Text>
-            <button className="bg-dark p-3 rounded-lg">
-              <Image
-                src="/icons/category.svg"
-                alt="category icon"
-                height={20}
-                width={20}
-              />
-            </button>
-          </Box>
-          <Box className="w-full flex flex-col">
-            <Box
-              block
-              className="grid grid-cols-7 gap-2 w-full text-sm bg-bg p-4"
-            >
-              <Text>Time</Text>
-              <Text>Symbol</Text>
-              <Text>Buy/Sell</Text>
-              <Text>Lots</Text>
-              <Text>Entry Price</Text>
-              <Text>Stop loss</Text>
-              <Text>Target Profit</Text>
-            </Box>
-            <Box className="flex-col w-full" ref={ref}>
-              {data?.map((e, i) => (
-                <TradingPlan
-                  setDeleteIndex={setDeleteIndex}
-                  openDelete={setVisible}
-                  setEditable={setEditable}
-                  editable={editable}
-                  setData={setData}
-                  id={i}
-                  key={i}
-                  data={e}
-                />
-              ))}
-            </Box>
-            <Box className="py-3 justify-center gap-6">
-              <button
-                onClick={handleSave}
-                className="bg-dark rounded-md p-2 active:brightness-150 transition-all"
-              >
-                <Image
-                  src="/icons/save.svg"
-                  height={12.5}
-                  width={12.5}
-                  alt="save icon"
-                />
-              </button>
-              <button
-                onClick={addData}
-                className="bg-dark rounded-md p-1  active:brightness-150 transition-all"
-              >
-                <Image
-                  src="/icons/add.svg"
-                  height={20}
-                  width={20}
-                  alt="add icon"
-                />
-              </button>
-            </Box>
-            <Box className="h-px w-full bg-bg" />
-          </Box>
-        </Box>
-        <Box className="bg-white flex flex-col gap-10 rounded-lg w-full p-6">
-          <Box className="flex items-center">
-            <Text className="font-medium text-xl">Recent Trades</Text>
-          </Box>
-          <Box className="w-full flex flex-col">
-            <Box
-              block
-              className="grid grid-cols-7 gap-2 w-full text-sm  text-gray bg-bg p-4"
-            >
-              <Text>Date/Time</Text>
-              <Text>Symbol</Text>
-              <Text>Market Execution</Text>
-              <Text>Lots</Text>
-              <Text>Planned</Text>
-              <Text>Risk</Text>
-              <Text>Profit</Text>
-            </Box>
-            {recentData.map((e, i) => (
-              <RecentTrades id={i} onDrop={handleDrop} key={i} data={e} />
-            ))}
-          </Box>
-        </Box>
-      </Box>
+      <Page />
     </DndProvider>
   );
 };
 
-export default Page;
+export default Render;

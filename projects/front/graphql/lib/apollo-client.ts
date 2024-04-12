@@ -30,5 +30,7 @@ const authLink = new ApolloLink((operation, forward) => {
 export const client = new ApolloClient({
   ssrMode: typeof window === 'undefined',
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    addTypename: false,
+  }),
 });

@@ -32,7 +32,7 @@ export const DeleteModal: React.FC<DeleteModalType> = ({
             </button>
           </Box>
           <Text className="font-semibold text-lg text-[#101828] mt-4">
-            Delete trading plan
+            Delete plan
           </Text>
           <Text className="text-[#475467] text-sm mt-2">
             Are you sure you want to delete this plan? This action cannot be

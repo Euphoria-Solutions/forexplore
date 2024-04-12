@@ -56,7 +56,7 @@ const Verify = () => {
             ...user,
             emailVerified: 'true',
           });
-          router.push('/features');
+          router.push('/dashboard');
         } else {
           await notifUpdater(id, 'Wrong Verification Code', 'error');
         }
