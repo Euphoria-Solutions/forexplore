@@ -10,9 +10,9 @@ export const GoBack = () => {
       <path
         d="M7.75 14.75L1 8L7.75 1.25"
         stroke="white"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

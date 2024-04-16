@@ -15,6 +15,7 @@ interface SideBarButtonProps {
   route: string;
   label: string;
   isHovered: boolean;
+  onClick?: () => void;
 }
 import { Box, Text } from '@/components';
 
@@ -23,16 +24,16 @@ const SideBarButton: React.FC<SideBarButtonProps> = ({
   route,
   label,
   isHovered,
+  onClick,
 }) => {
   const currentPath = usePathname();
   const isActive = currentPath === route;
-
-  console.log(isActive);
 
   return (
     <Link href={route}>
       <Box
         className={`flex items-center relative cursor-pointer ${isHovered ? 'w-max' : 'w-full'} ${isActive ? 'bg-[#F2FCF2]' : 'bg-white'} h-10`}
+        onClick={onClick}
       >
         <Box
           className={`relative w-${isHovered ? '52' : 'full'} h-full flex items-center`}

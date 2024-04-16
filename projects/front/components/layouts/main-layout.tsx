@@ -1,14 +1,15 @@
 'use client';
 
-import { ReactNode, useContext, useEffect } from 'react';
+import { ReactNode, useContext, useEffect, useState } from 'react';
 import { Box } from '..';
 import { ApolloProvider, useMutation } from '@apollo/client';
 import { DataProvider } from '@/providers/data-provider';
 import { usePathname, useRouter } from 'next/navigation';
 import { Navbar } from './navbar';
-import { client, VERIFY_TOKEN_MUTATION } from '@/graphql';
+import { VERIFY_TOKEN_MUTATION, client } from '@/graphql';
 import { AuthContext } from '@/providers';
 import SideBar from './side-bar';
+import { Header } from './header';
 
 interface LayoutType {
   children?: ReactNode;
@@ -17,10 +18,14 @@ interface LayoutType {
 export const MainLayout = ({ children }: LayoutType) => {
   const path = usePathname();
   const router = useRouter();
+  const [userId, setUserId] = useState('');
   const { setUser } = useContext(AuthContext);
-  const [VerifyToken, { loading }] = useMutation(VERIFY_TOKEN_MUTATION, {
-    client,
-  });
+  const [VerifyToken, { loading: verifyLoading }] = useMutation(
+    VERIFY_TOKEN_MUTATION,
+    {
+      client,
+    }
+  );
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -28,9 +33,10 @@ export const MainLayout = ({ children }: LayoutType) => {
         const token = localStorage.getItem('token') ?? '';
         const { data } = await VerifyToken({ variables: { token } });
 
+        setUserId(data.verifyToken._id);
         setUser(data.verifyToken);
       } catch (err) {
-        if (!loading) {
+        if (!verifyLoading) {
           setUser({
             _id: '',
             emailVerified: '',
@@ -44,9 +50,8 @@ export const MainLayout = ({ children }: LayoutType) => {
         }
       }
     };
-
     verifyToken();
-  }, [VerifyToken, setUser]);
+  }, [path]);
 
   return (
     <ApolloProvider client={client}>
@@ -55,8 +60,9 @@ export const MainLayout = ({ children }: LayoutType) => {
           {path.startsWith('/dashboard') || path.startsWith('/settings') ? (
             <Box className={`relative w-full h-full justify-end`}>
               <SideBar />
-              <Box className="w-[96%] overflow-y-scroll h-max scrollbar-hide bg-[#F3F4FA]">
-                {children}
+              <Box className="flex-col w-[96%] overflow-y-scroll h-full scrollbar-hide bg-[#F3F4FA]">
+                <Header userId={userId} />
+                <Box className="z-20 h-full">{children}</Box>
               </Box>
             </Box>
           ) : (

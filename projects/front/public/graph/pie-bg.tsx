@@ -7,7 +7,7 @@ export const PieBg = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="47.5" cy="47.5" r="42.5" stroke="#E8FCF5" stroke-width="10" />
+      <circle cx="47.5" cy="47.5" r="42.5" stroke="#E8FCF5" strokeWidth="10" />
     </svg>
   );
 };
