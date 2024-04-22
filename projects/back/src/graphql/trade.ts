@@ -90,7 +90,7 @@ export const tradeTypes = gql`
 
   extend type Query {
     # Forex Account
-    getForexAccounts(_id: String): [ForexAccount]!
+    getForexAccounts(_id: String, user: String): [ForexAccount]!
     # Trade
     getTrades(forexAccount: String, _id: String): [Trade]!
     # Trade Plan

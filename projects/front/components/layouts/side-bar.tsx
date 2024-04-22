@@ -1,10 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import SideBarButton from '../analytics/side-bar-button';
 import { Box } from '@/components';
 import { Logo } from '@/public/dashboard-sidebar';
+import { AuthContext } from '@/providers';
 const SideBar = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const { setUser } = useContext(AuthContext);
 
   const handleHover = () => {
     setIsHovered(!isHovered);
@@ -48,7 +50,19 @@ const SideBar = () => {
             label="Settings"
             isHovered={isHovered}
           />
-          <SideBarButton route="/" label="Logout" isHovered={isHovered} />
+          <SideBarButton
+            route="/"
+            label="Logout"
+            isHovered={isHovered}
+            onClick={() => {
+              localStorage.clear();
+              setUser({
+                _id: null,
+                username: null,
+                emailVerified: null,
+              });
+            }}
+          />
         </Box>
       </Box>
     </Box>

@@ -1,6 +1,6 @@
 'use client';
 import { Box, Text } from '@/components';
-import { UploadAnimation } from '@/components/settings-page';
+// import { UploadAnimation } from '@/components/settings-page';
 import * as XLSX from 'xlsx';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -165,7 +165,7 @@ const Page = () => {
   };
 
   return (
-    <Box className="py-12 px-7 flex-col gap-6 w-screen">
+    <Box className="py-12 px-7 flex-col gap-6 w-screen h-full">
       <Box className="flex h-fit gap-3">
         <button onClick={() => handleTabChange(0)} className="flex flex-col">
           <Text className={`px-3 font-medium text-xl text-${getColor(0)}`}>
@@ -198,7 +198,7 @@ const Page = () => {
                 htmlFor="fileInput"
                 className="flex relative rounded-3xl cursor-pointer flex-col justify-center items-center h-full border-2 border-dashed border-[#E2E6EA] m-8"
               >
-                <UploadAnimation />
+                {/* <UploadAnimation /> */}
                 <Text className="text-[3242634] whitespace-pre text-center select-none">
                   {'Click to browse or \n drag and drop your files\n'}
                 </Text>
