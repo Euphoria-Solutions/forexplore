@@ -6,7 +6,7 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  // mode: 'jit',
+  mode: 'jit',
   theme: {
     extend: {
       colors: {
@@ -31,7 +31,7 @@ const config: Config = {
       },
     },
   },
-  safelist: ['text-green', 'text-yellow', 'text-red'],
+  safelist: ['text-green', 'text-yellow', 'text-red', 'w-[17vw]'],
   plugins: [require('tailwind-scrollbar-hide')],
 };
 

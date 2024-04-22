@@ -11,3 +11,7 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.custom-height {
+  height: calc(100vh + 300px);
+}

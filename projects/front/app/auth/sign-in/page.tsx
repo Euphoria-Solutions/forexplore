@@ -76,11 +76,22 @@ const SignIn = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token && token != '') {
-      router.push('/dashboard');
+    const token = localStorage.getItem('token') ?? null;
+    const verifyToken = async () => {
+      try {
+        const { data } = await VerifyToken({ variables: { token } });
+
+        setUser(data.verifyToken);
+      } catch (err) {
+        localStorage.clear();
+        router.push('/auth/sign-in');
+      }
+    };
+
+    if (!loading && token) {
+      verifyToken();
     }
-  }, [router]);
+  }, [router, VerifyToken, loading]);
   return (
     <Box className={poppins.className}>
       <Box

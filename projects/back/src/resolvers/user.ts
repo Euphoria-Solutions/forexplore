@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {
+  MutationChangePassArgs,
   MutationForgetPassArgs,
   MutationLogInArgs,
   MutationSignUpArgs,
@@ -114,7 +115,7 @@ export const verifyToken = async (
   { token }: MutationVerifyTokenArgs
 ) => {
   try {
-    if (!token) return null;
+    if (!token) throw new Error('invalid token');
 
     const userParams = jwt.verify(token, secretKey);
 
@@ -132,6 +133,35 @@ export const updateUserDetails = async (
     await UserModel.findByIdAndUpdate(params._id, params);
 
     return true;
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+};
+
+export const changePass = async (
+  _: ResolversParentTypes,
+  params: MutationChangePassArgs
+) => {
+  try {
+    const user = await UserModel.findById(params._id);
+
+    const token = jwt.verify(user.password, secretKey, {
+      ignoreExpiration: true,
+    });
+
+    if (typeof token == 'string') return false;
+
+    if (token.password == params.oldPassword) {
+      const hashedPassword = jwt.sign(
+        { password: params.newPassword },
+        secretKey
+      );
+      await UserModel.findByIdAndUpdate(params._id, {
+        password: hashedPassword,
+      });
+      return true;
+    }
+    return false;
   } catch (err) {
     throw new Error((err as Error).message);
   }

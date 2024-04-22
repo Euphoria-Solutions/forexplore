@@ -17,3 +17,6 @@ export * from './edit-trading-plan';
 export * from './delete-trading-plan';
 export * from './change-trading-plans-order';
 export * from './add-forex-account';
+export * from './update-user-details';
+export * from './change-password';
+export * from './remove-forex-account';
