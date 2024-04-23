@@ -9,7 +9,7 @@ import { GET_SESSION_ANALYSIS_QUERY } from '@/graphql';
 export const SessionAnalysis = () => {
   const { data: dataRaw, loading } = useQuery(GET_SESSION_ANALYSIS_QUERY, {
     variables: {
-      forexAccount: '660e3a7ce29aea9a1f48ef03',
+      forexAccount: '66218e158029f98d4155d3d5',
     },
   });
   if (loading) {

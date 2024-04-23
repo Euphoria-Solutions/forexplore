@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   DashboardIcon,
   UsersIcon,
@@ -27,10 +26,18 @@ const SideBarButton: React.FC<SideBarButtonProps> = ({
   onClick,
 }) => {
   const currentPath = usePathname();
+  const router = useRouter();
   const isActive = currentPath === route;
 
+  const go = () => {
+    if (label == 'Logout') {
+      localStorage.clear();
+    }
+    router.push(route);
+  };
+
   return (
-    <Link href={route}>
+    <Box onClick={go}>
       <Box
         className={`flex items-center relative cursor-pointer ${isHovered ? 'w-max' : 'w-full'} ${isActive ? 'bg-[#F2FCF2]' : 'bg-white'} h-10`}
         onClick={onClick}
@@ -70,7 +77,7 @@ const SideBarButton: React.FC<SideBarButtonProps> = ({
           </Box>
         </Box>
       </Box>
-    </Link>
+    </Box>
   );
 };
 

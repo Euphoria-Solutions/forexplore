@@ -71,7 +71,7 @@ export const getForexAccounts = async (
   try {
     return await ForexAccountModel.find(params).populate('user');
   } catch (err) {
-    throw new Error((err as Error).message);
+    return [];
   }
 };
 

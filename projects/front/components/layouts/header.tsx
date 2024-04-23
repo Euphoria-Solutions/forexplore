@@ -12,6 +12,7 @@ export const Header = ({ userId }: { userId: string }) => {
   const [modal, setModal] = useState<boolean>(false);
 
   const [menuList, setMenuList] = useState([]);
+  const [selected, setSelected] = useState({ name: 'select a value', _id: '' });
 
   const {
     data: forexAccountsData,
@@ -43,9 +44,10 @@ export const Header = ({ userId }: { userId: string }) => {
   useEffect(() => {
     if (!loading && forexAccountsData && forexAccountsData.getForexAccounts) {
       const formattedMenuList = forexAccountsData.getForexAccounts.map(
-        (account: { name: string }) => {
+        (account: { name: string; _id: string }) => {
           return {
             name: account.name,
+            _id: account._id,
           };
         }
       );
@@ -60,13 +62,17 @@ export const Header = ({ userId }: { userId: string }) => {
     <Box className="w-full">
       <Box className="w-full flex-row justify-between p-5 z-30 items-center">
         <DropdownButton
+          className="p-4 text-black bg-white shadow-md rounded-lg inline-flex items-center w-full justify-between"
+          width={'[17vw]'}
           placeholder="click on me"
           menuList={menuList}
           addItem={addNewForexAccount}
+          setSelected={setSelected}
+          selected={selected}
         />
         <Box className="flex-row justify-between px-5">
           <Box className="space-x-2">
-            <Link href="/settings">
+            <Link href="/settings?section=import">
               <Box className="h-full w-max px-10 rounded-lg text-white bg-black items-center justify-center">
                 Import
               </Box>
