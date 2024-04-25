@@ -63,10 +63,12 @@ export const getWinRateAnalysis = async (
       forexAccount?.winRateTypes?.overall?.winRate,
       forexAccount?.winRateTypes?.overall?.prevWinRate
     );
-
     return {
       winRate: forexAccount?.winRateTypes?.overall?.winRate.toFixed(1),
-      growth,
+      growth:
+        forexAccount?.winRateTypes?.overall?.winRate > 0 && growth == 0
+          ? 100
+          : growth,
     };
   } catch (err) {
     throw new Error((err as Error).message);

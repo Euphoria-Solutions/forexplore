@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -14,6 +14,20 @@ import {
 } from 'chart.js';
 import { Box, Text } from '@/components';
 import { Inter } from 'next/font/google';
+import { useQuery } from '@apollo/client';
+import { GET_TOTAL_TRADES_ANALYSIS_QUERY } from '@/graphql';
+import { getWeekRange } from '@/helper';
+
+interface StatisticType {
+  month: string;
+  trades: number;
+  week: string | null;
+}
+
+interface DataType {
+  statistics: StatisticType[];
+}
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -27,60 +41,6 @@ const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500'],
 });
-
-const maxDataValue = 6000;
-
-const data: ChartData<'bar'> = {
-  labels: [
-    'JAN',
-    'FEB',
-    'MAR',
-    'APR',
-    'MAY',
-    'JUN',
-    'JUL',
-    'AUG',
-    'SEP',
-    'OCT',
-    'NOV',
-    'DEC',
-  ],
-  datasets: [
-    {
-      label: 'Background',
-      data: Array(12).fill(maxDataValue),
-      backgroundColor: '#E5E5EF',
-      order: 2,
-      barPercentage: 0.25,
-      borderColor: 'white',
-      borderWidth: 2,
-      borderRadius: {
-        topLeft: 5,
-        topRight: 5,
-        bottomLeft: 5,
-        bottomRight: 5,
-      },
-    },
-
-    {
-      label: 'Money',
-      data: [
-        1200, 1900, 3000, 5000, 2000, 3000, 1500, 4000, 2500, 4600, 2300, 5000,
-      ],
-      backgroundColor: '#00DF16',
-      order: 1,
-      barPercentage: 0.25,
-      borderColor: 'white',
-      borderWidth: 2,
-      borderRadius: {
-        topLeft: 5,
-        topRight: 5,
-        bottomLeft: 5,
-        bottomRight: 5,
-      },
-    },
-  ],
-};
 
 const options: ChartOptions<'bar'> = {
   responsive: true,
@@ -103,14 +63,6 @@ const options: ChartOptions<'bar'> = {
       },
       ticks: {
         color: '#615E83',
-        callback: function (value) {
-          const numericValue = Number(value);
-          if (numericValue === 0) {
-            return '0';
-          } else {
-            return numericValue / 1000 + 'k';
-          }
-        },
       },
     },
   },
@@ -125,9 +77,7 @@ const options: ChartOptions<'bar'> = {
           if (label) {
             label += ': ';
           }
-          if (tooltipItem.parsed.y !== null) {
-            label += `$${tooltipItem.parsed.y}`;
-          }
+          label += tooltipItem.parsed.y;
           return tooltipItem.datasetIndex === 1 ? label : '';
         },
       },
@@ -136,6 +86,83 @@ const options: ChartOptions<'bar'> = {
 };
 
 const BarChartComponent: React.FC = () => {
+  const {
+    data: dataRaw,
+    loading,
+    refetch,
+  } = useQuery(GET_TOTAL_TRADES_ANALYSIS_QUERY, {
+    variables: {
+      forexAccount: '66274530f04945c4e44e2509',
+    },
+  });
+  const [totalTradeAnalysisData, setTotalTradesAnalysisData] =
+    useState<DataType | null>(null);
+  const [type, setType] = useState('annual');
+
+  useEffect(() => {
+    if (!loading && dataRaw) {
+      setTotalTradesAnalysisData(dataRaw.getTotalTradesAnalysis);
+    }
+  }, [loading, dataRaw]);
+
+  useEffect(() => {
+    if (type == 'quarter') {
+      refetch({ forexAccount: '66274530f04945c4e44e2509', type: 'quarter' });
+    }
+    if (type == 'annual') {
+      refetch({ forexAccount: '66274530f04945c4e44e2509', type: null });
+    }
+  }, [type, refetch]);
+
+  const data: ChartData<'bar'> = {
+    labels:
+      type == 'quarter'
+        ? totalTradeAnalysisData?.statistics.map(stat =>
+            getWeekRange(stat.month, Number(stat.week))
+          )
+        : totalTradeAnalysisData?.statistics.map(stat => stat.month),
+    datasets: [
+      {
+        label: 'Background',
+        data: Array(12).fill(50),
+        backgroundColor: '#E5E5EF',
+        order: 2,
+        barPercentage: 0.25,
+        borderColor: 'white',
+        borderWidth: 2,
+        borderRadius: {
+          topLeft: 5,
+          topRight: 5,
+          bottomLeft: 5,
+          bottomRight: 5,
+        },
+      },
+      {
+        label: 'Trades',
+        data: totalTradeAnalysisData?.statistics.map(stat => stat.trades) || [],
+        backgroundColor: '#00DF16',
+        order: 1,
+        barPercentage: 0.25,
+        borderColor: 'white',
+        borderWidth: 2,
+        borderRadius: {
+          topLeft: 5,
+          topRight: 5,
+          bottomLeft: 5,
+          bottomRight: 5,
+        },
+      },
+    ],
+  };
+
+  if (loading) {
+    return (
+      <Box className="w-full h-full items-center justify-center">
+        <Text className="text-xl font-bold">Loading ... </Text>
+      </Box>
+    );
+  }
+
   return (
     <Box className={inter.className}>
       <Box className="w-[54vw] bg-white rounded-xl px-6 py-8 flex-col">
@@ -147,10 +174,16 @@ const BarChartComponent: React.FC = () => {
             </Text>
           </Box>
           <Box className="flex-row w-max h-max rounded-xl bg-[#F8F8FF] px-4 py-2 items-center space-x-4">
-            <Box className="w-20 h-10 items-center justify-center text-[#9291A5] font-medium">
+            <Box
+              onClick={() => setType('quarter')}
+              className={`w-20 h-10 items-center justify-center ${type == 'quarter' ? 'bg-black rounded-xl text-white' : 'text-[#9291A5]'} font-medium`}
+            >
               Quarter
             </Box>
-            <Box className="w-20 h-10 items-center justify-center bg-black rounded-xl text-white font-medium">
+            <Box
+              onClick={() => setType('annual')}
+              className={`w-20 h-10 items-center justify-center ${type == 'annual' ? 'bg-black rounded-xl text-white' : 'text-[#9291A5]'} font-medium`}
+            >
               Annual
             </Box>
           </Box>

@@ -9,7 +9,7 @@ import { GET_ORDER_ANALYSIS_QUERY } from '@/graphql';
 export const OrderAnalysis = () => {
   const { data: dataRaw, loading } = useQuery(GET_ORDER_ANALYSIS_QUERY, {
     variables: {
-      forexAccount: '66218e158029f98d4155d3d5',
+      forexAccount: '66274530f04945c4e44e2509',
     },
   });
   if (loading) {

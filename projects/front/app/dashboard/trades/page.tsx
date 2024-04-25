@@ -33,14 +33,14 @@ const Page = () => {
     refetch: refetchTradePlansData,
   } = useQuery(GET_TRADE_PLANS_QUERY, {
     variables: {
-      forexAccount: '66218e158029f98d4155d3d5',
+      forexAccount: '66274530f04945c4e44e2509',
     },
   });
   const { data: tradeData, refetch: refetchTradesData } = useQuery(
     GET_TRADES_QUERY,
     {
       variables: {
-        forexAccount: '66218e158029f98d4155d3d5',
+        forexAccount: '66274530f04945c4e44e2509',
       },
     }
   );
@@ -141,7 +141,7 @@ const Page = () => {
     try {
       await CreateTradingPlan({
         variables: {
-          forexAccount: '66218e158029f98d4155d3d5',
+          forexAccount: '66274530f04945c4e44e2509',
           title: name,
           order: tradePlansData.length + 1,
         },

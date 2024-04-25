@@ -24,6 +24,10 @@ interface Statistic {
     trades: number;
     winTrades: number;
   }[];
+  winLongTrades: number;
+  long: number;
+  winShortTrades: number;
+  short: number;
   lastUpdate: string;
 }
 
@@ -105,7 +109,20 @@ export const getOrderAnalysis = async (
     );
 
     const rawStatistics = await StatisticsModel.find(params);
-    const statistics = sortByLastUpdate(rawStatistics);
+    const statistics = sortByLastUpdate(rawStatistics).map(stat => {
+      const longWinrate =
+        stat.long > 0 ? ((stat.winLongTrades / stat.long) * 100).toFixed(1) : 0;
+      const shortWinrate =
+        stat.short > 0
+          ? ((stat.winShortTrades / stat.short) * 100).toFixed(1)
+          : 0;
+
+      return {
+        month: stat.month,
+        long: longWinrate,
+        short: shortWinrate,
+      };
+    });
 
     return {
       bestOrderType,

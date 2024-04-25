@@ -13,7 +13,7 @@ export const getTopPairs = (
           pair: pair.pair,
           pl: pair.pl + trade.profit,
           trades: pair.trades + 1,
-          winTrades: pair.winTrades + trade.profit > 0 ? 1 : 0,
+          winTrades: pair.winTrades + (trade.profit > 0 ? 1 : 0),
         };
       }
     });

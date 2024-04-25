@@ -68,8 +68,8 @@ export const tradeTypes = gql`
     volume: Float!
     openPrice: Float!
     closePrice: Float!
-    sl: Float!
-    tp: Float!
+    sl: Float
+    tp: Float
     commission: Float!
     swap: Float!
     profit: Float!

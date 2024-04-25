@@ -48,7 +48,9 @@ const OrderChart: React.FC<CardProps> = ({ winRate, growth }) => {
     <Box className={`${poppins.className} w-full`}>
       <Box className="w-full px-10 py-8 bg-white rounded-2xl flex justify-between items-center">
         <Box className="flex flex-col justify-center items-start text-left space-y-2">
-          <Text className="text-[#757B7B] font-semibold text-lg">Winrate</Text>
+          <Text className="text-[#757B7B] font-semibold text-lg">
+            Average Winrate
+          </Text>
           <Box className="items-center space-x-16">
             <Text className="text-[#1B1D5C] font-semibold text-xl">
               {winRate}%

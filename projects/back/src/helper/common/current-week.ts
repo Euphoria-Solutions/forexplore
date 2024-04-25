@@ -16,5 +16,17 @@ export const months = [
 export const getCurrentWeek = () => {
   const today = new Date();
   const currentDayOfMonth = today.getDate();
-  return Math.ceil(currentDayOfMonth / 7);
+  return Math.ceil(currentDayOfMonth / 7) == 5
+    ? 4
+    : Math.ceil(currentDayOfMonth / 7);
+};
+
+export const getWeekFromDate = (dateString: string) => {
+  const date = new Date(dateString.replace(/\./g, '-'));
+
+  const currentDayOfMonth = date.getDate();
+
+  return Math.ceil(currentDayOfMonth / 7) == 5
+    ? 4
+    : Math.ceil(currentDayOfMonth / 7);
 };
