@@ -34,7 +34,7 @@ export const TradeImport = () => {
   const [additionalInfo, setAdditionalInfo] = useState({
     broker: '',
     balance: -1,
-    forexAccountId: '66218e158029f98d4155d3d5',
+    forexAccountId: '66274530f04945c4e44e2509',
   });
   const [uploadTime, setUploadTime] = useState(0);
   const [file, setFile] = useState<File>();
@@ -115,23 +115,22 @@ export const TradeImport = () => {
         .map(
           data =>
             ({
-              closePrice: data[`__EMPTY_5`],
+              closePrice: data[`__EMPTY_8`],
               closeTime: data[`__EMPTY_7`],
               commission: data[`__EMPTY_9`],
-              forexAccount: '66218e158029f98d4155d3d5',
+              forexAccount: '66274530f04945c4e44e2509',
               openPrice: data[`__EMPTY_4`],
               openTime: data[`Trade History Report`],
               positionId: (data[`__EMPTY`] as number).toString(),
               profit: data[`__EMPTY_11`],
-              sl: data[`__EMPTY_8`],
+              sl: data[`__EMPTY_5`] || 0,
               swap: data[`__EMPTY_10`],
               symbol: data[`__EMPTY_1`],
               volume: Number(data[`__EMPTY_3`]),
               type: data[`__EMPTY_2`],
-              tp: data[`__EMPTY_6`],
+              tp: data[`__EMPTY_6`] || 0,
             }) as Trade
         );
-
       setTradeHistory(tradeHistoryData);
       setAdditionalInfo({ ...additionalInfo, broker, balance });
       setTradeUploaded(true);
@@ -145,6 +144,7 @@ export const TradeImport = () => {
   const importHistory = async () => {
     const id = toast.loading('Loading ...');
     try {
+      console.log(tradeHistory);
       await ImportTradeHistory({
         variables: {
           ...additionalInfo,

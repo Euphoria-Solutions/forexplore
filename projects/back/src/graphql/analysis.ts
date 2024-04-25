@@ -80,7 +80,7 @@ export const analysisTypes = gql`
     getPLAnalysis(forexAccount: String!): PLAnalysis!
     getTotalTradesAnalysis(
       forexAccount: String!
-      type: String!
+      type: String
     ): TotalTradesAnalysis!
     getSessionAnalysis(forexAccount: String!): SessionAnalysis!
     getOrderAnalysis(forexAccount: String!): OrderTypeAnalysis!

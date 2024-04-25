@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -21,6 +21,8 @@ import Image from 'next/image';
 import pathIdGr from '@/public/icons/Identifier_green.svg';
 import pathIdRed from '@/public/icons/Identifier_red.svg';
 import { Poppins } from 'next/font/google';
+import { useQuery } from '@apollo/client';
+import { GET_PL_ANALYSIS_QUERY } from '@/graphql';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -66,11 +68,27 @@ ChartJS.register(
 ChartJS.unregister(crosshairPlugin);
 
 interface LineChartProps {
-  data: ChartData<'line'>;
   options?: ChartOptions<'line'>;
 }
 
-const LineChartComponent: React.FC<LineChartProps> = ({ data, options }) => {
+interface StatisticType {
+  month: string;
+  profit: number;
+  loss: number;
+}
+
+interface DataType {
+  statistics: StatisticType[];
+}
+
+const LineChartComponent: React.FC<LineChartProps> = ({ options }) => {
+  const { data: dataRaw, loading } = useQuery(GET_PL_ANALYSIS_QUERY, {
+    variables: {
+      forexAccount: '66274530f04945c4e44e2509',
+    },
+  });
+  const [PLAnalysisData, setPLAnalysisData] = useState<DataType | null>(null);
+
   const defaultOptions: ChartOptions<'line'> = {
     responsive: true,
     scales: {
@@ -134,6 +152,24 @@ const LineChartComponent: React.FC<LineChartProps> = ({ data, options }) => {
     ...(options as object),
   };
 
+  const data = {
+    labels: PLAnalysisData?.statistics.map(stat => stat.month),
+    datasets: [
+      {
+        label: 'Loss',
+        data: PLAnalysisData?.statistics.map(statistic => statistic.loss),
+        borderColor: '#FA4B3C',
+        borderWidth: 2,
+      },
+      {
+        label: 'Profit',
+        data: PLAnalysisData?.statistics.map(statistic => statistic.profit),
+        borderColor: '#00DFA4',
+        borderWidth: 2,
+      },
+    ],
+  };
+
   const newData = {
     ...data,
     datasets: data.datasets.map(dataset => ({
@@ -143,13 +179,27 @@ const LineChartComponent: React.FC<LineChartProps> = ({ data, options }) => {
       pointRadius: 0,
       pointHoverRadius: 10,
       pointHitRadius: 20,
-      pointBackgroundColor: dataset.pointBackgroundColor || dataset.borderColor,
+      pointBackgroundColor: dataset.borderColor,
       pointBorderColor: '#ffffff',
       pointHoverBackgroundColor: dataset.label === 'Loss' ? 'red' : '#00DF16',
       pointHoverBorderColor: '#ffffff',
       pointHoverBorderWidth: 2,
     })),
   } as ChartData<'line'>;
+
+  useEffect(() => {
+    if (!loading && dataRaw) {
+      setPLAnalysisData(dataRaw.getPLAnalysis);
+    }
+  }, [loading, dataRaw]);
+
+  if (loading) {
+    return (
+      <Box className="w-full h-full items-center justify-center">
+        <Text className="text-xl font-bold">Loading ... </Text>
+      </Box>
+    );
+  }
 
   return (
     <Box className={poppins.className}>

@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -11,12 +11,13 @@ import {
   Tooltip,
   Filler,
   Legend,
-  ChartData,
   ChartOptions,
 } from 'chart.js';
 import { Box, Text } from '@/components';
 import { Poppins } from 'next/font/google';
 import { Growth } from '@/public/graph/growth';
+import { useQuery } from '@apollo/client';
+import { GET_BALANCE_ANALYSIS_QUERY } from '@/graphql';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -35,14 +36,31 @@ ChartJS.register(
 );
 
 interface StraightLineDiagramProps {
-  data: ChartData<'line'>;
   options?: ChartOptions<'line'>;
 }
 
+interface StatisticType {
+  month: string;
+  balance: number;
+}
+
+interface DataType {
+  balance: number;
+  growth: number;
+  statistics: StatisticType[];
+}
+
 const StraightLineDiagram: React.FC<StraightLineDiagramProps> = ({
-  data,
   options,
 }) => {
+  const { data: dataRaw, loading } = useQuery(GET_BALANCE_ANALYSIS_QUERY, {
+    variables: {
+      forexAccount: '66274530f04945c4e44e2509',
+    },
+  });
+  const [balanceAnalysisData, setBalanceAnalysisData] =
+    useState<DataType | null>(null);
+
   const defaultOptions: ChartOptions<'line'> = {
     responsive: true,
     scales: {
@@ -77,14 +95,36 @@ const StraightLineDiagram: React.FC<StraightLineDiagramProps> = ({
     ...(options as object),
   };
 
-  const newData = {
-    ...data,
-    datasets: data.datasets.map(dataset => ({
-      ...dataset,
-      fill: false,
-      borderColor: dataset.borderColor,
-    })),
-  } as ChartData<'line'>;
+  const data = {
+    labels: ['', '', '', '', '', '', ''],
+    datasets: [
+      {
+        data: [
+          0,
+          ...(balanceAnalysisData?.statistics.map(
+            statistic => statistic.balance
+          ) || []),
+        ],
+        borderColor: '#00DF16',
+        borderWidth: 2,
+        fill: false,
+      },
+    ],
+  };
+
+  useEffect(() => {
+    if (!loading && dataRaw) {
+      setBalanceAnalysisData(dataRaw.getBalanceAnalysis);
+    }
+  }, [loading, dataRaw]);
+
+  if (loading) {
+    return (
+      <Box className="w-full h-full items-center justify-center">
+        <Text className="text-xl font-bold">Loading ... </Text>
+      </Box>
+    );
+  }
 
   return (
     <Box className={poppins.className}>
@@ -93,16 +133,18 @@ const StraightLineDiagram: React.FC<StraightLineDiagramProps> = ({
           <Text className="text-[#757B7B] font-semibold text-lg">Balance</Text>
           <Box className="flex-row items-center space-x-3">
             <Text className="text-[#1B1D5C] font-semibold text-xl">
-              $10,000.00
+              ${balanceAnalysisData?.balance}
             </Text>
             <Box className="space-x-1 items-center justify-center">
               <Growth></Growth>
-              <Text className="text-[#00DF16] font-semibold text-sm">7.2%</Text>
+              <Text className="text-[#00DF16] font-semibold text-sm">
+                {balanceAnalysisData?.growth}%
+              </Text>
             </Box>
           </Box>
         </Box>
         <Box className="h-16 w-max items-center justify-center flex-col">
-          <Line data={newData} options={defaultOptions} />
+          <Line data={data} options={defaultOptions} />
         </Box>
       </Box>
     </Box>
