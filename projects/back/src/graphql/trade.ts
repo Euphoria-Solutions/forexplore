@@ -53,6 +53,7 @@ export const tradeTypes = gql`
     profit: String
     exitPrice: Float
     status: String
+    type: String!
   }
 
   type Note {
@@ -153,6 +154,7 @@ export const tradeTypes = gql`
       stopLoss: Float
       profit: String
       exitPrice: Float
+      type: String!
     ): Boolean!
     editTradePlan(
       _id: String!

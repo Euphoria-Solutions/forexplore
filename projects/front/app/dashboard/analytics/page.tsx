@@ -5,7 +5,6 @@ import React from 'react';
 import LineChartComponent from '@/components/analytics/linear-diagram';
 import StraightLineDiagram from '@/components/analytics/straight-line-diagram';
 import PieDiagram from '@/components/analytics/pie-diagram';
-// import { CloseIconModal } from '@/public/icons/close-icon-modal';
 
 const Page = () => {
   // const [modal, setModal] = useState(false);

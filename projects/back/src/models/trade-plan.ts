@@ -17,6 +17,7 @@ const TradePlanSchema = new Schema({
   profit: Number,
   exitPrice: Number,
   status: String,
+  type: String,
 });
 
 export const TradePlanModel =
