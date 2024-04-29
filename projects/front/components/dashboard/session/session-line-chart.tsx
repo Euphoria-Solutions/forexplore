@@ -80,7 +80,7 @@ type TargetDataType = Array<{
 }>;
 
 interface LineChartProps {
-  data: TargetDataType;
+  data: TargetDataType | [];
   options?: ChartOptions<'line'>;
 }
 

@@ -19,28 +19,36 @@ import {
 } from '@/graphql';
 import { useMutation, useQuery } from '@apollo/client';
 import Image from 'next/image';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { toast } from 'react-toastify';
 import { notifUpdater } from '@/helper';
 import useScrollOnDrag from '@/components/trades-page/use-scroll';
+import { AuthContext } from '@/providers';
 
 const Page = () => {
+  const { forexAccount } = useContext(AuthContext);
   const {
     data: tradePlansDataRaw,
     loading,
     refetch: refetchTradePlansData,
   } = useQuery(GET_TRADE_PLANS_QUERY, {
     variables: {
-      forexAccount: '66274530f04945c4e44e2509',
+      forexAccount: forexAccount._id,
     },
   });
   const { data: tradeData, refetch: refetchTradesData } = useQuery(
     GET_TRADES_QUERY,
     {
       variables: {
-        forexAccount: '66274530f04945c4e44e2509',
+        forexAccount: forexAccount._id,
       },
     }
   );
@@ -141,7 +149,7 @@ const Page = () => {
     try {
       await CreateTradingPlan({
         variables: {
-          forexAccount: '66274530f04945c4e44e2509',
+          forexAccount: forexAccount._id,
           title: name,
           order: tradePlansData.length + 1,
         },

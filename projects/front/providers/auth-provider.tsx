@@ -31,6 +31,14 @@ interface AuthContext {
     email: string | null;
     otpToken: string | null;
   };
+  setForexAccount: Dispatch<
+    SetStateAction<{
+      _id: string | null;
+    }>
+  >;
+  forexAccount: {
+    _id: string | null;
+  };
 }
 
 export const AuthContext = createContext<AuthContext>({
@@ -42,6 +50,9 @@ export const AuthContext = createContext<AuthContext>({
   authDetails: {
     email: null,
     otpToken: null,
+  },
+  forexAccount: {
+    _id: null,
   },
 } as AuthContext);
 
@@ -62,10 +73,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     email: null,
     otpToken: null,
   });
+  const [forexAccount, setForexAccount] = useState<{
+    _id: string | null;
+  }>({
+    _id: null,
+  });
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, authDetails, setAuthDetails }}
+      value={{
+        user,
+        setUser,
+        authDetails,
+        setAuthDetails,
+        forexAccount,
+        setForexAccount,
+      }}
     >
       {children}
     </AuthContext.Provider>

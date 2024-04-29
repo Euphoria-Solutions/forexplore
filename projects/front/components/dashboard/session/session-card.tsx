@@ -1,7 +1,7 @@
 import { Box, Text } from '../..';
 
 interface CardProps {
-  cardTitle: [string];
+  cardTitle: [string] | [];
   cardText: string;
 }
 

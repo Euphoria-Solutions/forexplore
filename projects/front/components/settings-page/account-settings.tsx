@@ -141,7 +141,6 @@ export const AccountSettings = () => {
           <DropdownButton
             width={'[80%]'}
             className="bg-[#EDF2F6] border border-[#E0E4EC] p-4 rounded-md w-full text-[#4C535F] items-center justify-between"
-            placeholder="click on me"
             menuList={menuList}
             setSelected={setSelectedForexAccount}
             selected={selectedForexAccount}

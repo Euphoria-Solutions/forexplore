@@ -83,6 +83,10 @@ export const getSessionAnalysis = async (
       };
     });
 
+    if (sessionData.length == 0) {
+      throw new Error('No Data');
+    }
+
     return {
       currentSessions,
       sessionType: status,
@@ -174,6 +178,15 @@ export const getPairAnalysis = async (
         statistics: pairData,
       };
     });
+
+    if (
+      pairs.slice(0, 4).length == 0 &&
+      pairs.slice(-4).length == 0 &&
+      bestPairsData.length == 0 &&
+      worstPairsData.length == 0
+    ) {
+      throw new Error('No Data');
+    }
 
     return {
       bestPairs: pairs.slice(0, 4),
