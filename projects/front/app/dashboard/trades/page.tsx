@@ -218,7 +218,7 @@ const Page = () => {
   return (
     <Box
       ref={containerRef}
-      className="w-screen py-7 h-screen overflow-scroll bg-bg flex flex-col gap-6"
+      className="w-full py-7 h-screen overflow-scroll bg-bg flex flex-col gap-6"
     >
       <DeleteModal
         onDelete={onDelete}
