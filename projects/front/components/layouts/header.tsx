@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { Box, DropdownButton, Text } from '../common';
 import { FourCube } from '@/public/icons/4cube';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { notifUpdater } from '@/helper';
 import { toast } from 'react-toastify';
 import { useMutation, useQuery } from '@apollo/client';
 import { ADD_FOREX_ACCOUNT, GET_FOREX_ACCOUNTS } from '@/graphql';
 import { ChartModal } from '../common/chart-modal';
+import { AuthContext } from '@/providers';
 
 export const Header = ({ userId }: { userId: string }) => {
   const [modal, setModal] = useState<boolean>(false);
@@ -24,6 +25,7 @@ export const Header = ({ userId }: { userId: string }) => {
     },
   });
   const [AddForexAccount] = useMutation(ADD_FOREX_ACCOUNT);
+  const { setForexAccount } = useContext(AuthContext);
 
   const addNewForexAccount = async (account: string) => {
     const notifId = toast.loading('Loading ...');
@@ -55,6 +57,12 @@ export const Header = ({ userId }: { userId: string }) => {
     }
   }, [loading, forexAccountsData]);
 
+  useEffect(() => {
+    if (selected._id != '') {
+      setForexAccount({ _id: selected._id });
+    }
+  }, [selected]);
+
   if (loading) {
     return <Text>loading...</Text>;
   }
@@ -64,7 +72,6 @@ export const Header = ({ userId }: { userId: string }) => {
         <DropdownButton
           className="p-4 text-black bg-white shadow-md rounded-lg inline-flex items-center w-full justify-between"
           width={'[17vw]'}
-          placeholder="click on me"
           menuList={menuList}
           addItem={addNewForexAccount}
           setSelected={setSelected}

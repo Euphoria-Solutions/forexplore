@@ -2,8 +2,8 @@ import { Box, Text } from '../..';
 
 interface CardProps {
   cardTitle: string;
-  bestPairs: [string];
-  worstPairs: [string];
+  bestPairs: [string] | [];
+  worstPairs: [string] | [];
 }
 
 export const PairAnalysisCard: React.FC<CardProps> = ({

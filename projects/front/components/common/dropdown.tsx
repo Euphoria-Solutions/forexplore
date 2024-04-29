@@ -14,14 +14,12 @@ interface menuOption {
 }
 
 interface DropdownParams {
-  placeholder: string;
   menuList?: menuOption[];
   onClick?: () => void;
   className: string;
 }
 
 interface DropdownParams {
-  placeholder: string;
   menuList?: menuOption[];
   onClick?: () => void;
   className: string;

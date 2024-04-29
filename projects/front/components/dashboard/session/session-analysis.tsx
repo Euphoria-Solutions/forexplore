@@ -1,30 +1,81 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box } from '@/components/common';
 import { SessionCard } from './session-card';
 import SessionLineChart from './session-line-chart';
 import { Arrow } from '@/public/icons/arrow';
 import { useQuery } from '@apollo/client';
 import { GET_SESSION_ANALYSIS_QUERY } from '@/graphql';
+import { AuthContext } from '@/providers';
+
+const dummyData: SessionTypeAnalysisDataType = {
+  currentSessions: ['No Data Available'],
+  sessionType: 'Unknown',
+  statistics: [
+    {
+      month: 'Unknown',
+      Sydney: 0,
+      London: 0,
+      NewYork: 0,
+      Tokyo: 0,
+    },
+  ],
+};
+
+interface SessionTypeAnalysisDataType {
+  currentSessions: [string] | [];
+  sessionType: string;
+  statistics: [
+    {
+      month: string;
+      Sydney: number;
+      London: number;
+      NewYork: number;
+      Tokyo: number;
+    },
+  ];
+}
 
 export const SessionAnalysis = () => {
-  const { data: dataRaw, loading } = useQuery(GET_SESSION_ANALYSIS_QUERY, {
+  const { forexAccount } = useContext(AuthContext);
+  const {
+    data: dataRaw,
+    loading,
+    refetch,
+  } = useQuery(GET_SESSION_ANALYSIS_QUERY, {
     variables: {
-      forexAccount: '66274530f04945c4e44e2509',
+      forexAccount: forexAccount._id,
     },
   });
+
+  const [data, setData] = useState<SessionTypeAnalysisDataType>(dummyData);
+
+  useEffect(() => {
+    if (!loading && dataRaw) {
+      setData(dataRaw.getSessionAnalysis);
+    } else {
+      setData(dummyData);
+    }
+  }, [loading, dataRaw]);
+
+  useEffect(() => {
+    refetch({
+      forexAccount: forexAccount._id,
+    });
+  }, [forexAccount]);
+
   if (loading) {
     return <Box>Loading ...</Box>;
   }
   return (
     <Box className="flex flex-col w-full">
       <SessionCard
-        cardTitle={dataRaw.getSessionAnalysis.currentSessions}
-        cardText={dataRaw.getSessionAnalysis.sessionType}
+        cardTitle={data.currentSessions}
+        cardText={data.sessionType}
       />
       <Box className="justify-end -mr-2 -my-1.5">
         <Arrow className="text-black" />
       </Box>
-      <SessionLineChart data={dataRaw.getSessionAnalysis.statistics} />
+      <SessionLineChart data={data.statistics} />
     </Box>
   );
 };
