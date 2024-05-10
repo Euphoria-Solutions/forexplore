@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { Box, Text } from '@/components';
@@ -9,6 +9,7 @@ import { Poppins } from 'next/font/google';
 import { Growth } from '@/public/graph/growth';
 import { useQuery } from '@apollo/client';
 import { GET_WINRATE_ANALYSIS_QUERY } from '@/graphql';
+import { AuthContext } from '@/providers';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -21,9 +22,10 @@ interface DataType {
 }
 
 const PieDiagram: React.FC = () => {
+  const { forexAccount } = useContext(AuthContext);
   const { data: dataRaw, loading } = useQuery(GET_WINRATE_ANALYSIS_QUERY, {
     variables: {
-      forexAccount: '66274530f04945c4e44e2509',
+      forexAccount: forexAccount._id,
     },
   });
   const [winrateAnalysisData, setWinrateAnalysisData] =

@@ -44,6 +44,7 @@ const Page = () => {
       forexAccount: forexAccount._id,
     },
   });
+
   const { data: tradeData, refetch: refetchTradesData } = useQuery(
     GET_TRADES_QUERY,
     {
@@ -69,6 +70,7 @@ const Page = () => {
   const [deleteIndex, setDeleteIndex] = useState(-1);
 
   useEffect(() => {
+    console.log(tradePlansDataRaw?.getTradePlans);
     if (!loading && tradePlansDataRaw?.getTradePlans) {
       setTradePlansData(
         tradePlansDataRaw?.getTradePlans.map((tradePlan: TradePlan) => ({
@@ -129,8 +131,8 @@ const Page = () => {
   }, [filteredData]);
 
   const refetchData = () => {
-    refetchTradePlansData();
-    refetchTradesData();
+    refetchTradePlansData({ forexAccount: forexAccount._id });
+    refetchTradesData({ forexAccount: forexAccount._id });
   };
 
   const onDelete = () => {
@@ -188,8 +190,8 @@ const Page = () => {
           searchValue={searchValue}
           moveTradingPlan={moveTradingPlan}
           refetchData={() => {
-            refetchTradePlansData();
-            refetchTradesData();
+            refetchTradePlansData({ forexAccount: forexAccount._id });
+            refetchTradesData({ forexAccount: forexAccount._id });
           }}
         />
       );

@@ -36,7 +36,7 @@ export const Header = ({ userId }: { userId: string }) => {
           name: account,
         },
       });
-      refecthForexAccounts();
+      refecthForexAccounts({ user: userId });
 
       await notifUpdater(notifId, 'Updated Successfully', 'success');
     } catch (err) {
