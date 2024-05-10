@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -17,6 +17,7 @@ import { Inter } from 'next/font/google';
 import { useQuery } from '@apollo/client';
 import { GET_TOTAL_TRADES_ANALYSIS_QUERY } from '@/graphql';
 import { getWeekRange } from '@/helper';
+import { AuthContext } from '@/providers';
 
 interface StatisticType {
   month: string;
@@ -86,13 +87,14 @@ const options: ChartOptions<'bar'> = {
 };
 
 const BarChartComponent: React.FC = () => {
+  const { forexAccount } = useContext(AuthContext);
   const {
     data: dataRaw,
     loading,
     refetch,
   } = useQuery(GET_TOTAL_TRADES_ANALYSIS_QUERY, {
     variables: {
-      forexAccount: '66274530f04945c4e44e2509',
+      forexAccount: forexAccount._id,
     },
   });
   const [totalTradeAnalysisData, setTotalTradesAnalysisData] =
@@ -107,10 +109,10 @@ const BarChartComponent: React.FC = () => {
 
   useEffect(() => {
     if (type == 'quarter') {
-      refetch({ forexAccount: '66274530f04945c4e44e2509', type: 'quarter' });
+      refetch({ forexAccount: forexAccount._id, type: 'quarter' });
     }
     if (type == 'annual') {
-      refetch({ forexAccount: '66274530f04945c4e44e2509', type: null });
+      refetch({ forexAccount: forexAccount._id, type: null });
     }
   }, [type, refetch]);
 

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -18,6 +18,7 @@ import { Poppins } from 'next/font/google';
 import { Growth } from '@/public/graph/growth';
 import { useQuery } from '@apollo/client';
 import { GET_BALANCE_ANALYSIS_QUERY } from '@/graphql';
+import { AuthContext } from '@/providers';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -53,9 +54,10 @@ interface DataType {
 const StraightLineDiagram: React.FC<StraightLineDiagramProps> = ({
   options,
 }) => {
+  const { forexAccount } = useContext(AuthContext);
   const { data: dataRaw, loading } = useQuery(GET_BALANCE_ANALYSIS_QUERY, {
     variables: {
-      forexAccount: '66274530f04945c4e44e2509',
+      forexAccount: forexAccount._id,
     },
   });
   const [balanceAnalysisData, setBalanceAnalysisData] =

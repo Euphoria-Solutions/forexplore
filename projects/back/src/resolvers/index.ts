@@ -39,16 +39,14 @@ import {
   getWinRateAnalysis,
 } from './analysis/basic';
 import {
-  addPlan,
-  changeTradePlansOrder,
-  createTradePlan,
-  deletePlan,
+  addNote,
+  addTradingPlan,
   deleteTradePlan,
-  editPlan,
+  editNote,
   editTradePlan,
-  getTradePlans,
-  linkPlanToTrade,
-  unLinkPlanFromTrade,
+  finishTradePlan,
+  getTradePlanCallenderData,
+  removeNote,
 } from './trade-plan';
 
 export const resolversObjects = {
@@ -71,7 +69,7 @@ export const resolversObjects = {
     getOrderAnalysis,
     getPairAnalysis,
     // Trade Plan
-    getTradePlans,
+    getTradePlanCallenderData,
   },
   Mutation: {
     // Auth
@@ -99,16 +97,14 @@ export const resolversObjects = {
     // Trade
     importTradeHistory,
     // Trade Plan
-    createTradePlan,
+    addTradingPlan,
     editTradePlan,
     deleteTradePlan,
-    changeTradePlansOrder,
-    // Plan
-    addPlan,
-    editPlan,
-    deletePlan,
-    linkPlanToTrade,
-    unLinkPlanFromTrade,
+    finishTradePlan,
+    // Note
+    addNote,
+    editNote,
+    removeNote,
     // Default
     helloMutation: () => 'Hello Mutation',
   },

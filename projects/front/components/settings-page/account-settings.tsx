@@ -93,7 +93,7 @@ export const AccountSettings = () => {
           id: selectedForexAccount._id,
         },
       });
-      refecthForexAccounts();
+      refecthForexAccounts({ user: user._id });
       setSelectedForexAccount({
         name: 'select a value',
         _id: '',
