@@ -28,6 +28,16 @@ const pairSchema = new Schema(
   { _id: false }
 );
 
+const daySchema = new Schema(
+  {
+    day: Number,
+    growthPercent: Number,
+    growthDollar: Number,
+    totalTrades: Number,
+  },
+  { _id: false }
+);
+
 const StatisticsSchema = new Schema({
   forexAccount: { type: Schema.Types.ObjectId, ref: 'ForexAccount' },
 
@@ -44,6 +54,7 @@ const StatisticsSchema = new Schema({
   weeks: [weekSchema],
   sessions: [sessionSchema],
   pairs: [pairSchema],
+  days: [daySchema],
   lastUpdate: String,
 });
 

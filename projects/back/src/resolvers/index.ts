@@ -26,7 +26,7 @@ import {
   editForexAccount,
   getForexAccounts,
 } from './forex-account';
-import { getTrades, importTradeHistory } from './trade';
+import { getProfitCalendar, getTrades, importTradeHistory } from './trade';
 import {
   getOrderAnalysis,
   getPairAnalysis,
@@ -60,6 +60,7 @@ export const resolversObjects = {
     getForexAccounts,
     // Trade,
     getTrades,
+    getProfitCalendar,
     // Analysis,
     getBalanceAnalysis,
     getWinRateAnalysis,

@@ -68,6 +68,15 @@ export const tradeTypes = gql`
     notes: [Note]!
   }
 
+  type ProfitCalendarDetails {
+    type: String!
+    day: Float!
+    totalTrades: Float!
+    growthPercent: Float!
+    growthDollar: Float!
+    weekDay: Float!
+  }
+
   input TradeInput {
     forexAccount: String!
 
@@ -110,6 +119,12 @@ export const tradeTypes = gql`
       startDate: String
       endDate: String
     ): [TradePlanDetails]!
+    # Calendar
+    getProfitCalendar(
+      forexAccount: String!
+      month: String!
+      year: Float!
+    ): [ProfitCalendarDetails]!
   }
 
   extend type Mutation {
