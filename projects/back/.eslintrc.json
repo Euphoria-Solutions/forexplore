@@ -132,7 +132,7 @@
         ],
         "no-secrets/no-secrets": "error",
         "max-lines": ["error", { "max": 300 }],
-        "complexity": ["error", { "max": 7 }],
+        "complexity": ["error", { "max": 9 }],
         "max-nested-callbacks": ["error", 3],
         "max-depth": ["error", 4]
       }

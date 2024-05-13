@@ -11,6 +11,7 @@ import { getTopPairs } from './get-top-pairs';
 const defaultStatisticsData = {
   pairs: [],
   weeks: [],
+  days: [],
   sessions: [],
 };
 
@@ -73,6 +74,38 @@ const getWeekData = (
       arr[updateIndx] = {
         week: arr[updateIndx].week,
         trades: arr[updateIndx].trades + 1,
+      };
+    }
+  });
+  return arr;
+};
+
+const getDaysData = (
+  data: Trade[],
+  oldDaysData: {
+    day: number;
+    growthPercent: number;
+    growthDollar: number;
+    totalTrades: number;
+  }[]
+) => {
+  const arr = [...oldDaysData];
+  data.forEach(trade => {
+    const date = new Date(trade.openTime);
+    const updateIndx = arr.findIndex(oldDay => oldDay.day == date.getDate());
+
+    if (updateIndx == -1) {
+      arr.push({
+        day: date.getDate(),
+        growthPercent: 0.01,
+        growthDollar: trade.profit,
+        totalTrades: 1,
+      });
+    } else {
+      arr[updateIndx] = {
+        ...arr[updateIndx],
+        growthDollar: arr[updateIndx].growthDollar + trade.profit,
+        totalTrades: arr[updateIndx].totalTrades + 1,
       };
     }
   });
@@ -185,6 +218,7 @@ export const updateStatistics = async (
               pairs: getTopPairs(data.trades, document.pairs ?? []),
               lastUpdate: date.toISOString(),
               weeks: getWeekData(data.trades, document.weeks),
+              days: getDaysData(data.trades, document.days),
             },
           },
         ],
