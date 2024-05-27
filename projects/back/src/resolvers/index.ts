@@ -1,7 +1,10 @@
 import { mapValues } from 'lodash';
 import {
+  addUserMood,
   changePass,
+  editUserMood,
   forgetPass,
+  getUserMoods,
   logIn,
   signUp,
   updateUserDetails,
@@ -28,17 +31,6 @@ import {
 } from './forex-account';
 import { getProfitCalendar, getTrades, importTradeHistory } from './trade';
 import {
-  getOrderAnalysis,
-  getPairAnalysis,
-  getSessionAnalysis,
-} from './analysis/advanced';
-import {
-  getBalanceAnalysis,
-  getPLAnalysis,
-  getTotalTradesAnalysis,
-  getWinRateAnalysis,
-} from './analysis/basic';
-import {
   addNote,
   addTradingPlan,
   deleteTradePlan,
@@ -48,6 +40,18 @@ import {
   getTradePlanCallenderData,
   removeNote,
 } from './trade-plan';
+import {
+  getBalanceAnalysis,
+  getOrderAnalysis,
+  getPairAnalysis,
+  getPersonalWinrateGrowthAnalysis,
+  getPLAnalysis,
+  getSessionAnalysis,
+  getTotalTradesAnalysis,
+  getTradingHoursAnalysis,
+  getWeekDaysProfitAnalysis,
+  getWinRateAnalysis,
+} from './analysis';
 
 export const resolversObjects = {
   Query: {
@@ -56,6 +60,8 @@ export const resolversObjects = {
     getUserPlans,
     // User Management
     getUsers,
+    // User Mood
+    getUserMoods,
     // Forex Account,
     getForexAccounts,
     // Trade,
@@ -69,6 +75,9 @@ export const resolversObjects = {
     getSessionAnalysis,
     getOrderAnalysis,
     getPairAnalysis,
+    getWeekDaysProfitAnalysis,
+    getTradingHoursAnalysis,
+    getPersonalWinrateGrowthAnalysis,
     // Trade Plan
     getTradePlanCallenderData,
   },
@@ -91,6 +100,9 @@ export const resolversObjects = {
     // User Management
     blockUser,
     updateUserDetails,
+    // User Mood
+    addUserMood,
+    editUserMood,
     // Forex Account
     addForexAccount,
     editForexAccount,

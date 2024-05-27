@@ -62,6 +62,30 @@ export const getTrades = async (
   params: QueryGetTradesArgs
 ) => {
   try {
+    if (params.date) {
+      const formattedDate = params.date.replace(/-/g, '\\.');
+      const regexPattern = `^${formattedDate}`;
+      const regex = new RegExp(regexPattern);
+
+      return await TradeModel.find({
+        forexAccount: params.forexAccount,
+        openTime: { $regex: regex },
+      })
+        .populate({
+          path: 'forexAccount',
+          populate: {
+            path: 'user',
+            model: 'User',
+          },
+        })
+        .populate({
+          path: 'plan',
+          populate: {
+            path: 'tradePlan',
+            model: 'TradePlan',
+          },
+        });
+    }
     return await TradeModel.find(params)
       .populate({
         path: 'forexAccount',
@@ -87,19 +111,19 @@ export const getProfitCalendar = async (
   params: QueryGetProfitCalendarArgs
 ) => {
   try {
-    const data = await StatisticsModel.findOne({
+    const data = (await StatisticsModel.findOne({
       year: params.year,
       month: params.month,
       forexAccount: params.forexAccount,
-    });
+    })) || { days: [] };
 
-    const latestDate = getLatestDateOfMonth(data.month, data.year);
+    const latestDate = getLatestDateOfMonth(params.month, params.year);
     let currDate = 1;
 
     const daysData: ProfitCalendarDetails[] = [];
 
-    while (currDate != latestDate) {
-      const updateIndx = ((data.days as DayDataType[]) || []).findIndex(
+    while (currDate <= latestDate) {
+      const updateIndx = (data.days as DayDataType[]).findIndex(
         oldDay => oldDay.day == currDate
       );
       const weekDay = getWeekDay(params.year, params.month, currDate);
@@ -110,7 +134,8 @@ export const getProfitCalendar = async (
         totalTrades: updateIndx == -1 ? 0 : data.days[updateIndx].totalTrades,
         growthPercent:
           updateIndx == -1 ? 0 : data.days[updateIndx].growthPercent,
-        growthDollar: updateIndx == -1 ? 0 : data.days[updateIndx].growthDollar,
+        growthDollar:
+          updateIndx == -1 ? 0 : data.days[updateIndx].growthDollar.toFixed(1),
         weekDay: weekDay,
       });
 

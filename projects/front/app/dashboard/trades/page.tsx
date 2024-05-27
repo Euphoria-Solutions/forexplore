@@ -70,7 +70,6 @@ const Page = () => {
   const [deleteIndex, setDeleteIndex] = useState(-1);
 
   useEffect(() => {
-    console.log(tradePlansDataRaw?.getTradePlans);
     if (!loading && tradePlansDataRaw?.getTradePlans) {
       setTradePlansData(
         tradePlansDataRaw?.getTradePlans.map((tradePlan: TradePlan) => ({
