@@ -26,6 +26,33 @@ const defSessions = [
   },
 ];
 
+const defWeekDays = [
+  {
+    weekDay: 1,
+    pl: 0,
+  },
+  {
+    weekDay: 2,
+    pl: 0,
+  },
+  {
+    weekDay: 3,
+    pl: 0,
+  },
+  {
+    weekDay: 4,
+    pl: 0,
+  },
+  {
+    weekDay: 5,
+    pl: 0,
+  },
+];
+
+const defHours = new Array(24)
+  .fill(null)
+  .map((_a, i) => ({ hour: i, profit: 0 }));
+
 export const addForexAccount = async (
   _: ResolversParentTypes,
   params: MutationAddForexAccountArgs
@@ -52,6 +79,8 @@ export const addForexAccount = async (
         },
       },
       pairs: [],
+      weekDays: defWeekDays,
+      hours: defHours,
       sessions: defSessions,
       lastUpdate: date.toISOString(),
     });

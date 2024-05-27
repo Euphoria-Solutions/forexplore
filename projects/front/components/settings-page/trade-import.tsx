@@ -37,7 +37,7 @@ export const TradeImport = () => {
   const [additionalInfo, setAdditionalInfo] = useState({
     broker: '',
     balance: -1,
-    forexAccountId: forexAccount._id,
+    forexAccountId: '',
   });
   const [uploadTime, setUploadTime] = useState(0);
   const [file, setFile] = useState<File>();
@@ -135,7 +135,11 @@ export const TradeImport = () => {
             }) as Trade
         );
       setTradeHistory(tradeHistoryData);
-      setAdditionalInfo({ ...additionalInfo, broker, balance });
+      setAdditionalInfo({
+        forexAccountId: forexAccount._id || '',
+        broker,
+        balance,
+      });
       setTradeUploaded(true);
       await notifUpdater(id, 'Correct File', 'success');
     } catch (err) {
@@ -147,7 +151,6 @@ export const TradeImport = () => {
   const importHistory = async () => {
     const id = toast.loading('Loading ...');
     try {
-      console.log(tradeHistory);
       await ImportTradeHistory({
         variables: {
           ...additionalInfo,

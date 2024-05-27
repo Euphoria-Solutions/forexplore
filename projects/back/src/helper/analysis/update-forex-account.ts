@@ -5,6 +5,7 @@ import {
 import { ForexAccountModel } from '../../models';
 import { getSession } from './get-session';
 import { getTopPairs } from './get-top-pairs';
+import { getWeekDay } from './get-week-day';
 
 export const updateForexAccount = async (
   inserted: Trade[],
@@ -42,6 +43,34 @@ export const updateForexAccount = async (
       };
     }
   );
+
+  const weekDaysData = document.weekDays.map(
+    (weekData: { weekDay: number; pl: number }) => {
+      const pl = inserted
+        .filter(trade => getWeekDay(trade?.openTime ?? '') == weekData.weekDay)
+        .reduce((acc, trade) => acc + (trade?.profit ?? 0), 0);
+      return {
+        weekDay: weekData.weekDay,
+        pl: weekData.pl + pl,
+      };
+    }
+  );
+
+  const hoursData = document.hours.map(
+    (hoursData: { hour: number; profit: number }) => {
+      const profit = inserted
+        .filter(trade => {
+          const date = new Date(trade?.openTime);
+          return date.getHours() == hoursData.hour;
+        })
+        .reduce((acc, trade) => acc + (trade?.profit ?? 0), 0);
+      return {
+        hour: hoursData.hour,
+        profit: hoursData.profit + profit,
+      };
+    }
+  );
+
   inserted.map(order => {
     if (order.profit > 0) {
       orderTypeData[order.type.toLowerCase() as keyof typeof orderTypeData]
@@ -161,6 +190,8 @@ export const updateForexAccount = async (
           },
           pairs: topPairs,
           sessions: sessionsData,
+          weekDays: weekDaysData,
+          hours: hoursData,
           lastUpdate: date.toISOString(),
         },
       },

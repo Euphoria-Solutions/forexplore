@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 
+// eslint-disable-next-line no-secrets/no-secrets
 export const analysisTypes = gql`
   scalar JSON
 
@@ -32,6 +33,21 @@ export const analysisTypes = gql`
     month: String!
     long: Float!
     short: Float!
+  }
+
+  type WeekDayStatistic {
+    weekDay: String!
+    pl: Float!
+  }
+
+  type PersonalWinrateGrowthStatistic {
+    month: String!
+    winrate: Float!
+  }
+
+  type TradingHoursStatistic {
+    hour: Float!
+    profit: Float!
   }
 
   type BalanceAnalysis {
@@ -73,6 +89,18 @@ export const analysisTypes = gql`
     worstPairsStatistics: [JSON]!
   }
 
+  type WeekDayAnalysis {
+    statistics: [WeekDayStatistic]!
+  }
+
+  type PersonalWinrateGrowthAnalysis {
+    statistics: [PersonalWinrateGrowthStatistic]!
+  }
+
+  type TradingHoursAnalysis {
+    statistics: [TradingHoursStatistic]!
+  }
+
   extend type Query {
     # Analysis
     getBalanceAnalysis(forexAccount: String!): BalanceAnalysis!
@@ -85,5 +113,11 @@ export const analysisTypes = gql`
     getSessionAnalysis(forexAccount: String!): SessionAnalysis!
     getOrderAnalysis(forexAccount: String!): OrderTypeAnalysis!
     getPairAnalysis(forexAccount: String!): PairAnalysis!
+    getPersonalWinrateGrowthAnalysis(
+      forexAccount: String!
+    ): PersonalWinrateGrowthAnalysis!
+
+    getWeekDaysProfitAnalysis(forexAccount: String!): WeekDayAnalysis!
+    getTradingHoursAnalysis(forexAccount: String!): TradingHoursAnalysis!
   }
 `;

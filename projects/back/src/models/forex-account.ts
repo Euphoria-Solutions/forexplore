@@ -18,6 +18,22 @@ const pairSchema = new Schema(
   { _id: false }
 );
 
+const weekDaysData = new Schema(
+  {
+    weekDay: Number,
+    pl: Number,
+  },
+  { _id: false }
+);
+
+const hoursData = new Schema(
+  {
+    hour: Number,
+    profit: Number,
+  },
+  { _id: false }
+);
+
 const ForexAccountSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User' },
   sessions: [sessionSchema],
@@ -56,6 +72,8 @@ const ForexAccountSchema = new Schema({
     },
   },
   pairs: [pairSchema],
+  weekDays: [weekDaysData],
+  hours: [hoursData],
   name: String,
   broker: String,
   lastUpdate: String,

@@ -112,7 +112,7 @@ export const tradeTypes = gql`
     # Forex Account
     getForexAccounts(_id: String, user: String): [ForexAccount]!
     # Trade
-    getTrades(forexAccount: String, _id: String): [Trade]!
+    getTrades(forexAccount: String!, _id: String, date: String): [Trade]!
     # Trade Plan
     getTradePlanCallenderData(
       forexAccount: String!
