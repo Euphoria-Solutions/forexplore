@@ -4,11 +4,12 @@ import * as XLSX from 'xlsx';
 import { PDFIcon, TrashIcon } from '@/public/icons';
 import { Box, Text } from '../common';
 import { UploadAnimation } from './upload-animation';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { IMPORT_TRADE_HISTORY_MUTATION } from '@/graphql';
 import { toast } from 'react-toastify';
 import { notifUpdater } from '@/helper';
+import { AuthContext } from '@/providers';
 
 interface Trade {
   closePrice: number;
@@ -31,10 +32,12 @@ export const TradeImport = () => {
   const [tradeHistory, setTradeHistory] = useState<Trade[]>([]);
   const [tradeUploaded, setTradeUploaded] = useState(false);
   const [ImportTradeHistory] = useMutation(IMPORT_TRADE_HISTORY_MUTATION);
+  const { forexAccount } = useContext(AuthContext);
+
   const [additionalInfo, setAdditionalInfo] = useState({
     broker: '',
     balance: -1,
-    forexAccountId: '66274530f04945c4e44e2509',
+    forexAccountId: '',
   });
   const [uploadTime, setUploadTime] = useState(0);
   const [file, setFile] = useState<File>();
@@ -118,7 +121,7 @@ export const TradeImport = () => {
               closePrice: data[`__EMPTY_8`],
               closeTime: data[`__EMPTY_7`],
               commission: data[`__EMPTY_9`],
-              forexAccount: '66274530f04945c4e44e2509',
+              forexAccount: forexAccount._id,
               openPrice: data[`__EMPTY_4`],
               openTime: data[`Trade History Report`],
               positionId: (data[`__EMPTY`] as number).toString(),
@@ -132,7 +135,11 @@ export const TradeImport = () => {
             }) as Trade
         );
       setTradeHistory(tradeHistoryData);
-      setAdditionalInfo({ ...additionalInfo, broker, balance });
+      setAdditionalInfo({
+        forexAccountId: forexAccount._id || '',
+        broker,
+        balance,
+      });
       setTradeUploaded(true);
       await notifUpdater(id, 'Correct File', 'success');
     } catch (err) {
@@ -144,7 +151,6 @@ export const TradeImport = () => {
   const importHistory = async () => {
     const id = toast.loading('Loading ...');
     try {
-      console.log(tradeHistory);
       await ImportTradeHistory({
         variables: {
           ...additionalInfo,

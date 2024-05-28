@@ -1,7 +1,10 @@
 import { mapValues } from 'lodash';
 import {
+  addUserMood,
   changePass,
+  editUserMood,
   forgetPass,
+  getUserMoods,
   logIn,
   signUp,
   updateUserDetails,
@@ -26,30 +29,29 @@ import {
   editForexAccount,
   getForexAccounts,
 } from './forex-account';
-import { getTrades, importTradeHistory } from './trade';
+import { getProfitCalendar, getTrades, importTradeHistory } from './trade';
 import {
-  getOrderAnalysis,
-  getPairAnalysis,
-  getSessionAnalysis,
-} from './analysis/advanced';
+  addNote,
+  addTradingPlan,
+  deleteTradePlan,
+  editNote,
+  editTradePlan,
+  finishTradePlan,
+  getTradePlanCallenderData,
+  removeNote,
+} from './trade-plan';
 import {
   getBalanceAnalysis,
+  getOrderAnalysis,
+  getPairAnalysis,
+  getPersonalWinrateGrowthAnalysis,
   getPLAnalysis,
+  getSessionAnalysis,
   getTotalTradesAnalysis,
+  getTradingHoursAnalysis,
+  getWeekDaysProfitAnalysis,
   getWinRateAnalysis,
-} from './analysis/basic';
-import {
-  addPlan,
-  changeTradePlansOrder,
-  createTradePlan,
-  deletePlan,
-  deleteTradePlan,
-  editPlan,
-  editTradePlan,
-  getTradePlans,
-  linkPlanToTrade,
-  unLinkPlanFromTrade,
-} from './trade-plan';
+} from './analysis';
 
 export const resolversObjects = {
   Query: {
@@ -58,10 +60,13 @@ export const resolversObjects = {
     getUserPlans,
     // User Management
     getUsers,
+    // User Mood
+    getUserMoods,
     // Forex Account,
     getForexAccounts,
     // Trade,
     getTrades,
+    getProfitCalendar,
     // Analysis,
     getBalanceAnalysis,
     getWinRateAnalysis,
@@ -70,8 +75,11 @@ export const resolversObjects = {
     getSessionAnalysis,
     getOrderAnalysis,
     getPairAnalysis,
+    getWeekDaysProfitAnalysis,
+    getTradingHoursAnalysis,
+    getPersonalWinrateGrowthAnalysis,
     // Trade Plan
-    getTradePlans,
+    getTradePlanCallenderData,
   },
   Mutation: {
     // Auth
@@ -92,6 +100,9 @@ export const resolversObjects = {
     // User Management
     blockUser,
     updateUserDetails,
+    // User Mood
+    addUserMood,
+    editUserMood,
     // Forex Account
     addForexAccount,
     editForexAccount,
@@ -99,16 +110,14 @@ export const resolversObjects = {
     // Trade
     importTradeHistory,
     // Trade Plan
-    createTradePlan,
+    addTradingPlan,
     editTradePlan,
     deleteTradePlan,
-    changeTradePlansOrder,
-    // Plan
-    addPlan,
-    editPlan,
-    deletePlan,
-    linkPlanToTrade,
-    unLinkPlanFromTrade,
+    finishTradePlan,
+    // Note
+    addNote,
+    editNote,
+    removeNote,
     // Default
     helloMutation: () => 'Hello Mutation',
   },

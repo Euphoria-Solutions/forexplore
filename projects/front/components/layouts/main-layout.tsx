@@ -62,7 +62,7 @@ export const MainLayout = ({ children }: LayoutType) => {
               <SideBar />
               <Box className="flex-col w-[96%] overflow-y-scroll h-full scrollbar-hide bg-[#F3F4FA]">
                 <Header userId={userId} />
-                <Box className="z-20 h-full">{children}</Box>
+                <Box className="h-full">{children}</Box>
               </Box>
             </Box>
           ) : (

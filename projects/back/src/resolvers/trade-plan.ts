@@ -1,24 +1,29 @@
 import {
-  MutationAddPlanArgs,
-  MutationChangeTradePlansOrderArgs,
-  MutationCreateTradePlanArgs,
+  MutationAddNoteArgs,
+  MutationAddTradingPlanArgs,
   MutationDeleteTradePlanArgs,
-  MutationDeleteUserPlanArgs,
-  MutationEditPlanArgs,
+  MutationEditNoteArgs,
   MutationEditTradePlanArgs,
-  MutationLinkPlanToTradeArgs,
-  MutationUnLinkPlanFromTradeArgs,
-  QueryGetTradePlansArgs,
+  MutationFinishTradePlanArgs,
+  MutationRemoveNoteArgs,
+  QueryGetTradePlanCallenderDataArgs,
   ResolversParentTypes,
+  TradePlanDetails,
 } from '../generated/generated';
-import { PlanModel, TradeModel, TradePlanModel } from '../models';
+import { isDateInRange } from '../helper';
+import { NoteModel, TradePlanModel } from '../models';
 
-export const createTradePlan = async (
+export const addTradingPlan = async (
   _: ResolversParentTypes,
-  params: MutationCreateTradePlanArgs
+  params: MutationAddTradingPlanArgs
 ) => {
   try {
-    const tradePlan = new TradePlanModel(params);
+    const date = new Date();
+    const tradePlan = new TradePlanModel({
+      ...params,
+      createdAt: date.toISOString(),
+      status: 'ongoing',
+    });
 
     await tradePlan.save();
 
@@ -54,46 +59,81 @@ export const deleteTradePlan = async (
   }
 };
 
-export const getTradePlans = async (
+export const getTradePlanCallenderData = async (
   _: ResolversParentTypes,
-  params: QueryGetTradePlansArgs
+  params: QueryGetTradePlanCallenderDataArgs
 ) => {
   try {
-    const tradePlans = await TradePlanModel.find(params);
-
-    const totalTradePlans = await Promise.all(
-      tradePlans.map(async tradePlan => {
-        const plans = await PlanModel.find({
-          tradePlan: tradePlan._id,
-        }).populate('tradePlan');
-        return {
-          _id: tradePlan._id,
-          title: tradePlan.title,
-          plans: plans,
-          order: tradePlan.order,
-        };
-      })
-    );
-
-    totalTradePlans.sort((a, b) => a.order - b.order);
-
-    return totalTradePlans;
-  } catch (err) {
-    throw new Error((err as Error).message);
-  }
-};
-
-export const addPlan = async (
-  _: ResolversParentTypes,
-  params: MutationAddPlanArgs
-) => {
-  try {
-    const plan = new PlanModel({
-      ...params,
-      linkedToTrade: false,
+    const tradePlans = await TradePlanModel.find({
+      forexAccount: params.forexAccount,
     });
 
-    await plan.save();
+    const notes = await NoteModel.find({
+      forexAccount: params.forexAccount,
+    });
+
+    const res: TradePlanDetails[] = [];
+
+    tradePlans.forEach(plan => {
+      const date = isDateInRange(
+        plan.createdAt,
+        params.startDate || null,
+        params.endDate || null
+      );
+
+      if (date) {
+        const index = res.findIndex(element => element.date === date);
+        if (index == -1) {
+          res.push({
+            date: date,
+            plans: [plan],
+            notes: [],
+          });
+        } else {
+          res[index] = {
+            ...res[index],
+            plans: [...res[index].plans, plan],
+          };
+        }
+      }
+    });
+
+    notes.forEach(note => {
+      const date = isDateInRange(
+        note.date,
+        params.startDate || null,
+        params.endDate || null
+      );
+
+      if (date) {
+        const index = res.findIndex(element => element.date === date);
+        if (index == -1) {
+          res.push({
+            date: date,
+            plans: [],
+            notes: [note],
+          });
+        } else {
+          res[index] = {
+            ...res[index],
+            notes: [...res[index].notes, note],
+          };
+        }
+      }
+    });
+
+    return res;
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+};
+
+export const finishTradePlan = async (
+  _: ResolversParentTypes,
+  params: MutationFinishTradePlanArgs
+) => {
+  try {
+    await TradePlanModel.findByIdAndUpdate(params._id, params);
 
     return true;
   } catch (err) {
@@ -101,16 +141,18 @@ export const addPlan = async (
   }
 };
 
-export const editPlan = async (
+export const addNote = async (
   _: ResolversParentTypes,
-  params: MutationEditPlanArgs
+  params: MutationAddNoteArgs
 ) => {
   try {
-    await Promise.all(
-      (params.plans ?? []).map(async plan => {
-        await PlanModel.updateOne({ _id: plan?._id }, plan || {});
-      })
-    );
+    const date = new Date();
+    const note = new NoteModel({
+      ...params,
+      date: date.toISOString(),
+    });
+
+    await note.save();
 
     return true;
   } catch (err) {
@@ -118,12 +160,12 @@ export const editPlan = async (
   }
 };
 
-export const deletePlan = async (
+export const editNote = async (
   _: ResolversParentTypes,
-  params: MutationDeleteUserPlanArgs
+  params: MutationEditNoteArgs
 ) => {
   try {
-    await PlanModel.findByIdAndDelete(params._id);
+    await NoteModel.findByIdAndUpdate(params._id, params);
 
     return true;
   } catch (err) {
@@ -131,49 +173,15 @@ export const deletePlan = async (
   }
 };
 
-export const linkPlanToTrade = async (
+export const removeNote = async (
   _: ResolversParentTypes,
-  params: MutationLinkPlanToTradeArgs
+  params: MutationRemoveNoteArgs
 ) => {
   try {
-    await TradeModel.findByIdAndUpdate(params.tradeId, { plan: params.planId });
-    await PlanModel.findByIdAndUpdate(params.planId, { linkedToTrade: true });
+    await NoteModel.findByIdAndDelete(params._id);
 
     return true;
   } catch (err) {
     throw new Error((err as Error).message);
-  }
-};
-
-export const unLinkPlanFromTrade = async (
-  _: ResolversParentTypes,
-  params: MutationUnLinkPlanFromTradeArgs
-) => {
-  try {
-    await TradeModel.findByIdAndUpdate(params.tradeId, { plan: null });
-    await PlanModel.findByIdAndUpdate(params.planId, { linkedToTrade: false });
-
-    return true;
-  } catch (err) {
-    throw new Error((err as Error).message);
-  }
-};
-
-export const changeTradePlansOrder = async (
-  _: ResolversParentTypes,
-  params: MutationChangeTradePlansOrderArgs
-) => {
-  const operations = (params.orders ?? []).map((id, indx) => ({
-    updateOne: {
-      filter: { _id: id },
-      update: { $set: { order: indx + 1 } },
-    },
-  }));
-
-  try {
-    await TradePlanModel.bulkWrite(operations);
-    return true;
-  } catch (error) {
-    return false;
   }
 };

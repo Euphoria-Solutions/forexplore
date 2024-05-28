@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -23,6 +23,7 @@ import pathIdRed from '@/public/icons/Identifier_red.svg';
 import { Poppins } from 'next/font/google';
 import { useQuery } from '@apollo/client';
 import { GET_PL_ANALYSIS_QUERY } from '@/graphql';
+import { AuthContext } from '@/providers';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -82,9 +83,10 @@ interface DataType {
 }
 
 const LineChartComponent: React.FC<LineChartProps> = ({ options }) => {
+  const { forexAccount } = useContext(AuthContext);
   const { data: dataRaw, loading } = useQuery(GET_PL_ANALYSIS_QUERY, {
     variables: {
-      forexAccount: '66274530f04945c4e44e2509',
+      forexAccount: forexAccount._id,
     },
   });
   const [PLAnalysisData, setPLAnalysisData] = useState<DataType | null>(null);

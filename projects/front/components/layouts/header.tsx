@@ -38,7 +38,7 @@ export const Header = ({ userId }: { userId: string }) => {
           name: account,
         },
       });
-      refecthForexAccounts();
+      refecthForexAccounts({ user: userId });
 
       await notifUpdater(notifId, 'Updated Successfully', 'success');
     } catch (err) {
@@ -71,7 +71,7 @@ export const Header = ({ userId }: { userId: string }) => {
   return (
     <Box>
       <Box className="w-full">
-        <Box className="w-full flex-row justify-between p-5 z-30 items-center">
+        <Box className="w-full flex-row justify-between p-5 z-10 items-center">
           <DropdownButton
             className="p-4 text-black bg-white shadow-md rounded-lg inline-flex items-center w-full justify-between"
             width={'[17vw]'}
@@ -98,6 +98,9 @@ export const Header = ({ userId }: { userId: string }) => {
                 ''
               )}
             </Box>
+          </Box>
+          <Box className="absolute z-30">
+            <ChartModal modal={modal} setModal={setModal} />
           </Box>
         </Box>
         <Box className="absolute z-30">

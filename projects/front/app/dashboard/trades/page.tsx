@@ -44,6 +44,7 @@ const Page = () => {
       forexAccount: forexAccount._id,
     },
   });
+
   const { data: tradeData, refetch: refetchTradesData } = useQuery(
     GET_TRADES_QUERY,
     {
@@ -129,8 +130,8 @@ const Page = () => {
   }, [filteredData]);
 
   const refetchData = () => {
-    refetchTradePlansData();
-    refetchTradesData();
+    refetchTradePlansData({ forexAccount: forexAccount._id });
+    refetchTradesData({ forexAccount: forexAccount._id });
   };
 
   const onDelete = () => {
@@ -188,8 +189,8 @@ const Page = () => {
           searchValue={searchValue}
           moveTradingPlan={moveTradingPlan}
           refetchData={() => {
-            refetchTradePlansData();
-            refetchTradesData();
+            refetchTradePlansData({ forexAccount: forexAccount._id });
+            refetchTradesData({ forexAccount: forexAccount._id });
           }}
         />
       );

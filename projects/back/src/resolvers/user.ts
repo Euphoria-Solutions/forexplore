@@ -1,11 +1,14 @@
 import jwt from 'jsonwebtoken';
 import {
+  MutationAddUserMoodArgs,
   MutationChangePassArgs,
+  MutationEditUserMoodArgs,
   MutationForgetPassArgs,
   MutationLogInArgs,
   MutationSignUpArgs,
   MutationUpdateUserDetailsArgs,
   MutationVerifyTokenArgs,
+  QueryGetUserMoodsArgs,
   ResolversParentTypes,
 } from '../generated/generated';
 import { mailer, otpGenerator } from '../helper/common';
@@ -30,6 +33,7 @@ export const signUp = async (
       plan: '65d85f2ba7de41d310b92ed5', // Free plan ID
       activeDay: 0,
       blocked: false,
+      moods: [],
     });
     await user.save();
 
@@ -162,6 +166,53 @@ export const changePass = async (
       return true;
     }
     return false;
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+};
+
+export const addUserMood = async (
+  _: ResolversParentTypes,
+  params: MutationAddUserMoodArgs
+) => {
+  const date = new Date();
+  try {
+    await UserModel.updateOne(
+      { _id: params.userId },
+      { $push: { moods: { date: date.toISOString(), mood: params.mood } } },
+      { upsert: true }
+    );
+
+    return true;
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+};
+
+export const editUserMood = async (
+  _: ResolversParentTypes,
+  params: MutationEditUserMoodArgs
+) => {
+  try {
+    await UserModel.updateOne(
+      { _id: params.userId, 'moods._id': params._id },
+      { $set: { 'moods.$.mood': params.mood } }
+    );
+
+    return true;
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+};
+
+export const getUserMoods = async (
+  _: ResolversParentTypes,
+  params: QueryGetUserMoodsArgs
+) => {
+  try {
+    const user = await UserModel.findById(params);
+
+    return user.moods;
   } catch (err) {
     throw new Error((err as Error).message);
   }

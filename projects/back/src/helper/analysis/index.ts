@@ -3,3 +3,4 @@ export * from './update-statistics';
 export * from './get-session';
 export * from './get-growth';
 export * from './get-top-pairs';
+export * from './get-week-day';

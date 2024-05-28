@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
+const UserMoodSchema = new Schema({
+  mood: String,
+  date: String,
+});
+
 const UserSchema = new Schema({
   username: {
     type: String,
@@ -28,6 +33,8 @@ const UserSchema = new Schema({
   emailVerified: Boolean,
 
   blocked: Boolean,
+
+  moods: [UserMoodSchema],
 });
 
 export const UserModel =

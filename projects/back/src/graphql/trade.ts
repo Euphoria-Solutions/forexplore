@@ -39,22 +39,43 @@ export const tradeTypes = gql`
 
   type Plan {
     _id: String!
-    tradePlan: TradePlan!
-
-    time: String!
-    symbol: String!
-    type: String!
-    lot: Float!
+    forexAccount: String!
+    instrument: String!
+    lot: String!
+    mentalStatement: String!
+    technicalAnalysis: String!
+    entryWhen: [String]!
+    exitWhen: [String]!
     entryPrice: Float!
-    stopLoss: Float!
-    takeProfit: Float!
-    linkedToTrade: Boolean!
+    targetProfit: Float
+    stopLoss: Float
+    createdAt: String
+    profit: String
+    exitPrice: Float
+    status: String
+    type: String!
+  }
+
+  type Note {
+    _id: String!
+    forexAccount: String!
+    date: String!
+    description: String!
   }
 
   type TradePlanDetails {
-    _id: String!
-    title: String!
+    date: String!
     plans: [Plan]!
+    notes: [Note]!
+  }
+
+  type ProfitCalendarDetails {
+    type: String!
+    day: Float!
+    totalTrades: Float!
+    growthPercent: Float!
+    growthDollar: Float!
+    weekDay: Float!
   }
 
   input TradeInput {
@@ -92,9 +113,19 @@ export const tradeTypes = gql`
     # Forex Account
     getForexAccounts(_id: String, user: String): [ForexAccount]!
     # Trade
-    getTrades(forexAccount: String, _id: String): [Trade]!
+    getTrades(forexAccount: String!, _id: String, date: String): [Trade]!
     # Trade Plan
-    getTradePlans(forexAccount: String!): [TradePlanDetails]!
+    getTradePlanCallenderData(
+      forexAccount: String!
+      startDate: String
+      endDate: String
+    ): [TradePlanDetails]!
+    # Calendar
+    getProfitCalendar(
+      forexAccount: String!
+      month: String!
+      year: Float!
+    ): [ProfitCalendarDetails]!
   }
 
   extend type Mutation {
@@ -110,28 +141,40 @@ export const tradeTypes = gql`
       balance: Float!
     ): [Trade]!
     # Trade Plan
-    createTradePlan(
+    addTradingPlan(
       forexAccount: String!
-      title: String!
-      order: Float!
-    ): Boolean!
-    editTradePlan(_id: String!, title: String, order: Float): Boolean!
-    changeTradePlansOrder(orders: [String]): Boolean!
-    deleteTradePlan(_id: String!): Boolean!
-    # Plan
-    addPlan(
-      tradePlan: String!
-      time: String!
-      symbol: String!
-      type: String!
-      lot: Float!
+      instrument: String!
+      lot: String!
+      mentalStatement: String!
+      technicalAnalysis: String!
+      entryWhen: [String]!
+      exitWhen: [String]!
       entryPrice: Float!
-      stopLoss: Float!
-      takeProfit: Float!
+      targetProfit: Float
+      stopLoss: Float
+      profit: String
+      exitPrice: Float
+      type: String!
     ): Boolean!
-    editPlan(plans: [PlanInput]!): Boolean!
-    deletePlan(_id: String!): Boolean!
-    linkPlanToTrade(planId: String!, tradeId: String!): Boolean!
-    unLinkPlanFromTrade(planId: String!, tradeId: String!): Boolean!
+    editTradePlan(
+      _id: String!
+      instrument: String
+      lot: String
+      mentalStatement: String
+      technicalAnalysis: String
+      entryWhen: [String]
+      exitWhen: [String]
+      entryPrice: Float
+      targetProfit: Float
+      stopLoss: Float
+      profit: String
+      exitPrice: Float
+    ): Boolean!
+    deleteTradePlan(_id: String!): Boolean!
+    finishTradePlan(_id: String!, exitPrice: Float!, profit: Float!): Boolean!
+    # Note
+    addNote(forexAccount: String!, description: String!): Boolean!
+    editNote(_id: String!, description: String!): Boolean!
+    removeNote(_id: String!): Boolean!
   }
 `;

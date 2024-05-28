@@ -31,11 +31,18 @@ export const userTypes = gql`
     name: String!
   }
 
+  type UserMood {
+    mood: String!
+    date: String!
+  }
+
   extend type Query {
     # User Plan
     getPlans(_id: String): [UserPlan]!
     # User Management
     getUsers(_id: String): [User]!
+    # User Mood
+    getUserMoods(_id: String): [UserMood]!
   }
 
   extend type Mutation {
@@ -57,5 +64,8 @@ export const userTypes = gql`
       username: String
       phone: String
     ): Boolean!
+    # User Mood
+    addUserMood(userId: String!, mood: String!): Boolean
+    editUserMood(userId: String!, _id: String!, mood: String!): Boolean
   }
 `;
