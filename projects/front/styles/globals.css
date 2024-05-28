@@ -15,3 +15,7 @@
 .custom-height {
   height: calc(100vh + 300px);
 }
+
+.custom-border {
+  box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+}

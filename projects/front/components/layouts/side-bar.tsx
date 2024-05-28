@@ -27,7 +27,7 @@ const SideBar = () => {
           />
 
           <SideBarButton
-            route="/dashboard/trades"
+            route="/dashboard/trades2"
             label="Trades"
             isHovered={isHovered}
           />
