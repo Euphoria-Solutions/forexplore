@@ -1,4 +1,4 @@
-export const getWeekDay = (
+export const getCurrentWeekDay = (
   year: number,
   month: string,
   day: number

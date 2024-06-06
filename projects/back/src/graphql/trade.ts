@@ -144,7 +144,7 @@ export const tradeTypes = gql`
     addTradingPlan(
       forexAccount: String!
       instrument: String!
-      lot: String!
+      lot: Float!
       mentalStatement: String!
       technicalAnalysis: String!
       entryWhen: [String]!

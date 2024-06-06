@@ -25,7 +25,6 @@ const poppins = Poppins({
 const Verify = () => {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(true);
   const [resendLoading, setResendLoading] = useState(false);
   const [CheckOTPForForgetPass] = useMutation(CHECK_OTP_FOR_FORGET_PASSWORD);
   const [CheckOTP] = useMutation(CHECK_OTP);
@@ -103,30 +102,30 @@ const Verify = () => {
     setResendLoading(false);
   };
   useEffect(() => {
-    if (user._id && user._id !== '') {
-      setPageLoading(false);
+    // if (user._id && user._id !== '') {
+    //   setPageLoading(false);
+    // } else {
+    if (param == 'email-verification') {
+      if (user._id == '') {
+        router.push('/auth/sign-in');
+        return;
+      }
     } else {
-      if (param == 'email-verification') {
-        if (user._id == '') {
-          router.push('/auth/sign-in');
-          return;
-        }
-      } else {
-        if (!authDetails.email) {
-          router.push('/auth/sign-in');
-          return;
-        }
+      if (!authDetails.email) {
+        router.push('/auth/sign-in');
+        return;
       }
     }
-  }, [authDetails, user, pageLoading]);
+    // }
+  }, [authDetails, user]);
 
-  if (pageLoading) {
-    return (
-      <Box>
-        <Text>Loading ...</Text>
-      </Box>
-    );
-  }
+  // if (pageLoading) {
+  //   return (
+  //     <Box>
+  //       <Text>Loading ...</Text>
+  //     </Box>
+  //   );
+  // }
 
   return (
     <Box className={poppins.className}>

@@ -6,41 +6,22 @@ import { v4 as uuidv4 } from 'uuid';
 
 interface PropsType {
   type: 'Entry' | 'Exit';
+  sendDataTo: (_data: { id: string; entryAndExitWhen: string }[]) => void;
+  tags: { id: string; entryAndExitWhen: string }[];
 }
 
-export const EnterAndExitCondition = ({ type }: PropsType) => {
+export const EnterAndExitCondition = ({
+  type,
+  sendDataTo,
+  tags,
+}: PropsType) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const [clicked, setClicked] = useState(false);
   const [enterAndExitDetails, setEnterAndExitDetails] = useState('');
   const [editDetails, setEditDetails] = useState('');
-  const [enterAndExitDatas, setEnterAndExitDatas] = useState<
-    { entryAndExitWhen: string; id: string }[]
-  >([]);
   const [isHovered, setIsHovered] = useState('');
   const [isEdit, setIsEdit] = useState('');
-  const handleAddData = () => {
-    const id = uuidv4();
-    const newEntry = { entryAndExitWhen: enterAndExitDetails, id: id };
-    setEnterAndExitDatas([...enterAndExitDatas, newEntry]);
-    setEnterAndExitDetails('');
-    setClicked(false);
-  };
-  const handleAddClick = () => {
-    setClicked(prevClicked => {
-      if (prevClicked) {
-        setEnterAndExitDetails('');
-      }
-      return !prevClicked;
-    });
-  };
-
-  const removeTag = (id: string) => {
-    const filteredData = enterAndExitDatas.filter(data => data.id != id);
-
-    setEnterAndExitDatas(filteredData);
-    setIsHovered('');
-  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -61,13 +42,13 @@ export const EnterAndExitCondition = ({ type }: PropsType) => {
   useEffect(() => {
     const editTag = (id: string) => {
       if (editDetails != '') {
-        const editedData = enterAndExitDatas.map(data => {
+        const editedData = tags.map(data => {
           if (data.id === id) {
             return { ...data, entryAndExitWhen: editDetails };
           }
           return data;
         });
-        setEnterAndExitDatas(editedData);
+        sendDataTo(editedData);
       }
 
       setEditDetails('');
@@ -83,7 +64,31 @@ export const EnterAndExitCondition = ({ type }: PropsType) => {
         }
       });
     }
-  }, [isEdit, editDetails, enterAndExitDatas]);
+  }, [isEdit, editDetails, tags]);
+
+  const handleAddData = () => {
+    const id = uuidv4();
+    const newEntry = { entryAndExitWhen: enterAndExitDetails, id: id };
+    sendDataTo([...tags, newEntry]);
+    setEnterAndExitDetails('');
+    setClicked(false);
+  };
+
+  const handleAddClick = () => {
+    setClicked(prevClicked => {
+      if (prevClicked) {
+        setEnterAndExitDetails('');
+      }
+      return !prevClicked;
+    });
+  };
+
+  const removeTag = (id: string) => {
+    const filteredData = tags.filter(data => data.id != id);
+
+    sendDataTo(filteredData);
+    setIsHovered('');
+  };
 
   return (
     <Box className="flex-col">
@@ -91,7 +96,7 @@ export const EnterAndExitCondition = ({ type }: PropsType) => {
       <Box className="ml-3 items-baseline">
         <RectangleAngle />
         <Box className="bg-white h-12 rounded-lg w-full items-center px-2 space-x-2">
-          {enterAndExitDatas.map((data, index) =>
+          {tags.map((data, index) =>
             data.entryAndExitWhen ? (
               <Box
                 className="bg-[#1F1F20] h-9 px-2 w-max rounded-lg items-center justify-center cursor-pointer relative"

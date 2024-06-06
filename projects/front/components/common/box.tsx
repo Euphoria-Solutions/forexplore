@@ -18,6 +18,7 @@ interface BoxType {
   onMouseUp?: MouseEventHandler<HTMLDivElement>;
   onMouseDown?: MouseEventHandler<HTMLDivElement>;
   onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
+  onDoubleClick?: () => void;
 }
 
 export const Box = forwardRef<HTMLDivElement, BoxType>(
