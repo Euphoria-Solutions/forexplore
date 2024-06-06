@@ -43,8 +43,6 @@ export const getTradingHoursAnalysis = async (
 ) => {
   try {
     const statistics = await ForexAccountModel.findById(params.forexAccount);
-
-    console.log(statistics.hours);
     return {
       statistics: statistics.hours,
     };

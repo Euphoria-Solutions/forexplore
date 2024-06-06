@@ -40,14 +40,14 @@ const Page = () => {
         className={`h-screen w-screen justify-center py-11`}
       >
         <Box className="flex-col">
-          <Navbar></Navbar>
-          <Box className="flex flex-col space-y-24">
+          <Navbar />
+          <Box className="flex-col space-y-24">
             <Box className="flex-col space-y-8">
               <Text className="text-white text-5xl">
                 Make your<br></br> trading easier<br></br> with
                 <span className="font-semibold"> Forexplore</span>
               </Text>
-              <Box className="flex-row space-x-8">
+              <Box className="space-x-8">
                 <Box
                   onClick={goSignUp}
                   className="w-32 h-12 rounded-2xl bg-white justify-center items-center text-black font-bold text-lg"

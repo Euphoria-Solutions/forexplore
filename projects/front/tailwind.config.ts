@@ -25,6 +25,7 @@ const config: Config = {
         success: '#0B8A00',
         'light-yellow': '#FFC565',
         pale: '#EBEFF2',
+        modal: 'rgba(0,0,0, 0.3)',
       },
       boxShadow: {
         dropdown: '0px 4px 14px 0px rgba(0,0,0,0.1)',

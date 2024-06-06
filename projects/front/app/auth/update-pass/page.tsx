@@ -42,16 +42,12 @@ const UpdatePass = () => {
     setLoading(true);
 
     const id = toast.loading('Please Wait ...');
+    localStorage.setItem('token', authDetails.otpToken || '');
     try {
       await UpdatePass({
         variables: {
           password: passwordDetails.password,
           email: authDetails.email,
-        },
-        context: {
-          headers: {
-            token: authDetails.otpToken,
-          },
         },
       });
 

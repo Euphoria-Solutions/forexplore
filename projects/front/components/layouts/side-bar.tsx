@@ -13,7 +13,7 @@ const SideBar = () => {
   };
   return (
     <Box
-      className={`${isHovered ? 'w-max' : 'w-[4%]'} fixed left-0 bg-white h-screen transition-all ease-in-out duration-300 space-y-6 z-50 flex-col items-center`}
+      className={`${isHovered ? 'w-max' : 'w-[4%]'} fixed left-0 bg-white h-screen transition-all ease-in-out duration-300 space-y-6 z-30 flex-col items-center`}
       onMouseEnter={handleHover}
       onMouseLeave={handleHover}
     >
@@ -27,7 +27,7 @@ const SideBar = () => {
           />
 
           <SideBarButton
-            route="/dashboard/trades"
+            route="/dashboard/trades2"
             label="Trades"
             isHovered={isHovered}
           />

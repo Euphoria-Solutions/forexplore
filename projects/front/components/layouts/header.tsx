@@ -9,7 +9,9 @@ import { ADD_FOREX_ACCOUNT, GET_FOREX_ACCOUNTS } from '@/graphql';
 import { ChartModal } from '../common/chart-modal';
 import { AuthContext } from '@/providers';
 
+import { usePathname } from 'next/navigation';
 export const Header = ({ userId }: { userId: string }) => {
+  const path = usePathname();
   const [modal, setModal] = useState<boolean>(false);
 
   const [menuList, setMenuList] = useState([]);
@@ -67,34 +69,43 @@ export const Header = ({ userId }: { userId: string }) => {
     return <Text>loading...</Text>;
   }
   return (
-    <Box className="w-full">
-      <Box className="w-full flex-row justify-between p-5 z-30 items-center">
-        <DropdownButton
-          className="p-4 text-black bg-white shadow-md rounded-lg inline-flex items-center w-full justify-between"
-          width={'[17vw]'}
-          menuList={menuList}
-          addItem={addNewForexAccount}
-          setSelected={setSelected}
-          selected={selected}
-        />
-        <Box className="flex-row justify-between px-5">
-          <Box className="space-x-2">
-            <Link href="/settings?section=import">
-              <Box className="h-full w-max px-10 rounded-lg text-white bg-black items-center justify-center">
-                Import
-              </Box>
-            </Link>
-            <Box
-              onClick={() => setModal(true)}
-              className="h-full w-max p-2 rounded-lg text-white bg-black"
-            >
-              <FourCube />
+    <Box>
+      <Box className="w-full">
+        <Box className="w-full flex-row justify-between p-5 z-10 items-center">
+          <DropdownButton
+            className="p-4 text-black bg-white shadow-md rounded-lg inline-flex items-center w-full justify-between"
+            width={'[17vw]'}
+            menuList={menuList}
+            addItem={addNewForexAccount}
+            setSelected={setSelected}
+            selected={selected}
+          />
+          <Box className="flex-row justify-between px-5">
+            <Box className="space-x-2">
+              <Link href="/settings?section=import">
+                <Box className="h-12 w-max px-10 rounded-lg text-white bg-black items-center justify-center">
+                  Import
+                </Box>
+              </Link>
+              {path.startsWith('/dashboard/analytics') ? (
+                <Box
+                  onClick={() => setModal(true)}
+                  className="h-full w-max p-2 rounded-lg text-white bg-black"
+                >
+                  <FourCube />
+                </Box>
+              ) : (
+                ''
+              )}
             </Box>
           </Box>
+          <Box className="absolute z-30">
+            <ChartModal modal={modal} setModal={setModal} />
+          </Box>
         </Box>
-      </Box>
-      <Box className="absolute z-30">
-        <ChartModal modal={modal} setModal={setModal} />
+        <Box className="absolute z-30">
+          <ChartModal modal={modal} setModal={setModal} />
+        </Box>
       </Box>
     </Box>
   );

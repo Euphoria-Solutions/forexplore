@@ -7,3 +7,7 @@ export * from './category-icon';
 export * from './pdf-icon';
 export * from './down-arrow';
 export * from './plus.svg';
+export * from './rectangle-angle';
+export * from './switch-on';
+export * from './switch-off';
+export * from './red-x-icon';

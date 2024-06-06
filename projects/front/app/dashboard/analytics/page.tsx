@@ -5,12 +5,10 @@ import React from 'react';
 import LineChartComponent from '@/components/analytics/linear-diagram';
 import StraightLineDiagram from '@/components/analytics/straight-line-diagram';
 import PieDiagram from '@/components/analytics/pie-diagram';
-// import { CloseIconModal } from '@/public/icons/close-icon-modal';
 
 const Page = () => {
-  // const [modal, setModal] = useState(false);
   return (
-    <Box className="flex-col overflow-y-auto px-4 gap-y-5 relative scrollbar-hide">
+    <Box className="flex-col overflow-y-auto px-4 gap-y-5 scrollbar-hide">
       <Box className="flex-col space-y-8 pb-8">
         <Box className="overflow-x-scroll scrollbar-hide pr-14">
           <Box className="w-max space-x-6">

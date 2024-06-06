@@ -6,9 +6,9 @@ import {
   ResolversParentTypes,
 } from '../generated/generated';
 import {
+  getCurrentWeekDay,
   getLatestDateOfMonth,
   getSession,
-  getWeekDay,
   updateForexAccount,
   updateStatistics,
 } from '../helper';
@@ -126,7 +126,7 @@ export const getProfitCalendar = async (
       const updateIndx = (data.days as DayDataType[]).findIndex(
         oldDay => oldDay.day == currDate
       );
-      const weekDay = getWeekDay(params.year, params.month, currDate);
+      const weekDay = getCurrentWeekDay(params.year, params.month, currDate);
 
       daysData.push({
         type: weekDay != 0 && weekDay != 6 ? 'workday' : 'weekend',

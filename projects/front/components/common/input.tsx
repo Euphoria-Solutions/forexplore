@@ -6,6 +6,7 @@ interface InputType {
   value?: string;
   onChange?: ChangeEventHandler<HTMLInputElement>;
   className?: string;
+  disabled?: boolean;
 }
 
 export const Input = ({

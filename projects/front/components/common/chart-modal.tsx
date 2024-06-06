@@ -14,7 +14,7 @@ export const ChartModal = ({ modal, setModal }: ModalTypes) => {
     <Box className={` ${!modal && 'hidden'} fixed w-[100vw] h-screen`}>
       <Box
         onClick={() => setModal(false)}
-        className="w-[54.44%] h-full bg-transparent"
+        className="w-[56%] h-full bg-transparent"
       ></Box>
       <Box className="w-[40%] h-full bg-[#F2F3F9] flex-col items-center overflow-y-auto overflow-x-hidden p-10 gap-y-5 scrollbar-hide shadow-[0px_10px_20px_10px_rgba(117,123,123,0.5)]">
         <Box className="relative w-full h-max">
@@ -28,16 +28,16 @@ export const ChartModal = ({ modal, setModal }: ModalTypes) => {
 
         <Box className="flex-col w-max gap-y-5 pt-10">
           <Box className="w-max h-max rounded-xl shadow-[0px_10px_20px_10px_rgba(117,123,123,0.5)] ">
-            <LineChartComponent />
+            <LineChartComponent></LineChartComponent>
           </Box>
           <Box className="w-max h-max rounded-xl shadow-[0px_10px_20px_10px_rgba(117,123,123,0.5)] ">
-            <PieDiagram />
+            <PieDiagram></PieDiagram>
           </Box>
           <Box className="w-max h-max rounded-xl shadow-[0px_10px_20px_10px_rgba(117,123,123,0.5)] ">
-            <LineChartComponent />
+            <LineChartComponent></LineChartComponent>
           </Box>
           <Box className="w-max h-max rounded-xl shadow-[0px_10px_20px_10px_rgba(117,123,123,0.5)] ">
-            <PieDiagram />
+            <PieDiagram></PieDiagram>
           </Box>
           <Box className="w-max h-max rounded-xl shadow-[0px_10px_20px_10px_rgba(117,123,123,0.5)] ">
             <StraightLineDiagram />
