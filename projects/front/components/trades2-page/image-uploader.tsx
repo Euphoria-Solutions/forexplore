@@ -9,9 +9,7 @@ import { storage } from '@/firebase/init';
 
 export const ImageUploader = ({
   setUrlTo,
-  setMentalStatementTo,
   url: defUrl,
-  mentalStatement: defmentalStatement,
 }: {
   setUrlTo: (_url: string) => void;
   setMentalStatementTo: (_mentalStatement: string) => void;
@@ -20,15 +18,10 @@ export const ImageUploader = ({
 }) => {
   const [dragFile, setDragFile] = useState(false);
   const [url, setUrl] = useState(defUrl);
-  const [mentalStatement, setMentalStatement] = useState(defmentalStatement);
 
   useEffect(() => {
     setUrlTo(url);
   }, [url, setUrlTo]);
-
-  useEffect(() => {
-    setMentalStatementTo(mentalStatement);
-  }, [mentalStatement]);
 
   useEffect(() => {
     setUrl(defUrl);
