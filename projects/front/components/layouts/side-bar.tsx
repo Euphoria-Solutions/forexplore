@@ -39,8 +39,8 @@ const SideBar = () => {
           />
 
           <SideBarButton
-            route="/dashboard/users"
-            label="Users"
+            route="/dashboard/calendar"
+            label="Calendar"
             isHovered={isHovered}
           />
         </Box>
