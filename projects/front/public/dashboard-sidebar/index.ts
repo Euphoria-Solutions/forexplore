@@ -6,3 +6,4 @@ export * from './settings';
 export * from './logout';
 export * from './indicator-icon';
 export * from './logo';
+export * from './calendar';
