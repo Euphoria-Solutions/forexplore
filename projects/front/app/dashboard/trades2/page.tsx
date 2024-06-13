@@ -18,11 +18,11 @@ import {
 import { getWeekRanges, notifUpdater } from '@/helper';
 import { AuthContext } from '@/providers';
 import { useMutation, useQuery } from '@apollo/client';
+import { usePathname } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 interface PlanDetailsType {
-  forexAccount: string;
   mentalStatement: string;
   entryWhen: string[];
   exitWhen: string[];
@@ -61,6 +61,8 @@ const forexInstruments = [
 const Page = () => {
   const { forexAccount } = useContext(AuthContext);
 
+  const path = usePathname();
+
   const [SavePlan] = useMutation(ADD_PLAN_MUTATION);
   const [AddNote] = useMutation(ADD_NOTE_MUTATION);
 
@@ -79,7 +81,6 @@ const Page = () => {
     stopLoss: 0,
   });
   const [planDetails, setPlanDetails] = useState<PlanDetailsType>({
-    forexAccount: forexAccount._id || '',
     mentalStatement: '',
     entryWhen: [],
     exitWhen: [],
@@ -92,6 +93,10 @@ const Page = () => {
   const [type, setType] = useState('buy');
   const [lot, setLot] = useState(0);
   const [url, setUrl] = useState('');
+  const [inputStatuses, setInputStatuses] = useState({
+    sl: false,
+    tp: false,
+  });
   const [calendarData, setCalendarData] = useState([]);
 
   useEffect(() => {
@@ -100,6 +105,10 @@ const Page = () => {
     }
   }, [loading, data]);
 
+  useEffect(() => {
+    refetch();
+  }, [path, refetch]);
+
   const savePlan = async () => {
     if (selected._id == '') return;
     const notifId = toast.loading('Loading ...');
@@ -107,6 +116,7 @@ const Page = () => {
       await SavePlan({
         variables: {
           instrument: selected.name,
+          forexAccount: forexAccount._id,
           ...planDetails,
           ...tradeEntryDetails,
           technicalAnalysis: url,
@@ -141,7 +151,6 @@ const Page = () => {
 
   const reset = () => {
     setPlanDetails({
-      forexAccount: forexAccount._id || '',
       mentalStatement: '',
       entryWhen: [],
       exitWhen: [],
@@ -253,7 +262,10 @@ const Page = () => {
         type="save"
         reset={reset}
         savePlan={savePlan}
-        setTradeEntryDetailsTo={setTradeEntryDetails}
+        setTradeEntryDetails={setTradeEntryDetails}
+        tradeEntryDetails={tradeEntryDetails}
+        inputStatuses={inputStatuses}
+        setInputStatuses={setInputStatuses}
       />
       <PlanCalendar data={calendarData} refetch={refetch} addNote={addNote} />
     </Box>

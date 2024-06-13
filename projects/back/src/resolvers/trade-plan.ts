@@ -6,6 +6,7 @@ import {
   MutationEditTradePlanArgs,
   MutationFinishTradePlanArgs,
   MutationRemoveNoteArgs,
+  QueryGetSpecificTradePlanArgs,
   QueryGetTradePlanCallenderDataArgs,
   ResolversParentTypes,
   TradePlanDetails,
@@ -128,12 +129,26 @@ export const getTradePlanCallenderData = async (
   }
 };
 
+export const getSpecificTradePlan = async (
+  _: ResolversParentTypes,
+  params: QueryGetSpecificTradePlanArgs
+) => {
+  try {
+    return await TradePlanModel.findOne(params);
+  } catch (err) {
+    throw new Error((err as Error).message);
+  }
+};
+
 export const finishTradePlan = async (
   _: ResolversParentTypes,
   params: MutationFinishTradePlanArgs
 ) => {
   try {
-    await TradePlanModel.findByIdAndUpdate(params._id, params);
+    await TradePlanModel.findByIdAndUpdate(params._id, {
+      ...params,
+      status: 'finished',
+    });
 
     return true;
   } catch (err) {

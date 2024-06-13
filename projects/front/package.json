@@ -10,8 +10,8 @@
     "build": "next build",
     "start": "next start 2",
     "lint": "next lint",
-    "deploy:dev": "npx dotenv -v VERCEL_ORG_ID=QYSSG1MAh2kwkGim8YI6eYOQ -v VERCEL_PROJECT_ID=prj_edaLxeuRvvffvvh2NkBL6AiW5AK5 -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'",
-    "deploy:prod": "npx dotenv -v VERCEL_ORG_ID=QYSSG1MAh2kwkGim8YI6eYOQ -v VERCEL_PROJECT_ID=prj_oC72kedZSWxlEQpTzLPSFRKF8sxw -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'"
+    "deploy:dev": "npx dotenv -v VERCEL_ORG_ID=yOZPBek1NVOB0XPl5galbdEl -v VERCEL_PROJECT_ID=prj_IgpUm8KOtxZBRcf8A0QkKHr19uWv -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'",
+    "deploy:prod": "npx dotenv -v VERCEL_ORG_ID=yOZPBek1NVOB0XPl5galbdEl -v VERCEL_PROJECT_ID=prj_UPgNFd8QfwMI7J6uL6X2mfKhdzwE -- bash -c 'vercel --prod --token=$VERCEL_TOKEN'"
   },
   "dependencies": {
     "@apollo/client": "^3.9.5",

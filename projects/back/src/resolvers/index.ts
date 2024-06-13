@@ -37,6 +37,7 @@ import {
   editNote,
   editTradePlan,
   finishTradePlan,
+  getSpecificTradePlan,
   getTradePlanCallenderData,
   removeNote,
 } from './trade-plan';
@@ -80,6 +81,7 @@ export const resolversObjects = {
     getPersonalWinrateGrowthAnalysis,
     // Trade Plan
     getTradePlanCallenderData,
+    getSpecificTradePlan,
   },
   Mutation: {
     // Auth
