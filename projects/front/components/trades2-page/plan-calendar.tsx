@@ -6,6 +6,7 @@ import { getWeekRanges } from '@/helper';
 import { useMutation } from '@apollo/client';
 import { EDIT_NOTE_MUTATION } from '@/graphql';
 import { AuthContext } from '@/providers';
+import { useRouter } from 'next/navigation';
 
 interface DayDetails {
   weekDay: string;
@@ -66,6 +67,7 @@ export const PlanCalendar = ({
   const [editValue, setEditValue] = useState('');
 
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const [EditNote] = useMutation(EDIT_NOTE_MUTATION);
 
@@ -209,6 +211,10 @@ export const PlanCalendar = ({
               <Box className="w-[95%] gap-y-2 flex-col">
                 {getDetails(day.day).plans.map((plan, indx) => (
                   <Box
+                    onClick={() =>
+                      plan.status != 'finished' &&
+                      router.push('/dashboard/trades2/update/' + plan._id)
+                    }
                     key={indx}
                     className={`flex-col py-4 ${plan.status == 'finished' ? 'bg-white' : plan.type == 'buy' ? 'bg-[#5DAAEE]' : 'bg-[#F9837C]'} rounded-xl h-[140px] w-full items-center justify-center`}
                   >

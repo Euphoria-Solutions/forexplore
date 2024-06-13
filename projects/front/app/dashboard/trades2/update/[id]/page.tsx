@@ -9,11 +9,17 @@ import {
   Text,
   TradingConditions,
 } from '@/components';
-import { ADD_PLAN_MUTATION, GET_PLAN_CALENDAR_QUERY } from '@/graphql';
-import { getWeekRanges, notifUpdater } from '@/helper';
+import { forexInstruments } from '@/defaults';
+import {
+  EDIT_TRADE_PLAN_MUTATION,
+  FINISH_TRADE_PLAN_MUTATION,
+  GET_SPECIFIC_TRADE_PLAN_QUERY,
+} from '@/graphql';
+import { notifUpdater } from '@/helper';
 import { AuthContext } from '@/providers';
 import { useMutation, useQuery } from '@apollo/client';
-import { useContext, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 interface PlanDetailsType {
@@ -23,50 +29,17 @@ interface PlanDetailsType {
   exitWhen: string[];
 }
 
-const forexInstruments = [
-  { name: 'EUR/USD', _id: 'eurusd' },
-  { name: 'USD/JPY', _id: 'usdjpy' },
-  { name: 'GBP/USD', _id: 'gbpusd' },
-  { name: 'USD/CHF', _id: 'usdchf' },
-  { name: 'AUD/USD', _id: 'audusd' },
-  { name: 'USD/CAD', _id: 'usdcad' },
-  { name: 'NZD/USD', _id: 'nzdusd' },
-  { name: 'EUR/GBP', _id: 'eurgbp' },
-  { name: 'EUR/JPY', _id: 'eurjpy' },
-  { name: 'GBP/JPY', _id: 'gbpjpy' },
-  { name: 'EUR/CHF', _id: 'eurchf' },
-  { name: 'GBP/CHF', _id: 'gbpchf' },
-  { name: 'AUD/JPY', _id: 'audjpy' },
-  { name: 'NZD/JPY', _id: 'nzdjpy' },
-  { name: 'AUD/CHF', _id: 'audchf' },
-  { name: 'CAD/JPY', _id: 'cadjpy' },
-  { name: 'CHF/JPY', _id: 'chfjpy' },
-  { name: 'EUR/AUD', _id: 'euraud' },
-  { name: 'EUR/CAD', _id: 'eurcad' },
-  { name: 'EUR/NZD', _id: 'eurnzd' },
-  { name: 'GBP/AUD', _id: 'gbpaud' },
-  { name: 'GBP/CAD', _id: 'gbpcad' },
-  { name: 'GBP/NZD', _id: 'gbpnzd' },
-  { name: 'AUD/CAD', _id: 'audcad' },
-  { name: 'NZD/CAD', _id: 'nzdcad' },
-  { name: 'XAU/USD', _id: 'xauusd' },
-  { name: 'XAG/USD', _id: 'xagusd' },
-];
-
 const Page = ({ params }: { params: { id: string } }) => {
-  console.log(params);
   const { forexAccount } = useContext(AuthContext);
 
-  const [SavePlan] = useMutation(ADD_PLAN_MUTATION);
-
-  const rangeData = getWeekRanges();
-  const { refetch } = useQuery(GET_PLAN_CALENDAR_QUERY, {
+  const { data, loading, refetch } = useQuery(GET_SPECIFIC_TRADE_PLAN_QUERY, {
     variables: {
-      forexAccount: forexAccount._id || '',
-      startDate: rangeData.startDate,
-      endDate: rangeData.endDate,
+      id: params.id,
     },
   });
+
+  const [UpdatePlan] = useMutation(EDIT_TRADE_PLAN_MUTATION);
+  const [FinishPlan] = useMutation(FINISH_TRADE_PLAN_MUTATION);
 
   const [tradeEntryDetails, setTradeEntryDetails] = useState({
     entryPrice: 0,
@@ -87,28 +60,43 @@ const Page = ({ params }: { params: { id: string } }) => {
   const [type, setType] = useState('buy');
   const [lot, setLot] = useState(0);
   const [url, setUrl] = useState('');
+  const [inputStatuses, setInputStatuses] = useState({
+    sl: false,
+    tp: false,
+  });
 
-  const savePlan = async () => {
-    if (selected._id == '') return;
-    const notifId = toast.loading('Loading ...');
-    try {
-      await SavePlan({
-        variables: {
-          instrument: selected.name,
-          ...planDetails,
-          ...tradeEntryDetails,
-          technicalAnalysis: url,
-          lot,
-          type,
-        },
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      setTradeEntryDetails({
+        entryPrice: data?.getSpecificTradePlan?.entryPrice,
+        targetProfit: data?.getSpecificTradePlan?.targetProfit,
+        stopLoss: data?.getSpecificTradePlan?.stopLoss,
       });
-      refetch();
 
-      await notifUpdater(notifId, 'Saved Successfully', 'success');
-    } catch (err) {
-      await notifUpdater(notifId, (err as Error).message, 'error');
+      setPlanDetails(prev => ({
+        ...prev,
+        mentalStatement: data?.getSpecificTradePlan?.mentalStatement,
+        entryWhen: data?.getSpecificTradePlan?.entryWhen,
+        exitWhen: data?.getSpecificTradePlan?.exitWhen,
+      }));
+
+      const pair = forexInstruments.filter(
+        instrument => instrument.name == data?.getSpecificTradePlan?.instrument
+      );
+      setSelected(pair[0]);
+
+      setType(data?.getSpecificTradePlan?.type);
+      setLot(Number(data?.getSpecificTradePlan?.lot));
+      setUrl(data?.getSpecificTradePlan.technicalAnalysis);
+
+      setInputStatuses({
+        sl: !!data?.getSpecificTradePlan.stopLoss,
+        tp: !!data?.getSpecificTradePlan.targetProfit,
+      });
     }
-  };
+  }, [loading, data]);
 
   const reset = () => {
     setPlanDetails({
@@ -125,6 +113,55 @@ const Page = ({ params }: { params: { id: string } }) => {
     setType('buy');
     setUrl('');
   };
+
+  const updatePlan = async () => {
+    if (selected._id == '') return;
+    const notifId = toast.loading('Loading ...');
+    try {
+      await UpdatePlan({
+        variables: {
+          id: params.id,
+          instrument: selected.name,
+          ...planDetails,
+          ...tradeEntryDetails,
+          technicalAnalysis: url,
+          lot: lot.toString(),
+          type,
+        },
+      });
+      refetch();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+      router.push('/dashboard/trades2');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
+  };
+
+  const finishPlan = async (profit: number) => {
+    const notifId = toast.loading('Loading ...');
+    try {
+      await FinishPlan({
+        variables: {
+          id: params.id,
+          exitPrice: 0,
+          profit: profit,
+        },
+      });
+      refetch();
+      await notifUpdater(notifId, 'Updated Successfully', 'success');
+      router.push('/dashboard/trades2');
+    } catch (err) {
+      await notifUpdater(notifId, (err as Error).message, 'error');
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box>
+        <Text>Loading ...</Text>
+      </Box>
+    );
+  }
 
   return (
     <Box className="flex-col ml-5 gap-y-5">
@@ -192,6 +229,13 @@ const Page = ({ params }: { params: { id: string } }) => {
               <textarea
                 className={`h-32 w-full text-start rounded-lg px-4 pt-2 border-[#D0D5DD] border text-sm font-semibold resize-none outline-none`}
                 placeholder="Was drunk or something blah blah blah"
+                value={planDetails.mentalStatement}
+                onChange={e =>
+                  setPlanDetails({
+                    ...planDetails,
+                    mentalStatement: e.target.value,
+                  })
+                }
               />
             </Box>
           </Box>
@@ -238,8 +282,12 @@ const Page = ({ params }: { params: { id: string } }) => {
       <TradingConditions
         type="update"
         reset={reset}
-        savePlan={savePlan}
-        setTradeEntryDetailsTo={setTradeEntryDetails}
+        finishPlan={finishPlan}
+        updatePlan={updatePlan}
+        setTradeEntryDetails={setTradeEntryDetails}
+        tradeEntryDetails={tradeEntryDetails}
+        inputStatuses={inputStatuses}
+        setInputStatuses={setInputStatuses}
       />
     </Box>
   );

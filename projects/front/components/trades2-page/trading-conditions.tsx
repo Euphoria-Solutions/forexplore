@@ -1,6 +1,6 @@
 'use client';
 
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { Box, Input, Text } from '@/components/common';
 import { ScrollSwitch } from './scroll-switch';
 import { CloseIcon } from '@/public';
@@ -8,44 +8,47 @@ import { useRouter } from 'next/navigation';
 
 interface TradingConditionsProps {
   type: string;
-  savePlan: () => void;
+  updatePlan?: () => void;
+  savePlan?: () => void;
+  finishPlan?: (_profit: number) => void;
   reset: () => void;
-  setTradeEntryDetailsTo: Dispatch<
+  setTradeEntryDetails: Dispatch<
     SetStateAction<{
       entryPrice: number;
       targetProfit: number;
       stopLoss: number;
     }>
   >;
+  tradeEntryDetails: {
+    entryPrice: number;
+    targetProfit: number;
+    stopLoss: number;
+  };
+  inputStatuses: {
+    tp: boolean;
+    sl: boolean;
+  };
+  setInputStatuses: Dispatch<SetStateAction<{ tp: boolean; sl: boolean }>>;
 }
 
 export const TradingConditions: React.FC<TradingConditionsProps> = ({
   type,
   savePlan,
   reset,
-  setTradeEntryDetailsTo,
+  setTradeEntryDetails,
+  tradeEntryDetails,
+  updatePlan,
+  finishPlan,
+  inputStatuses,
+  setInputStatuses,
 }) => {
   const [clicked, setClicked] = useState(false);
   const [finishPlanDetails, setfinishPlanDetails] = useState('');
-  const [inputStatuses, setInputStatuses] = useState({
-    tp: false,
-    sl: false,
-  });
 
   const router = useRouter();
-
-  const [tradeEntryDetails, setTradeEntryDetails] = useState({
-    entryPrice: 0,
-    targetProfit: 0,
-    stopLoss: 0,
-  });
-
-  useEffect(() => {
-    setTradeEntryDetailsTo(tradeEntryDetails);
-  }, [tradeEntryDetails, setTradeEntryDetailsTo]);
-
   const reRoute = () => {
     router.push('/dashboard/trades2');
+    finishPlan && finishPlan(Number(finishPlanDetails));
   };
 
   const handleAddClick = () => {
@@ -180,7 +183,7 @@ export const TradingConditions: React.FC<TradingConditionsProps> = ({
       ) : (
         <Box className="gap-x-3 mb-10">
           <Box
-            onClick={savePlan}
+            onClick={updatePlan}
             className="w-[12vw] h-11 bg-[#272727] rounded-lg items-center justify-center cursor-pointer"
           >
             <Text className="font-semibold text-white">Update Plan</Text>

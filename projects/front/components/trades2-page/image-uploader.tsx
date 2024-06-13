@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Box } from '../common';
-import { ChangeEvent, DragEvent, useEffect, useState } from 'react';
+import { ChangeEvent, DragEvent, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadString } from '@firebase/storage';
 import { storage } from '@/firebase/init';
@@ -17,15 +17,6 @@ export const ImageUploader = ({
   mentalStatement: string;
 }) => {
   const [dragFile, setDragFile] = useState(false);
-  const [url, setUrl] = useState(defUrl);
-
-  useEffect(() => {
-    setUrlTo(url);
-  }, [url, setUrlTo]);
-
-  useEffect(() => {
-    setUrl(defUrl);
-  }, [defUrl]);
 
   const DropHandler = (ev: DragEvent<HTMLDivElement>) => {
     setDragFile(false);
@@ -70,7 +61,7 @@ export const ImageUploader = ({
               async () => {
                 const downloadUrl = await getDownloadURL(imagesRef);
                 console.log(downloadUrl);
-                setUrl(downloadUrl);
+                setUrlTo(downloadUrl);
               }
             );
           }
@@ -84,10 +75,10 @@ export const ImageUploader = ({
   return (
     <Box className={`flex-col gap-y-2 w-full h-max`}>
       <Box className="text-[#1F1F20] font-semibold">Technical Analytics</Box>
-      {url != '' ? (
+      {defUrl != '' ? (
         <Image
-          onClick={() => setUrl('')}
-          src={url}
+          onClick={() => setUrlTo('')}
+          src={defUrl}
           alt={'aa'}
           width={280}
           height={200}

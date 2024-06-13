@@ -8,7 +8,6 @@ export * from './otp';
 export * from './import-trade-history';
 export * from './upload-trade-plans';
 export * from './remove-plan';
-export * from './edit-plan';
 export * from './link-plan-to-trade';
 export * from './unlink-plan-from-trade';
 export * from './create-trading-plan';

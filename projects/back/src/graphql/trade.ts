@@ -30,13 +30,6 @@ export const tradeTypes = gql`
     plan: Plan
   }
 
-  type TradePlan {
-    _id: String!
-    forexAccount: ForexAccount!
-
-    title: String!
-  }
-
   type Plan {
     _id: String!
     forexAccount: String!
@@ -120,6 +113,7 @@ export const tradeTypes = gql`
       startDate: String
       endDate: String
     ): [TradePlanDetails]!
+    getSpecificTradePlan(_id: String): Plan!
     # Calendar
     getProfitCalendar(
       forexAccount: String!
